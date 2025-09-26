@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 from datetime import datetime
 import time
+import io
 
 # Configuração da página
 st.set_page_config(
@@ -55,18 +56,6 @@ st.markdown("""
         border-radius: 5px;
         border-left: 5px solid #17a2b8;
         margin: 1rem 0;
-    }
-    .metric-card {
-        background: white;
-        padding: 1rem;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        margin: 0.5rem;
-    }
-    .stButton>button {
-        width: 100%;
-        margin: 0.5rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -132,7 +121,7 @@ def validar_arquivo_excel(df):
     }
     
     # Normalizar nomes das colunas
-    df.columns = [col.lower().strip() for col in df.columns]
+    df.columns = [str(col).lower().strip() for col in df.columns]
     
     # Tentar mapear colunas
     colunas_mapeadas = {}
@@ -180,7 +169,7 @@ def processar_upload_arquivo(uploaded_file):
         valido, resultado = validar_arquivo_excel(df)
         
         if not valido:
-            return False, resultado
+            return False, resultado, []
         
         df_validado = resultado
         
@@ -191,13 +180,19 @@ def processar_upload_arquivo(uploaded_file):
         
         for index, row in df_validado.iterrows():
             try:
+                # Obter valores com fallback para valores opcionais
+                codigo = str(row['codigo']).strip() if pd.notna(row['codigo']) else f"AUTO_{index+1}"
+                nome = str(row['nome']).strip() if pd.notna(row['nome']) else "Sem nome"
+                quantidade = int(row['quantidade']) if pd.notna(row['quantidade']) else 0
+                preco = float(row['preco']) if pd.notna(row['preco']) else 0.0
+                
                 item = {
-                    'codigo': str(row['codigo']).strip(),
-                    'nome': str(row['nome']).strip(),
-                    'quantidade': int(row['quantidade']),
-                    'preco': float(row['preco']),
-                    'categoria': str(row.get('categoria', 'Geral')).strip(),
-                    'fornecedor': str(row.get('fornecedor', 'Não especificado')).strip()
+                    'codigo': codigo,
+                    'nome': nome,
+                    'quantidade': quantidade,
+                    'preco': preco,
+                    'categoria': str(row.get('categoria', 'Geral')).strip() if pd.notna(row.get('categoria')) else 'Geral',
+                    'fornecedor': str(row.get('fornecedor', 'Não especificado')).strip() if pd.notna(row.get('fornecedor')) else 'Não especificado'
                 }
                 
                 # Verificar se item já existe (por código)
@@ -251,11 +246,13 @@ if uploaded_file is not None:
                 
                 with col_stat2:
                     if 'quantidade' in df_preview.columns:
-                        st.metric("Qtd. Total", int(df_preview['quantidade'].sum()))
+                        total_qtd = pd.to_numeric(df_preview['quantidade'], errors='coerce').sum()
+                        st.metric("Qtd. Total", int(total_qtd))
                 
                 with col_stat3:
                     if 'preco' in df_preview.columns:
-                        st.metric("Valor Total", f"R$ {df_preview['preco'].sum():.2f}")
+                        total_preco = pd.to_numeric(df_preview['preco'], errors='coerce').sum()
+                        st.metric("Valor Total", f"R$ {total_preco:.2f}")
                 
                 with col_stat4:
                     st.metric("Status", "Pronto para processar")
@@ -277,6 +274,7 @@ if uploaded_file is not None:
                             st.write(f"• {erro}")
                     
                     # Atualizar dados em tempo real
+                    time.sleep(2)
                     st.rerun()
                     
                 else:
@@ -313,13 +311,13 @@ if uploaded_file is not None:
         }
         template_df = pd.DataFrame(template_data)
         
-        @st.cache_data
+        # Função para converter DataFrame para Excel em memória
         def convert_df_to_excel(df):
-            output = pd.ExcelWriter("template.xlsx", engine='xlsxwriter')
-            df.to_excel(output, index=False, sheet_name='Template')
-            output.close()
-            with open("template.xlsx", "rb") as file:
-                return file.read()
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False, sheet_name='Template')
+            output.seek(0)
+            return output.getvalue()
         
         template_bytes = convert_df_to_excel(template_df)
         
@@ -331,7 +329,7 @@ if uploaded_file is not None:
             use_container_width=True
         )
 
-# Restante do sistema de gestão (mantido do código anterior)
+# Restante do sistema de gestão
 tab1, tab2, tab3 = st.tabs(["📋 Lista de Itens", "➕ Adicionar Item", "📊 Dashboard"])
 
 with tab1:
@@ -341,15 +339,17 @@ with tab1:
     col1, col2, col3 = st.columns(3)
     
     with col1:
+        categorias_disponiveis = list(set([item.get('categoria', 'Geral') for item in st.session_state.api.itens]))
         filtro_categoria = st.selectbox(
             "Filtrar por categoria",
-            ["Todas"] + list(set([item.get('categoria', 'Geral') for item in st.session_state.api.itens]))
+            ["Todas"] + categorias_disponiveis
         )
     
     with col2:
+        fornecedores_disponiveis = list(set([item.get('fornecedor', 'Não especificado') for item in st.session_state.api.itens]))
         filtro_fornecedor = st.selectbox(
             "Filtrar por fornecedor",
-            ["Todos"] + list(set([item.get('fornecedor', 'Não especificado') for item in st.session_state.api.itens]))
+            ["Todos"] + fornecedores_disponiveis
         )
     
     with col3:
@@ -381,8 +381,10 @@ with tab1:
                     st.write(f"**Fornecedor:** {item.get('fornecedor', 'Não especificado')}")
                 
                 with col3:
-                    st.write(f"**Criado em:** {item['data_criacao'][:10]}")
-                    st.write(f"**Atualizado em:** {item['data_atualizacao'][:10]}")
+                    data_criacao = item.get('data_criacao', '')
+                    data_atualizacao = item.get('data_atualizacao', '')
+                    st.write(f"**Criado em:** {data_criacao[:10] if data_criacao else 'N/A'}")
+                    st.write(f"**Atualizado em:** {data_atualizacao[:10] if data_atualizacao else 'N/A'}")
                 
                 with col4:
                     if st.button("✏️ Editar", key=f"edit_{item['id']}"):
