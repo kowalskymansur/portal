@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Consulta de Localizações</title>
+    <style>
+        /* (Manter todo o CSS anterior igual) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e2e8f0;
+        }
+
+        .container {
+            background: #1a1a1a;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            border: 1px solid #333333;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #000000;
+            color: #cbd5e0;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            border-bottom: 1px solid #333333;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .search-section {
+            background: #000000;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .search-section h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: 12px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1.5px solid #333333;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: inherit;
+            background: #1a1a1a;
+            color: #e2e8f0;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.1);
+        }
+
+        .categories-section {
+            background: #000000;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .categories-section h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+
+        .categories-container {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .category-card {
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 8px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .category-card:hover {
+            border-color: #4299e1;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(66, 153, 225, 0.2);
+        }
+
+        .category-card.active {
+            border-color: #4299e1;
+            background: rgba(66, 153, 225, 0.1);
+        }
+
+        .category-card h3 {
+            font-size: 11px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .results-section {
+            background: #000000;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333333;
+        }
+
+        .results-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .results-count {
+            color: #cbd5e0;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .results-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .location-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .location-item {
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .location-item:hover {
+            border-color: #4299e1;
+        }
+
+        .location-content {
+            flex: 1;
+        }
+
+        .location-name {
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+
+        .location-link {
+            color: #4299e1;
+            text-decoration: none;
+            word-break: break-all;
+            display: block;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .location-link:hover {
+            text-decoration: underline;
+        }
+
+        .location-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            min-width: 80px;
+        }
+
+        .copy-btn {
+            background: #38a169;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #2f855a;
+        }
+
+        .tooltip {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: #38a169;
+            color: white;
+            padding: 10px 12px;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .results-container::-webkit-scrollbar,
+        .categories-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .results-container::-webkit-scrollbar-track,
+        .categories-container::-webkit-scrollbar-track {
+            background: #333333;
+            border-radius: 3px;
+        }
+
+        .results-container::-webkit-scrollbar-thumb,
+        .categories-container::-webkit-scrollbar-thumb {
+            background: #3182ce;
+            border-radius: 3px;
+        }
+
+        .results-container::-webkit-scrollbar-thumb:hover,
+        .categories-container::-webkit-scrollbar-thumb:hover {
+            background: #2b6cb0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #cbd5e0;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .reload-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .reload-btn:hover {
+            background: #3182ce;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #4299e1;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .debug-info {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 10px;
+            color: #cbd5e0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .form-group {
+                min-width: 100%;
+            }
+            
+            .category-card {
+                padding: 6px 10px;
+                min-height: 32px;
+            }
+            
+            .category-card h3 {
+                font-size: 10px;
+            }
+            
+            .location-item {
+                flex-direction: column;
+            }
+            
+            .location-actions {
+                align-items: flex-start;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                max-width: calc(100% - 20px);
+            }
+            
+            .content {
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            .category-card {
+                padding: 5px 8px;
+                min-height: 30px;
+            }
+            
+            .category-card h3 {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sistema de Consulta de Localizações</h1>
+        </div>
+
+        <div class="content">
+            <div class="search-section">
+                <h2>Buscar Localização</h2>
+                <form class="search-form" id="searchForm">
+                    <div class="form-group">
+                        <label for="category">Categoria</label>
+                        <select id="category" name="category">
+                            <option value="">Todas as categorias</option>
+                            <option value="Caixa L2">Caixa L2</option>
+                            <option value="Caixa CD">Caixa CD</option>
+                            <option value="Caixa L1">Caixa L1</option>
+                            <option value="Caixa CS">Caixa CS</option>
+                            <option value="Caixa CE">Caixa CE</option>
+                            <option value="POP">POP</option>
+                            <option value="Torres">Torres</option>
+                            <option value="Sobra Técnica">Sobra Técnica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="searchTerm">Nome ou Código</label>
+                        <input type="text" id="searchTerm" name="searchTerm" placeholder="Ex: ANG/L2-00005">
+                    </div>
+                </form>
+            </div>
+
+            <div class="categories-section">
+                <h2>Categorias</h2>
+                <div class="categories-container">
+                    <div class="category-card" data-category="Caixa L2">
+                        <h3>Caixa L2</h3>
+                    </div>
+                    <div class="category-card" data-category="Caixa CD">
+                        <h3>Caixa CD</h3>
+                    </div>
+                    <div class="category-card" data-category="Caixa L1">
+                        <h3>Caixa L1</h3>
+                    </div>
+                    <div class="category-card" data-category="Caixa CS">
+                        <h3>Caixa CS</h3>
+                    </div>
+                    <div class="category-card" data-category="Caixa CE">
+                        <h3>Caixa CE</h3>
+                    </div>
+                    <div class="category-card" data-category="POP">
+                        <h3>POP</h3>
+                    </div>
+                    <div class="category-card" data-category="Torres">
+                        <h3>Torres</h3>
+                    </div>
+                    <div class="category-card" data-category="Sobra Técnica">
+                        <h3>Sobra Técnica</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <div class="results-count" id="resultsCount">
+                        <span class="loading" id="loadingIndicator"></span>
+                        <span id="resultsText">Carregando dados...</span>
+                    </div>
+                </div>
+                <div class="results-container">
+                    <ul class="location-list" id="locationList">
+                        <li class="empty-state">Conectando ao Google Sheets...</li>
+                    </ul>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="reload-btn" id="reloadBtn">
+                            <span class="loading" id="reloadLoading" style="display: none;"></span>
+                            Recarregar Dados
+                        </button>
+                    </div>
+                    <div class="debug-info" id="debugInfo" style="display: none;">
+                        <strong>Debug Info:</strong><br>
+                        <div id="debugContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // URL do Google Sheets
+        const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQo2UMvS793b4Yw9Xfq_1ywmEMjE7w3ZUAvjyt9hJLNL22XgGkNYVBYBC0eu3u74UlEE4Om3HvtBegV/pub?output=csv';
+        
+        // Elementos DOM
+        const searchForm = document.getElementById('searchForm');
+        const categorySelect = document.getElementById('category');
+        const searchTermInput = document.getElementById('searchTerm');
+        const categoryCards = document.querySelectorAll('.category-card');
+        const locationList = document.getElementById('locationList');
+        const resultsCount = document.getElementById('resultsCount');
+        const resultsText = document.getElementById('resultsText');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const reloadBtn = document.getElementById('reloadBtn');
+        const reloadLoading = document.getElementById('reloadLoading');
+        const debugInfo = document.getElementById('debugInfo');
+        const debugContent = document.getElementById('debugContent');
+
+        let searchTimeout;
+        let locationsData = [];
+
+        function setLoading(isLoading, isReload = false) {
+            if (isReload) {
+                reloadLoading.style.display = isLoading ? 'inline-block' : 'none';
+                reloadBtn.disabled = isLoading;
+            } else {
+                loadingIndicator.style.display = isLoading ? 'inline-block' : 'none';
+                resultsText.textContent = isLoading ? 'Carregando dados...' : '0 localizações encontradas';
+            }
+        }
+
+        function showDebugInfo(info) {
+            debugContent.innerHTML = info;
+            debugInfo.style.display = 'block';
+        }
+
+        async function loadDataFromGoogleSheets() {
+            try {
+                setLoading(true);
+                locationList.innerHTML = '<li class="empty-state">Conectando ao Google Sheets...</li>';
+                showDebugInfo('Iniciando carregamento...');
+                
+                const response = await fetch(GOOGLE_SHEETS_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                }
+                
+                const csvText = await response.text();
+                
+                if (!csvText || csvText.trim().length === 0) {
+                    throw new Error('Planilha vazia ou sem dados');
+                }
+                
+                // Mostrar estrutura do CSV
+                const lines = csvText.split('\n');
+                let debugHtml = `<strong>Estrutura do CSV (${lines.length} linhas):</strong><br>`;
+                lines.slice(0, 10).forEach((line, index) => {
+                    debugHtml += `Linha ${index}: ${line}<br>`;
+                });
+                showDebugInfo(debugHtml);
+                
+                locationsData = parseCSV(csvText);
+                
+                if (locationsData.length === 0) {
+                    throw new Error('Nenhum dado válido encontrado na planilha');
+                }
+                
+                mostrarTooltip(`✅ ${locationsData.length} localizações carregadas com sucesso!`);
+                performSearch();
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados do Google Sheets:', error);
+                mostrarTooltip(`❌ Erro ao carregar dados: ${error.message}`, true);
+                
+                locationList.innerHTML = `
+                    <li class="empty-state">
+                        Erro ao carregar dados do Google Sheets<br>
+                        <small>${error.message}</small>
+                    </li>
+                `;
+                resultsText.textContent = 'Erro ao carregar dados';
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n').filter(line => line.trim() !== '');
+            const result = [];
+            
+            if (lines.length < 2) return result;
+            
+            console.log('=== ANALISANDO CSV ===');
+            
+            // Usar primeira linha como cabeçalho
+            const headers = parseCSVLine(lines[0]);
+            console.log('Headers:', headers);
+            
+            // DEBUG: Mostrar todos os cabeçalhos com seus índices
+            let debugHtml = `<strong>Cabeçalhos encontrados:</strong><br>`;
+            headers.forEach((header, index) => {
+                debugHtml += `${index}: "${header}"<br>`;
+            });
+            showDebugInfo(debugHtml);
+            
+            // DEFINIR MANUALMENTE OS ÍNDICES DAS COLUNAS
+            // Ajuste estes índices conforme a estrutura real do seu CSV
+            const nameIndex = 0;        // Primeira coluna - Nome
+            const categoryIndex = 1;    // Segunda coluna - Categoria  
+            const latitudeIndex = 13;   // Coluna N (índice 13) - Latitude
+            const longitudeIndex = 11;  // Coluna L (índice 11) - Longitude
+            const statusIndex = 4;      // Coluna E (índice 4) - Status
+            
+            console.log('Índices usados:', {
+                nameIndex,
+                categoryIndex,
+                latitudeIndex,
+                longitudeIndex,
+                statusIndex
+            });
+            
+            // Processar todas as linhas de dados
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const values = parseCSVLine(line);
+                
+                // Verificar se temos colunas suficientes
+                if (values.length <= Math.max(latitudeIndex, longitudeIndex)) {
+                    console.warn(`Linha ${i} tem apenas ${values.length} colunas, pulando...`);
+                    continue;
+                }
+                
+                // Extrair dados usando os índices definidos
+                const rawName = values[nameIndex] || '';
+                const category = values[categoryIndex] || '';
+                const rawLatitude = values[latitudeIndex] || '';
+                const rawLongitude = values[longitudeIndex] || '';
+                const status = values[statusIndex] || '';
+                
+                // Limpar o nome - remover prefixos como "SO RJ ANG CEO"
+                const cleanName = cleanLocationName(rawName);
+                
+                // Parse das coordenadas
+                const latitude = parseCoordinate(rawLatitude);
+                const longitude = parseCoordinate(rawLongitude);
+                
+                console.log(`Linha ${i}:`, {
+                    rawName,
+                    cleanName,
+                    category,
+                    rawLatitude,
+                    rawLongitude,
+                    latitude,
+                    longitude,
+                    status
+                });
+                
+                // Adicionar apenas registros com nome válido
+                if (cleanName && cleanName.trim() !== '') {
+                    const obj = {
+                        name: cleanName,
+                        category: category,
+                        latitude: latitude,
+                        longitude: longitude,
+                        status: status,
+                        rawLatitude: rawLatitude, // Para debug
+                        rawLongitude: rawLongitude // Para debug
+                    };
+                    
+                    result.push(obj);
+                }
+            }
+            
+            console.log(`Total de ${result.length} localizações carregadas`);
+            
+            // DEBUG: Mostrar algumas localizações com coordenadas
+            const withCoords = result.filter(loc => loc.latitude && loc.longitude);
+            const withoutCoords = result.filter(loc => !loc.latitude || !loc.longitude);
+            
+            let debugFinal = `Localizações com coordenadas: ${withCoords.length}<br>`;
+            debugFinal += `Localizações sem coordenadas: ${withoutCoords.length}<br>`;
+            
+            if (withCoords.length > 0) {
+                debugFinal += `<br><strong>Primeiras com coordenadas:</strong><br>`;
+                withCoords.slice(0, 3).forEach(loc => {
+                    debugFinal += `${loc.name}: ${loc.latitude}, ${loc.longitude}<br>`;
+                });
+            }
+            
+            if (withoutCoords.length > 0) {
+                debugFinal += `<br><strong>Primeiras sem coordenadas:</strong><br>`;
+                withoutCoords.slice(0, 3).forEach(loc => {
+                    debugFinal += `${loc.name}: lat="${loc.rawLatitude}", long="${loc.rawLongitude}"<br>`;
+                });
+            }
+            
+            showDebugInfo(debugFinal);
+            
+            return result;
+        }
+
+        function cleanLocationName(rawName) {
+            if (!rawName) return '';
+            
+            // Remover prefixos comuns
+            let cleanName = rawName
+                .replace(/^SO\s*RJ\s*ANG\s*CEO\s*/i, '') // Remove "SO RJ ANG CEO"
+                .replace(/^SO\s*RJ\s*ANG\s*/i, '') // Remove "SO RJ ANG"
+                .replace(/^SO\s*/i, '') // Remove "SO"
+                .trim();
+            
+            // Se após limpeza ficar vazio, retorna o original
+            return cleanName || rawName;
+        }
+
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            values.push(current.trim());
+            return values.map(val => val.replace(/^"(.*)"$/, '$1'));
+        }
+
+        function parseCoordinate(coord) {
+            if (!coord || coord === '' || coord.toLowerCase() === 'em operação') return null;
+            
+            // Tentar diferentes formatos de coordenadas
+            let cleanCoord = coord.toString().trim();
+            
+            // Remover caracteres indesejados
+            cleanCoord = cleanCoord.replace(/[^\d.,-]/g, '');
+            
+            // Converter para número, tratando vírgula como decimal
+            const num = parseFloat(cleanCoord.replace(',', '.'));
+            
+            console.log(`Parse coordenada: "${coord}" -> "${cleanCoord}" -> ${num}`);
+            
+            return isNaN(num) ? null : num;
+        }
+
+        function filterLocations(category = '', searchTerm = '') {
+            let filtered = locationsData;
+            
+            // Filtrar por categoria se especificada
+            if (category) {
+                filtered = filtered.filter(location => 
+                    location.category && location.category.toLowerCase().includes(category.toLowerCase())
+                );
+            }
+            
+            // Filtrar por termo de busca se especificado
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                filtered = filtered.filter(location => 
+                    location.name && location.name.toLowerCase().includes(term)
+                );
+            }
+            
+            console.log(`Filtrados: ${filtered.length} de ${locationsData.length} localizações`);
+            return filtered;
+        }
+
+        function performSearch() {
+            const category = categorySelect.value;
+            const searchTerm = searchTermInput.value.trim();
+            
+            const filteredLocations = filterLocations(category, searchTerm);
+            displayLocations(filteredLocations);
+            updateActiveCategory(category);
+        }
+
+        function updateActiveCategory(selectedCategory) {
+            categoryCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                if (cardCategory === selectedCategory) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    mostrarTooltip('✅ Texto copiado para a área de transferência!');
+                }).catch(err => {
+                    console.error('Erro ao copiar texto: ', err);
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    mostrarTooltip('✅ Texto copiado para a área de transferência!');
+                } else {
+                    mostrarTooltip('📋 Texto gerado! Use Ctrl+V para colar.', true);
+                }
+            } catch (err) {
+                mostrarTooltip('📋 Texto gerado! Use Ctrl+V para colar.', true);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function mostrarTooltip(mensagem, isWarning = false) {
+            const tooltipAnterior = document.querySelector('.tooltip');
+            if (tooltipAnterior) {
+                tooltipAnterior.remove();
+            }
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.textContent = mensagem;
+            tooltip.style.background = isWarning ? '#e53e3e' : '#38a169';
+            
+            document.body.appendChild(tooltip);
+            
+            setTimeout(() => {
+                if (tooltip.parentNode) {
+                    tooltip.parentNode.removeChild(tooltip);
+                }
+            }, 4000);
+        }
+
+        function displayLocations(locations) {
+            locationList.innerHTML = '';
+            
+            if (locations.length === 0) {
+                locationList.innerHTML = '<li class="empty-state">Nenhuma localização encontrada</li>';
+                resultsText.textContent = '0 localizações encontradas';
+                return;
+            }
+            
+            resultsText.textContent = `${locations.length} localizaç${locations.length === 1 ? 'ão' : 'ões'} encontrada${locations.length === 1 ? '' : 's'}`;
+            
+            locations.forEach(location => {
+                const listItem = document.createElement('li');
+                listItem.className = 'location-item';
+                
+                const hasCoordinates = location.latitude && location.longitude && 
+                                     !isNaN(location.latitude) && !isNaN(location.longitude);
+                
+                const googleMapsUrl = hasCoordinates 
+                    ? `https://www.google.com/maps/place/${location.latitude},${location.longitude}`
+                    : '#';
+                
+                // Formatar o texto para copiar conforme solicitado
+                const textToCopy = `*Localização aproximada da ${location.name}:*\n${hasCoordinates ? googleMapsUrl : 'Coordenadas não disponíveis'}`;
+                
+                listItem.innerHTML = `
+                    <div class="location-content">
+                        <div class="location-name">*Localização aproximada da ${location.name}:*</div>
+                        <a href="${googleMapsUrl}" target="_blank" class="location-link" 
+                           style="${!hasCoordinates ? 'color: #e53e3e; cursor: not-allowed;' : ''}">
+                            ${hasCoordinates ? googleMapsUrl : 'Coordenadas não disponíveis'}
+                        </a>
+                        ${location.status ? `<div style="font-size: 10px; color: #cbd5e0; margin-top: 4px;">Status: ${location.status}</div>` : ''}
+                        ${location.category ? `<div style="font-size: 10px; color: #4299e1; margin-top: 2px;">Categoria: ${location.category}</div>` : ''}
+                        ${hasCoordinates ? `<div style="font-size: 9px; color: #38a169; margin-top: 2px;">Coordenadas: ${location.latitude}, ${location.longitude}</div>` : 
+                          `<div style="font-size: 9px; color: #e53e3e; margin-top: 2px;">Dados brutos: lat="${location.rawLatitude}", long="${location.rawLongitude}"</div>`}
+                    </div>
+                    <div class="location-actions">
+                        <button class="copy-btn" data-text="${textToCopy.replace(/"/g, '&quot;')}">Copiar</button>
+                    </div>
+                `;
+                
+                locationList.appendChild(listItem);
+            });
+
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const text = this.getAttribute('data-text');
+                    copyToClipboard(text);
+                });
+            });
+        }
+
+        // Event Listeners
+        categorySelect.addEventListener('change', function() {
+            performSearch();
+        });
+
+        searchTermInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 300);
+        });
+
+        categoryCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                categorySelect.value = category;
+                searchTermInput.value = '';
+                performSearch();
+            });
+        });
+
+        reloadBtn.addEventListener('click', function() {
+            setLoading(true, true);
+            loadDataFromGoogleSheets().finally(() => {
+                setLoading(false, true);
+            });
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'F2') {
+                event.preventDefault();
+                searchTermInput.focus();
+            }
+            
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                categorySelect.value = '';
+                searchTermInput.value = '';
+                performSearch();
+            }
+            
+            if (event.ctrlKey && event.key === 'r') {
+                event.preventDefault();
+                reloadBtn.click();
+            }
+        });
+
+        // Inicializar
+        window.addEventListener('load', function() {
+            searchTermInput.focus();
+            loadDataFromGoogleSheets();
+        });
+    </script>
+</body>
+</html>
