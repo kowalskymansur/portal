@@ -1,0 +1,2523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Coordenadas - Supabase</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --offline-color: #95a5a6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Otimizações específicas para Firefox */
+        @-moz-document url-prefix() {
+            * {
+                /* Melhora a renderização de fontes no Firefox */
+                -moz-osx-font-smoothing: grayscale;
+            }
+            
+            input, select, textarea, button {
+                /* Remove estilos padrão do Firefox que podem causar inconsistências */
+                -moz-appearance: none;
+                appearance: none;
+            }
+            
+            /* Scrollbar styling para Firefox */
+            .table-container {
+                scrollbar-width: thin;
+                scrollbar-color: var(--secondary-color) #f1f1f1;
+            }
+            
+            /* Melhora a performance de animações no Firefox */
+            .status-indicator, .loading-spinner {
+                will-change: opacity, transform;
+            }
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover, nav a.active {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-online {
+            background-color: var(--success-color);
+        }
+        
+        .status-offline {
+            background-color: var(--offline-color);
+        }
+        
+        .status-error {
+            background-color: var(--accent-color);
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 140px);
+        }
+        
+        .page-title {
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: var(--accent-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #219653;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            /* Scrollbar styling para navegadores WebKit e Firefox */
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: var(--secondary-color) #f1f1f1; /* Firefox */
+        }
+        
+        /* Webkit scrollbar styling (Chrome, Safari, Edge) */
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .destaque-pesquisa {
+            background-color: #fff3cd !important;
+            border-left: 4px solid #ffc107;
+            font-weight: bold;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 2rem;
+        }
+        
+        footer a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        footer a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .map-preview {
+            height: 200px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            color: #6c757d;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+        
+        .search-input-container {
+            flex: 2;
+            position: relative;
+            min-width: 300px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .search-input {
+            padding-left: 35px;
+            width: 100%;
+        }
+        
+        .categoria-select {
+            min-width: 220px;
+            flex: 1;
+        }
+        
+        .btn-limpar {
+            min-width: 100px;
+            flex-shrink: 0;
+        }
+        
+        .alert {
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 5px;
+        }
+        
+        .pagination button {
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .pagination button.active {
+            background-color: var(--primary-color);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 1rem;
+            min-width: 150px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        .connection-alert {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .connection-alert.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .connection-alert.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .status-disponivel {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-utilizada {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .caixa-item {
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            background-color: #f8f9fa;
+        }
+        
+        .caixa-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .caixa-nome {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .caixa-details {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .categoria-info {
+            display: inline-block;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .pagination-info {
+            text-align: center;
+            margin-top: 1rem;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        .option-with-count {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .option-count {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-left: 10px;
+        }
+
+        .stats-info {
+            background-color: #e8f4fd;
+            border-left: 4px solid var(--secondary-color);
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .info-pesquisa {
+            background-color: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        /* Estilo para o toast de notificação */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.error {
+            background-color: var(--accent-color);
+        }
+
+        .checkbox-column {
+            width: 40px;
+            text-align: center;
+        }
+
+        .copy-button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+            gap: 10px;
+        }
+
+        .caixa-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 0.5rem;
+        }
+
+        /* CORREÇÃO: Estilo para a caixa de seleção na linha "Cadastrado por" */
+        .caixa-checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.25rem;
+        }
+
+        .caixa-checkbox {
+            margin: 0;
+            width: auto;
+        }
+
+        .caixa-selecionada {
+            background-color: #e3f2fd !important;
+            border-left: 4px solid #3498db;
+        }
+
+        .utilizar-caixas-container {
+            margin-bottom: 1rem;
+            text-align: right;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .caixa-nome-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .caixa-item-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .caixa-info {
+            flex: 1;
+        }
+
+        /* NOVOS ESTILOS PARA ALINHAMENTO CORRETO */
+        .caixa-details-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.25rem 0.5rem;
+            align-items: center;
+        }
+
+        .caixa-details-grid .caixa-checkbox-container {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .caixa-details-grid .cadastro-info {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .caixa-details-grid .data-info {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .caixa-details strong {
+            display: inline;
+            font-weight: 600;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input-container,
+            .categoria-select,
+            .btn-limpar {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .utilizar-caixas-container {
+                flex-direction: column;
+            }
+            
+            .caixa-item-content {
+                flex-direction: column;
+            }
+            
+            .caixa-actions {
+                margin-top: 1rem;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+    <!-- Incluindo a biblioteca Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <span class="logo-icon">📍</span>
+                <h1>Gerenciador de Coordenadas</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" id="nav-consulta" class="active">Consulta</a></li>
+                    <li><a href="#" id="nav-caixas">Caixas Disponíveis</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Alerta de status de conexão -->
+        <div id="connection-alert" class="connection-alert hidden"></div>
+
+        <!-- Página de Consulta (sempre carregada por padrão) -->
+        <section id="page-consulta" class="page">
+            <h2 class="page-title">
+                <span>📍</span>
+                Consulta de Coordenadas
+            </h2>
+            
+            <div class="card">
+                <div id="info-pesquisa" class="info-pesquisa hidden">
+                    <!-- Informações sobre a pesquisa serão inseridas aqui -->
+                </div>
+                
+                <div class="search-bar">
+                    <div class="search-input-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-input" class="search-input" placeholder="Digite para pesquisar por nome, localização ou tipo...">
+                    </div>
+                    <select id="tipo-local-select" class="categoria-select">
+                        <option value="">Todos os Tipos de Local</option>
+                        <!-- Tipos de local serão carregados dinamicamente -->
+                    </select>
+                    <button id="btn-limpar-pesquisa" class="btn-danger btn-limpar">Limpar</button>
+                </div>
+                
+                <!-- Botão de cópia e exclusão -->
+                <div class="copy-button-container">
+                    <button id="btn-copiar" class="btn-success">Copiar</button>
+                    <button id="btn-excluir-coordenadas" class="btn-danger hidden">Excluir Selecionadas</button>
+                </div>
+                
+                <div class="table-container">
+                    <div id="loading-coordenadas" class="loading hidden">
+                        <div class="loading-spinner"></div>
+                        <p>Carregando coordenadas...</p>
+                    </div>
+                    <table id="tabela-coordenadas">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-column">Selecionar</th>
+                                <th>Nome</th>
+                                <th>Tipo de Local</th>
+                                <th>Latitude (Y)</th>
+                                <th>Longitude (X)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-corpo">
+                            <!-- Linhas de coordenadas serão inseridas aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="empty-state" class="empty-state hidden">
+                    <div class="empty-state-icon">🗺️</div>
+                    <p>Nenhuma coordenada encontrada.</p>
+                </div>
+
+                <!-- Controles de paginação -->
+                <div id="pagination-controls" class="pagination hidden">
+                    <!-- Botões de paginação serão inseridos aqui -->
+                </div>
+                
+                <div id="pagination-info" class="pagination-info hidden">
+                    <!-- Informações da paginação serão inseridas aqui -->
+                </div>
+
+                <!-- Estatísticas de carregamento -->
+                <div id="stats-info" class="stats-info hidden">
+                    <strong>📊 Estatísticas de Carregamento:</strong> 
+                    <span id="stats-text">Carregando estatísticas...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Página de Caixas Disponíveis -->
+        <section id="page-caixas" class="page hidden">
+            <h2 class="page-title">
+                <span>📦</span>
+                Caixas Disponíveis
+            </h2>
+            
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <h3>Caixas Disponíveis</h3>
+                    <div class="number" id="caixas-disponiveis">0</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Caixas Disponíveis</h3>
+                
+                <!-- Container para os botões de ação (aparece apenas quando há seleções) -->
+                <div id="utilizar-caixas-container" class="utilizar-caixas-container hidden">
+                    <button id="btn-utilizar-caixas" class="btn-success">Utilizar Caixa(s)</button>
+                    <button id="btn-editar-caixas" class="btn-warning">Editar Selecionadas</button>
+                    <button id="btn-excluir-caixas" class="btn-danger">Excluir Selecionadas</button>
+                </div>
+                
+                <div id="loading-caixas-disponiveis" class="loading hidden">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando caixas disponíveis...</p>
+                </div>
+                <div id="lista-caixas-disponiveis">
+                    <!-- Lista de caixas disponíveis será inserida aqui -->
+                </div>
+                
+                <div id="empty-state-caixas" class="empty-state hidden">
+                    <div class="empty-state-icon">📦</div>
+                    <p>Nenhuma caixa disponível encontrada.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Caixas Reservadas</h3>
+                <div id="loading-caixas-utilizadas" class="loading hidden">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando caixas reservadas...</p>
+                </div>
+                <div id="lista-caixas-utilizadas">
+                    <!-- Lista de caixas reservadas será inserida aqui -->
+                </div>
+                
+                <div id="empty-state-caixas-utilizadas" class="empty-state hidden">
+                    <div class="empty-state-icon">📦</div>
+                    <p>Nenhuma caixa reservada encontrada.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Cadastrar Nova(s) Caixa(s)</h3>
+                <div class="categoria-info">
+                    <strong>Nota:</strong> Todas as caixas serão automaticamente categorizadas como "Caixa CE"
+                </div>
+                <form id="form-caixas">
+                    <div class="form-group">
+                        <label for="caixas-texto">Nomes das Caixas (separados por ;)</label>
+                        <textarea id="caixas-texto" name="caixas-texto" rows="4" placeholder="Ex: CAIXA A; CAIXA B; CAIXA C"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="usuario-cadastro">Usuário que está cadastrando</label>
+                        <input type="text" id="usuario-cadastro" name="usuario-cadastro" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" id="btn-cadastrar-caixas" class="btn-success">Cadastrar Caixas</button>
+                        <button type="button" id="btn-limpar-caixas" class="btn-danger">Limpar Formulário</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast para notificações -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Modal para retornar caixa -->
+    <div id="modal-retornar-caixa" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Retornar Caixa para Disponível</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="form-retornar-caixa">
+                <input type="hidden" id="caixa-id-retornar" name="caixa-id">
+                
+                <div class="form-group">
+                    <p>Tem certeza que deseja retornar esta caixa para a lista de disponíveis?</p>
+                    <p><strong>Caixa:</strong> <span id="caixa-nome-retornar"></span></p>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-danger" id="btn-cancelar-retorno">Cancelar</button>
+                    <button type="submit" class="btn-success">Confirmar Retorno</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para mover caixa para coordenadas -->
+    <div id="modal-mover-coordenadas" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Mover Caixa para Caixas Ativas</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="form-mover-coordenadas">
+                <input type="hidden" id="caixa-id-mover" name="caixa-id">
+                
+                <div class="form-group">
+                    <p>Informe as coordenadas para mover a caixa:</p>
+                    <p><strong>Caixa:</strong> <span id="caixa-nome-mover"></span></p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="latitude-mover">Latitude (Y)</label>
+                    <input type="text" id="latitude-mover" name="latitude-mover" required placeholder="Ex: -23.5505">
+                </div>
+                
+                <div class="form-group">
+                    <label for="longitude-mover">Longitude (X)</label>
+                    <input type="text" id="longitude-mover" name="longitude-mover" required placeholder="Ex: -46.6333">
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-danger" id="btn-cancelar-mover">Cancelar</button>
+                    <button type="submit" class="btn-success">Confirmar Movimento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para utilizar caixas selecionadas -->
+    <div id="modal-utilizar-caixas" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Utilizar Caixa(s) Selecionada(s)</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="form-utilizar-caixas">
+                <div class="form-group">
+                    <p>Informe os dados para utilizar a(s) caixa(s) selecionada(s):</p>
+                    <p><strong>Caixas selecionadas:</strong> <span id="caixas-selecionadas-nomes"></span></p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="usuario-utilizacao">Usuário que está utilizando</label>
+                    <input type="text" id="usuario-utilizacao" name="usuario-utilizacao" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="evento-utilizacao">Evento</label>
+                    <input type="text" id="evento-utilizacao" name="evento-utilizacao" required>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-danger" id="btn-cancelar-utilizacao">Cancelar</button>
+                    <button type="submit" class="btn-success">Confirmar Utilização</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar caixas selecionadas -->
+    <div id="modal-editar-caixas" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar Caixa(s) Selecionada(s)</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="form-editar-caixas">
+                <div class="form-group">
+                    <p>Editar informações da(s) caixa(s) selecionada(s):</p>
+                    <p><strong>Caixas selecionadas:</strong> <span id="caixas-selecionadas-nomes-editar"></span></p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="novo-nome-caixa">Novo Nome (deixe vazio para manter o atual)</label>
+                    <input type="text" id="novo-nome-caixa" name="novo-nome-caixa" placeholder="Novo nome para as caixas">
+                </div>
+                
+                <div class="form-group">
+                    <label for="novo-usuario-caixa">Novo Usuário (deixe vazio para manter o atual)</label>
+                    <input type="text" id="novo-usuario-caixa" name="novo-usuario-caixa" placeholder="Novo usuário para as caixas">
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-danger" id="btn-cancelar-editar">Cancelar</button>
+                    <button type="submit" class="btn-success">Confirmar Edição</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para confirmar exclusão -->
+    <div id="modal-confirmar-exclusao" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Exclusão</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="form-confirmar-exclusao">
+                <div class="form-group">
+                    <p>Tem certeza que deseja excluir os itens selecionados?</p>
+                    <p><strong>Itens selecionados:</strong> <span id="itens-selecionados-exclusao"></span></p>
+                    <p class="categoria-info">Esta ação não pode ser desfeita.</p>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-warning" id="btn-cancelar-exclusao">Cancelar</button>
+                    <button type="submit" class="btn-danger">Confirmar Exclusão</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Desenvolvido por <a href="https://www.linkedin.com/in/kowalsky-mansur-ferreira-6a86896a" target="_blank">Kowalsky M. Ferreira</a>.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Configuração do Supabase
+        const SUPABASE_URL = 'https://tfdniuwqjqvscwiypbuo.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmZG5pdXdxanF2c2N3aXlwYnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU1OTgsImV4cCI6MjA3NzUwMTU5OH0.ZeIef1hnlE4W10xD8Z23hiNEoOTdseNj_ox13uqchA0';
+        const TABELA_COORDENADAS = 'coordenadas';
+        const TABELA_CAIXAS = 'cx_disponiveis';
+
+        // Inicializar o cliente Supabase
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Variáveis globais
+        let tiposDeLocalCache = [];
+        let paginaAtual = 1;
+        const itensPorPagina = 10;
+        let coordenadasFiltradas = [];
+        let itemPesquisadoIndex = -1;
+        let modoPesquisaContexto = false;
+        let caixasSelecionadas = [];
+        let coordenadasSelecionadas = [];
+        
+        // CORREÇÃO: Variável para armazenar a coluna de ID detectada
+        let colunaIdCoordenadas = null;
+
+        // CORREÇÃO: Função otimizada para descobrir a coluna de ID
+        async function descobrirColunaIdCoordenadas() {
+            // Se já descobrimos a coluna, retornamos o valor armazenado
+            if (colunaIdCoordenadas) {
+                return colunaIdCoordenadas;
+            }
+            
+            try {
+                console.log('🔍 Detectando coluna de ID da tabela coordenadas...');
+                
+                // Buscar uma amostra de dados para identificar a coluna de ID
+                const { data, error } = await supabaseClient
+                    .from(TABELA_COORDENADAS)
+                    .select('*')
+                    .limit(1);
+
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    const primeiraCoordenada = data[0];
+                    console.log('Estrutura da coordenada:', primeiraCoordenada);
+                    
+                    // Verificar qual coluna pode ser a chave primária
+                    const possiveisIds = ['id', 'ID', 'Id', 'codigo', 'cod', 'chave'];
+                    for (const possivelId of possiveisIds) {
+                        if (primeiraCoordenada.hasOwnProperty(possivelId)) {
+                            console.log(`✅ Coluna de ID encontrada: ${possivelId}`);
+                            colunaIdCoordenadas = possivelId;
+                            return possivelId;
+                        }
+                    }
+                    
+                    // Se não encontrou nenhuma das colunas comuns, retorna a primeira chave
+                    const primeiraChave = Object.keys(primeiraCoordenada)[0];
+                    console.log(`⚠️ Usando primeira chave como ID: ${primeiraChave}`);
+                    colunaIdCoordenadas = primeiraChave;
+                    return primeiraChave;
+                }
+                
+                // Se não conseguiu identificar, usa 'id' como padrão
+                console.warn('❌ Não foi possível identificar a coluna de ID, usando "id" como padrão');
+                colunaIdCoordenadas = 'id';
+                return 'id';
+            } catch (error) {
+                console.error('❌ Erro ao identificar coluna de ID:', error);
+                colunaIdCoordenadas = 'id'; // Fallback
+                return 'id';
+            }
+        }
+
+        // Função para normalizar coordenadas (substituir vírgula por ponto)
+        function normalizarCoordenada(valor) {
+            if (!valor) return '';
+            return valor.toString().replace(',', '.');
+        }
+
+        // Funções de Status de Conexão
+        async function verificarConexao() {
+            const connectionAlert = document.getElementById('connection-alert');
+            
+            try {
+                console.log('🔍 Testando conexão com Supabase...');
+                
+                const { data, error, count } = await supabaseClient
+                    .from(TABELA_COORDENADAS)
+                    .select('*', { count: 'exact', head: true })
+                    .limit(1);
+
+                if (error) {
+                    throw error;
+                }
+                
+                if (connectionAlert.classList.contains('error')) {
+                    connectionAlert.className = 'connection-alert success';
+                    connectionAlert.textContent = '✅ Conexão com o banco de dados restaurada!';
+                    connectionAlert.classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        connectionAlert.classList.add('hidden');
+                    }, 5000);
+                }
+                
+                console.log('✅ Conexão com Supabase estabelecida');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Erro na conexão com Supabase:', error);
+                
+                connectionAlert.className = 'connection-alert error';
+                connectionAlert.innerHTML = `❌ Erro de conexão com o banco de dados: ${error.message}. <br>Verifique sua conexão com a internet e as credenciais do Supabase.`;
+                connectionAlert.classList.remove('hidden');
+                
+                return false;
+            }
+        }
+
+        // Funções de CRUD para Coordenadas
+        async function obterTodasCoordenadas() {
+            console.log('🔍 Buscando TODOS os dados do Supabase...');
+            
+            let todasCoordenadas = [];
+            let inicio = 0;
+            const limite = 1000;
+            let hasMore = true;
+            
+            try {
+                while (hasMore) {
+                    console.log(`📥 Buscando registros ${inicio} a ${inicio + limite - 1}...`);
+                    
+                    const { data, error } = await supabaseClient
+                        .from(TABELA_COORDENADAS)
+                        .select('*')
+                        .range(inicio, inicio + limite - 1);
+
+                    if (error) {
+                        console.error('Erro ao buscar coordenadas:', error);
+                        break;
+                    }
+
+                    if (data && data.length > 0) {
+                        todasCoordenadas = todasCoordenadas.concat(data);
+                        console.log(`✅ ${data.length} registros carregados. Total: ${todasCoordenadas.length}`);
+                        
+                        if (data.length < limite) {
+                            hasMore = false;
+                            console.log('🏁 Todos os registros foram carregados.');
+                        } else {
+                            inicio += limite;
+                        }
+                    } else {
+                        hasMore = false;
+                        console.log('🏁 Nenhum registro adicional encontrado.');
+                    }
+                }
+                
+                console.log(`✅ ${todasCoordenadas.length} coordenadas carregadas no total`);
+                return todasCoordenadas;
+            } catch (error) {
+                console.error('Erro ao buscar todas as coordenadas:', error);
+                return [];
+            }
+        }
+
+        async function obterCoordenadas() {
+            document.getElementById('loading-coordenadas').classList.remove('hidden');
+            document.getElementById('tabela-coordenadas').classList.add('hidden');
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('pagination-controls').classList.add('hidden');
+            document.getElementById('pagination-info').classList.add('hidden');
+            document.getElementById('stats-info').classList.add('hidden');
+            
+            const conectado = await verificarConexao();
+            if (!conectado) {
+                document.getElementById('loading-coordenadas').classList.add('hidden');
+                return [];
+            }
+            
+            try {
+                const data = await obterTodasCoordenadas();
+                console.log(`✅ ${data ? data.length : 0} coordenadas carregadas`);
+                
+                const statsText = document.getElementById('stats-text');
+                const total = data.length;
+                if (statsText) {
+                    statsText.innerHTML = `<strong>Total carregado:</strong> ${total} registros`;
+                }
+                
+                return data || [];
+            } catch (error) {
+                console.error('Erro ao buscar coordenadas:', error);
+                await verificarConexao();
+                return [];
+            } finally {
+                document.getElementById('loading-coordenadas').classList.add('hidden');
+            }
+        }
+
+        async function obterTiposDeLocal() {
+            try {
+                console.log('🔍 Buscando tipos de local...');
+                
+                const data = await obterTodasCoordenadas();
+
+                const tiposComContagem = {};
+                
+                data.forEach(item => {
+                    const tipoLocal = item['Tipo de Local'] || item['tipo_local'] || item['Tipo_de_Local'] || item['tipo'] || item['Tipo'] || '';
+                    if (tipoLocal && tipoLocal.trim() !== '') {
+                        if (!tiposComContagem[tipoLocal]) {
+                            tiposComContagem[tipoLocal] = 0;
+                        }
+                        tiposComContagem[tipoLocal]++;
+                    }
+                });
+                
+                const tiposArray = Object.keys(tiposComContagem).map(tipo => ({
+                    tipo: tipo,
+                    count: tiposComContagem[tipo]
+                })).sort((a, b) => a.tipo.localeCompare(b.tipo));
+                
+                console.log(`✅ ${tiposArray.length} tipos de local encontrados com contagem`);
+                
+                return tiposArray;
+            } catch (error) {
+                console.error('Erro ao buscar tipos de local:', error);
+                return [];
+            }
+        }
+
+        async function carregarTiposDeLocal() {
+            const tipoLocalSelect = document.getElementById('tipo-local-select');
+            
+            try {
+                const loadingOption = document.createElement('option');
+                loadingOption.value = '';
+                loadingOption.textContent = 'Carregando tipos...';
+                tipoLocalSelect.innerHTML = '';
+                tipoLocalSelect.appendChild(loadingOption);
+                
+                const tiposComContagem = await obterTiposDeLocal();
+                const todasCoordenadas = await obterTodasCoordenadas();
+                const totalTodos = todasCoordenadas.length;
+                
+                tipoLocalSelect.innerHTML = '';
+                
+                const optionTodos = document.createElement('option');
+                optionTodos.value = '';
+                optionTodos.innerHTML = `Todos os Tipos de Local <span class="option-count">(${totalTodos})</span>`;
+                tipoLocalSelect.appendChild(optionTodos);
+                
+                tiposComContagem.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.tipo;
+                    option.innerHTML = `${item.tipo} <span class="option-count">(${item.count})</span>`;
+                    tipoLocalSelect.appendChild(option);
+                });
+                
+                tiposDeLocalCache = tiposComContagem;
+                
+                console.log(`✅ ${tiposComContagem.length} tipos de local carregados com contagem`);
+            } catch (error) {
+                console.error('Erro ao carregar tipos de local:', error);
+                tipoLocalSelect.innerHTML = '<option value="">Todos os Tipos de Local</option>';
+            }
+        }
+
+        // Funções de CRUD para Caixas
+        async function obterCaixas() {
+            console.log('🔍 Buscando caixas do Supabase...');
+            
+            document.getElementById('loading-caixas-disponiveis').classList.remove('hidden');
+            document.getElementById('loading-caixas-utilizadas').classList.remove('hidden');
+            
+            const conectado = await verificarConexao();
+            if (!conectado) {
+                document.getElementById('loading-caixas-disponiveis').classList.add('hidden');
+                document.getElementById('loading-caixas-utilizadas').classList.add('hidden');
+                return [];
+            }
+            
+            try {
+                let todasCaixas = [];
+                let inicio = 0;
+                const limite = 1000;
+                let hasMore = true;
+                
+                while (hasMore) {
+                    console.log(`📥 Buscando caixas ${inicio} a ${inicio + limite - 1}...`);
+                    
+                    const { data, error } = await supabaseClient
+                        .from(TABELA_CAIXAS)
+                        .select('*')
+                        .range(inicio, inicio + limite - 1);
+
+                    if (error) {
+                        console.error('Erro ao buscar caixas:', error);
+                        break;
+                    }
+
+                    if (data && data.length > 0) {
+                        todasCaixas = todasCaixas.concat(data);
+                        console.log(`✅ ${data.length} caixas carregadas. Total: ${todasCaixas.length}`);
+                        
+                        if (data.length < limite) {
+                            hasMore = false;
+                            console.log('🏁 Todas as caixas foram carregadas.');
+                        } else {
+                            inicio += limite;
+                        }
+                    } else {
+                        hasMore = false;
+                        console.log('🏁 Nenhuma caixa adicional encontrada.');
+                    }
+                }
+                
+                console.log(`✅ ${todasCaixas.length} caixas carregadas`);
+                return todasCaixas;
+            } catch (error) {
+                console.error('Erro ao buscar caixas:', error);
+                await verificarConexao();
+                return [];
+            } finally {
+                document.getElementById('loading-caixas-disponiveis').classList.add('hidden');
+                document.getElementById('loading-caixas-utilizadas').classList.add('hidden');
+            }
+        }
+
+        async function cadastrarCaixas(caixas) {
+            const conectado = await verificarConexao();
+            if (!conectado) {
+                mostrarToast('Erro: Não foi possível conectar ao banco de dados. Verifique sua conexão.', 'erro');
+                return false;
+            }
+            
+            try {
+                const result = await supabaseClient
+                    .from(TABELA_CAIXAS)
+                    .insert(caixas)
+                    .select();
+
+                if (result.error) {
+                    if (result.error.message.includes('row-level security policy')) {
+                        console.error('❌ Erro de RLS detectado:', result.error);
+                        mostrarToast('Erro de permissão: A tabela está protegida por políticas de segurança. Entre em contato com o administrador.', 'erro');
+                    }
+                    throw result.error;
+                }
+                return true;
+            } catch (error) {
+                console.error('Erro ao cadastrar caixas:', error);
+                mostrarToast('Erro ao cadastrar caixas: ' + error.message, 'erro');
+                await verificarConexao();
+                return false;
+            }
+        }
+
+        async function atualizarCaixa(id, dados) {
+            const conectado = await verificarConexao();
+            if (!conectado) {
+                mostrarToast('Erro: Não foi possível conectar ao banco de dados. Verifique sua conexão.', 'erro');
+                return false;
+            }
+            
+            try {
+                const result = await supabaseClient
+                    .from(TABELA_CAIXAS)
+                    .update(dados)
+                    .eq('id', id)
+                    .select();
+
+                if (result.error) {
+                    if (result.error.message.includes('row-level security policy')) {
+                        console.error('❌ Erro de RLS detectado:', result.error);
+                        mostrarToast('Erro de permissão: A tabela está protegida por políticas de segurança. Entre em contato com o administrador.', 'erro');
+                    }
+                    throw result.error;
+                }
+                return true;
+            } catch (error) {
+                console.error('Erro ao atualizar caixa:', error);
+                mostrarToast('Erro ao atualizar caixa: ' + error.message, 'erro');
+                await verificarConexao();
+                return false;
+            }
+        }
+
+        async function atualizarMultiplasCaixas(ids, dados) {
+            const conectado = await verificarConexao();
+            if (!conectado) {
+                mostrarToast('Erro: Não foi possível conectar ao banco de dados. Verifique sua conexão.', 'erro');
+                return false;
+            }
+            
+            try {
+                const result = await supabaseClient
+                    .from(TABELA_CAIXAS)
+                    .update(dados)
+                    .in('id', ids)
+                    .select();
+
+                if (result.error) {
+                    if (result.error.message.includes('row-level security policy')) {
+                        console.error('❌ Erro de RLS detectado:', result.error);
+                        mostrarToast('Erro de permissão: A tabela está protegida por políticas de segurança. Entre em contato com o administrador.', 'erro');
+                    }
+                    throw result.error;
+                }
+                return true;
+            } catch (error) {
+                console.error('Erro ao atualizar caixas:', error);
+                mostrarToast('Erro ao atualizar caixas: ' + error.message, 'erro');
+                await verificarConexao();
+                return false;
+            }
+        }
+
+        async function excluirMultiplasCaixas(ids) {
+            const conectado = await verificarConexao();
+            if (!conectado) {
+                mostrarToast('Erro: Não foi possível conectar ao banco de dados. Verifique sua conexão.', 'erro');
+                return false;
+            }
+            
+            try {
+                const result = await supabaseClient
+                    .from(TABELA_CAIXAS)
+                    .delete()
+                    .in('id', ids);
+
+                if (result.error) {
+                    if (result.error.message.includes('row-level security policy')) {
+                        console.error('❌ Erro de RLS detectado:', result.error);
+                        mostrarToast('Erro de permissão: A tabela está protegida por políticas de segurança. Entre em contato com o administrador.', 'erro');
+                    }
+                    throw result.error;
+                }
+                return true;
+            } catch (error) {
+                console.error('Erro ao excluir caixas:', error);
+                mostrarToast('Erro ao excluir caixas: ' + error.message, 'erro');
+                await verificarConexao();
+                return false;
+            }
+        }
+
+        // CORREÇÃO: Função para excluir múltiplas coordenadas usando a coluna de ID correta
+        async function excluirMultiplasCoordenadas(ids) {
+            const conectado = await verificarConexao();
+            if (!conectado) {
+                mostrarToast('Erro: Não foi possível conectar ao banco de dados. Verifique sua conexão.', 'erro');
+                return false;
+            }
+            
+            try {
+                // Descobrir qual é a coluna de ID correta
+                const colunaId = await descobrirColunaIdCoordenadas();
+                console.log(`🗑️ Excluindo coordenadas usando a coluna: ${colunaId}`);
+                console.log(`🗑️ IDs para excluir:`, ids);
+                
+                const result = await supabaseClient
+                    .from(TABELA_COORDENADAS)
+                    .delete()
+                    .in(colunaId, ids);
+
+                if (result.error) {
+                    if (result.error.message.includes('row-level security policy')) {
+                        console.error('❌ Erro de RLS detectado:', result.error);
+                        mostrarToast('Erro de permissão: A tabela está protegida por políticas de segurança. Entre em contato com o administrador.', 'erro');
+                    }
+                    throw result.error;
+                }
+                return true;
+            } catch (error) {
+                console.error('Erro ao excluir coordenadas:', error);
+                mostrarToast('Erro ao excluir coordenadas: ' + error.message, 'erro');
+                await verificarConexao();
+                return false;
+            }
+        }
+
+        async function moverCaixaParaCoordenadas(caixaId, latitude, longitude) {
+            const conectado = await verificarConexao();
+            if (!conectado) {
+                mostrarToast('Erro: Não foi possível conectar ao banco de dados. Verifique sua conexão.', 'erro');
+                return false;
+            }
+            
+            try {
+                const { data: caixa, error: erroCaixa } = await supabaseClient
+                    .from(TABELA_CAIXAS)
+                    .select('*')
+                    .eq('id', caixaId)
+                    .single();
+
+                if (erroCaixa) {
+                    throw erroCaixa;
+                }
+
+                const { error: erroInserir } = await supabaseClient
+                    .from(TABELA_COORDENADAS)
+                    .insert([
+                        {
+                            Nome: caixa.nome,
+                            'Tipo de Local': 'Caixa CE',
+                            Y: latitude,
+                            X: longitude
+                        }
+                    ]);
+
+                if (erroInserir) {
+                    throw erroInserir;
+                }
+
+                const { error: erroExcluir } = await supabaseClient
+                    .from(TABELA_CAIXAS)
+                    .delete()
+                    .eq('id', caixaId);
+
+                if (erroExcluir) {
+                    throw erroExcluir;
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Erro ao mover caixa para coordenadas:', error);
+                mostrarToast('Erro ao mover caixa para coordenadas: ' + error.message, 'erro');
+                return false;
+            }
+        }
+
+        // CORREÇÃO: Função para encontrar item pesquisado
+        function encontrarItemPesquisado(coordenadas, termoPesquisa) {
+            if (!termoPesquisa) return -1;
+            
+            const termo = termoPesquisa.toLowerCase().trim();
+            
+            for (let i = 0; i < coordenadas.length; i++) {
+                const coord = coordenadas[i];
+                const nome = (coord.Nome || '').toLowerCase();
+                const tipoLocal = (coord['Tipo de Local'] || coord['tipo_local'] || coord['Tipo_de_Local'] || coord['tipo'] || coord['Tipo'] || '').toLowerCase();
+                
+                if (nome.includes(termo) || tipoLocal.includes(termo)) {
+                    return i;
+                }
+            }
+            
+            return -1;
+        }
+
+        // CORREÇÃO: Função para obter contexto de pesquisa (4 itens antes e 4 itens depois)
+        function obterContextoPesquisa(coordenadas, indiceItem, termoPesquisa) {
+            if (indiceItem === -1) return coordenadas;
+            
+            const inicio = Math.max(0, indiceItem - 4);
+            const fim = Math.min(coordenadas.length, indiceItem + 5); // +5 porque queremos 4 itens depois + o próprio item
+            
+            modoPesquisaContexto = true;
+            itemPesquisadoIndex = indiceItem - inicio; // A posição do item pesquisado no contexto
+            
+            console.log(`🔍 Contexto de pesquisa: item ${indiceItem} de ${coordenadas.length} total`);
+            console.log(`🔍 Mostrando itens ${inicio} a ${fim-1} (${fim - inicio} itens)`);
+            console.log(`🔍 Item pesquisado na posição ${itemPesquisadoIndex} do contexto`);
+            
+            return coordenadas.slice(inicio, fim);
+        }
+
+        // Funções de Paginação
+        function atualizarPaginacao() {
+            const paginationControls = document.getElementById('pagination-controls');
+            const paginationInfo = document.getElementById('pagination-info');
+            const statsInfo = document.getElementById('stats-info');
+            const totalItens = coordenadasFiltradas.length;
+            const totalPaginas = Math.ceil(totalItens / itensPorPagina);
+            
+            paginationControls.innerHTML = '';
+            
+            if (totalPaginas <= 1) {
+                paginationControls.classList.add('hidden');
+                paginationInfo.classList.add('hidden');
+                statsInfo.classList.remove('hidden');
+                return;
+            }
+            
+            paginationControls.classList.remove('hidden');
+            paginationInfo.classList.remove('hidden');
+            statsInfo.classList.remove('hidden');
+            
+            const btnAnterior = document.createElement('button');
+            btnAnterior.innerHTML = '&laquo; Anterior';
+            btnAnterior.disabled = paginaAtual === 1;
+            btnAnterior.addEventListener('click', () => {
+                if (paginaAtual > 1) {
+                    paginaAtual--;
+                    renderizarPagina();
+                }
+            });
+            paginationControls.appendChild(btnAnterior);
+            
+            const inicioPagina = Math.max(1, paginaAtual - 2);
+            const fimPagina = Math.min(totalPaginas, paginaAtual + 2);
+            
+            for (let i = inicioPagina; i <= fimPagina; i++) {
+                const btnPagina = document.createElement('button');
+                btnPagina.textContent = i;
+                if (i === paginaAtual) {
+                    btnPagina.classList.add('active');
+                }
+                btnPagina.addEventListener('click', () => {
+                    paginaAtual = i;
+                    renderizarPagina();
+                });
+                paginationControls.appendChild(btnPagina);
+            }
+            
+            const btnProximo = document.createElement('button');
+            btnProximo.innerHTML = 'Próximo &raquo;';
+            btnProximo.disabled = paginaAtual === totalPaginas;
+            btnProximo.addEventListener('click', () => {
+                if (paginaAtual < totalPaginas) {
+                    paginaAtual++;
+                    renderizarPagina();
+                }
+            });
+            paginationControls.appendChild(btnProximo);
+            
+            const inicioItem = (paginaAtual - 1) * itensPorPagina + 1;
+            const fimItem = Math.min(paginaAtual * itensPorPagina, totalItens);
+            
+            paginationInfo.textContent = `Mostrando ${inicioItem} a ${fimItem} de ${totalItens} coordenadas`;
+            paginationInfo.classList.remove('hidden');
+        }
+
+        // CORREÇÃO: Função renderizarPagina otimizada para não usar async
+        function renderizarPagina() {
+            const tabelaCorpo = document.getElementById('tabela-corpo');
+            const emptyState = document.getElementById('empty-state');
+            const infoPesquisa = document.getElementById('info-pesquisa');
+            
+            let coordsPagina = [];
+            let inicio = 0;
+            let fim = 0;
+            
+            if (modoPesquisaContexto) {
+                coordsPagina = coordenadasFiltradas;
+                inicio = 1;
+                fim = coordsPagina.length;
+                
+                if (infoPesquisa) {
+                    infoPesquisa.innerHTML = `
+                        <strong>🔍 Modo de pesquisa:</strong> 
+                        Mostrando o item pesquisado com contexto (4 itens anteriores e 4 posteriores).
+                        O item pesquisado está destacado em amarelo.
+                        <br><strong>Total de itens no contexto:</strong> ${coordsPagina.length}
+                    `;
+                    infoPesquisa.classList.remove('hidden');
+                }
+            } else {
+                inicio = (paginaAtual - 1) * itensPorPagina;
+                fim = inicio + itensPorPagina;
+                coordsPagina = coordenadasFiltradas.slice(inicio, fim);
+                
+                if (infoPesquisa) {
+                    infoPesquisa.classList.add('hidden');
+                }
+            }
+            
+            tabelaCorpo.innerHTML = '';
+            
+            if (coordsPagina.length === 0) {
+                document.getElementById('tabela-coordenadas').classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                document.getElementById('pagination-controls').classList.add('hidden');
+                document.getElementById('pagination-info').classList.add('hidden');
+                document.getElementById('stats-info').classList.add('hidden');
+                if (infoPesquisa) infoPesquisa.classList.add('hidden');
+                return;
+            } else {
+                document.getElementById('tabela-coordenadas').classList.remove('hidden');
+                emptyState.classList.add('hidden');
+            }
+            
+            // Usar a coluna de ID já detectada ou 'id' como fallback
+            const colunaId = colunaIdCoordenadas || 'id';
+            
+            coordsPagina.forEach((coord, index) => {
+                const tr = document.createElement('tr');
+                
+                // CORREÇÃO: Destacar o item pesquisado no modo de contexto
+                if (modoPesquisaContexto && index === itemPesquisadoIndex) {
+                    tr.classList.add('destaque-pesquisa');
+                }
+                
+                const nome = coord.Nome || '';
+                const tipoLocal = coord['Tipo de Local'] || coord['tipo_local'] || coord['Tipo_de_Local'] || coord['tipo'] || coord['Tipo'] || '';
+                const latitude = normalizarCoordenada(coord.Y);
+                const longitude = normalizarCoordenada(coord.X);
+                const idCoordenada = coord[colunaId] || '';
+                
+                tr.innerHTML = `
+                    <td class="checkbox-column">
+                        <input type="checkbox" class="item-checkbox" data-id="${idCoordenada}" data-nome="${nome}" data-latitude="${latitude}" data-longitude="${longitude}">
+                    </td>
+                    <td>${nome}</td>
+                    <td>${tipoLocal}</td>
+                    <td>${latitude}</td>
+                    <td>${longitude}</td>
+                `;
+                tabelaCorpo.appendChild(tr);
+                
+                // Adicionar event listener para o checkbox
+                const checkbox = tr.querySelector('.item-checkbox');
+                checkbox.addEventListener('change', function() {
+                    const coordId = this.getAttribute('data-id');
+                    alternarSelecaoCoordenada(coordId, this.closest('tr'));
+                });
+            });
+            
+            if (!modoPesquisaContexto) {
+                atualizarPaginacao();
+            } else {
+                document.getElementById('pagination-controls').classList.add('hidden');
+                document.getElementById('pagination-info').classList.add('hidden');
+                document.getElementById('stats-info').classList.remove('hidden');
+                
+                const paginationInfo = document.getElementById('pagination-info');
+                if (paginationInfo) {
+                    const totalItens = coordenadasFiltradas.length;
+                    paginationInfo.textContent = `Modo pesquisa: Mostrando ${coordsPagina.length} itens com contexto`;
+                    paginationInfo.classList.remove('hidden');
+                }
+            }
+        }
+
+        function gerarTextoParaCopiar() {
+            const checkboxesSelecionados = document.querySelectorAll('.item-checkbox:checked');
+            let texto = '';
+            
+            checkboxesSelecionados.forEach(checkbox => {
+                const nome = checkbox.getAttribute('data-nome');
+                const latitude = checkbox.getAttribute('data-latitude');
+                const longitude = checkbox.getAttribute('data-longitude');
+                
+                texto += `*Localização aproximada da ${nome}:*\n`;
+                texto += `https://www.google.com/maps/place/${latitude},${longitude}\n\n`;
+            });
+            
+            return texto.trim();
+        }
+
+        function copiarParaAreaDeTransferencia(texto) {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(texto);
+            } else {
+                return new Promise((resolve, reject) => {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = texto;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    
+                    try {
+                        const successful = document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        if (successful) {
+                            resolve();
+                        } else {
+                            reject(new Error('Falha ao copiar texto'));
+                        }
+                    } catch (err) {
+                        document.body.removeChild(textArea);
+                        reject(err);
+                    }
+                });
+            }
+        }
+
+        function mostrarToast(mensagem, tipo = 'sucesso') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensagem;
+            toast.className = 'toast';
+            
+            if (tipo === 'erro') {
+                toast.classList.add('error');
+            }
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+
+        // Funções de UI (User Interface)
+        function atualizarBotoesAcao() {
+            const utilizarCaixasContainer = document.getElementById('utilizar-caixas-container');
+            const btnExcluirCoordenadas = document.getElementById('btn-excluir-coordenadas');
+            
+            if (caixasSelecionadas.length > 0) {
+                utilizarCaixasContainer.classList.remove('hidden');
+                document.getElementById('btn-utilizar-caixas').textContent = `Utilizar ${caixasSelecionadas.length} Caixa(s)`;
+            } else {
+                utilizarCaixasContainer.classList.add('hidden');
+            }
+            
+            if (coordenadasSelecionadas.length > 0) {
+                btnExcluirCoordenadas.classList.remove('hidden');
+            } else {
+                btnExcluirCoordenadas.classList.add('hidden');
+            }
+        }
+
+        function alternarSelecaoCaixa(caixaId, caixaElement) {
+            const index = caixasSelecionadas.indexOf(caixaId);
+            
+            if (index === -1) {
+                caixasSelecionadas.push(caixaId);
+                caixaElement.classList.add('caixa-selecionada');
+            } else {
+                caixasSelecionadas.splice(index, 1);
+                caixaElement.classList.remove('caixa-selecionada');
+            }
+            
+            atualizarBotoesAcao();
+        }
+
+        function alternarSelecaoCoordenada(coordId, coordElement) {
+            const index = coordenadasSelecionadas.indexOf(coordId);
+            
+            if (index === -1) {
+                coordenadasSelecionadas.push(coordId);
+            } else {
+                coordenadasSelecionadas.splice(index, 1);
+            }
+            
+            atualizarBotoesAcao();
+        }
+
+        // Lógica da Lista de Caixas - VERSÃO CORRIGIDA COM ALINHAMENTO ADEQUADO
+        async function atualizarListaCaixas() {
+            const caixas = await obterCaixas();
+            const listaDisponiveis = document.getElementById('lista-caixas-disponiveis');
+            const listaUtilizadas = document.getElementById('lista-caixas-utilizadas');
+            const emptyStateDisponiveis = document.getElementById('empty-state-caixas');
+            const emptyStateUtilizadas = document.getElementById('empty-state-caixas-utilizadas');
+            
+            caixasSelecionadas = [];
+            atualizarBotoesAcao();
+            
+            const caixasDisponiveis = caixas.filter(caixa => caixa.status === 'disponivel');
+            const caixasUtilizadas = caixas.filter(caixa => caixa.status === 'utilizada');
+            
+            listaDisponiveis.innerHTML = '';
+            
+            if (caixasDisponiveis.length === 0) {
+                emptyStateDisponiveis.classList.remove('hidden');
+            } else {
+                emptyStateDisponiveis.classList.add('hidden');
+                
+                caixasDisponiveis.forEach(caixa => {
+                    const div = document.createElement('div');
+                    div.className = 'caixa-item';
+                    div.innerHTML = `
+                        <div class="caixa-item-content">
+                            <div class="caixa-info">
+                                <div class="caixa-header">
+                                    <span class="caixa-nome">${caixa.nome}</span>
+                                    <span class="status-badge status-disponivel">Caixa disponível</span>
+                                </div>
+                                <div class="caixa-details">
+                                    <div class="caixa-details-grid">
+                                        <div class="caixa-checkbox-container">
+                                            <input type="checkbox" class="caixa-checkbox" id="caixa-${caixa.id}" data-id="${caixa.id}">
+                                        </div>
+                                        <div class="cadastro-info">
+                                            <strong>Cadastrado por:</strong> ${caixa.usuario_cadastro}
+                                        </div>
+                                        <div class="data-info">
+                                            <strong>Data de cadastro:</strong> ${new Date(caixa.data_cadastro).toLocaleString('pt-BR')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    listaDisponiveis.appendChild(div);
+                    
+                    const checkbox = div.querySelector(`#caixa-${caixa.id}`);
+                    checkbox.addEventListener('change', function() {
+                        alternarSelecaoCaixa(caixa.id, div);
+                    });
+                });
+            }
+            
+            listaUtilizadas.innerHTML = '';
+            
+            if (caixasUtilizadas.length === 0) {
+                emptyStateUtilizadas.classList.remove('hidden');
+            } else {
+                emptyStateUtilizadas.classList.add('hidden');
+                
+                caixasUtilizadas.forEach(caixa => {
+                    const div = document.createElement('div');
+                    div.className = 'caixa-item';
+                    div.innerHTML = `
+                        <div class="caixa-item-content">
+                            <div class="caixa-info">
+                                <div class="caixa-header">
+                                    <span class="caixa-nome">${caixa.nome}</span>
+                                    <span class="status-badge status-utilizada">Caixa reservada</span>
+                                </div>
+                                <div class="caixa-details">
+                                    <p><strong>Cadastrado por:</strong> ${caixa.usuario_cadastro}</p>
+                                    <p><strong>Utilizado por:</strong> ${caixa.usuario_utilizou}</p>
+                                    <p><strong>Evento:</strong> ${caixa.evento}</p>
+                                    <p><strong>Data de utilização:</strong> ${new Date(caixa.data_utilizacao).toLocaleString('pt-BR')}</p>
+                                </div>
+                            </div>
+                            <div class="caixa-actions">
+                                <button class="action-btn btn-warning btn-retornar-caixa" data-id="${caixa.id}" data-nome="${caixa.nome}">Retornar para Disponível</button>
+                                <button class="action-btn btn-success btn-mover-coordenadas" data-id="${caixa.id}" data-nome="${caixa.nome}">Mover para Caixas Ativas</button>
+                            </div>
+                        </div>
+                    `;
+                    listaUtilizadas.appendChild(div);
+                });
+            }
+            
+            // CORREÇÃO: Adicionar event listeners para os botões de ação nas caixas reservadas
+            document.querySelectorAll('.btn-retornar-caixa').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const nome = this.getAttribute('data-nome');
+                    document.getElementById('caixa-id-retornar').value = id;
+                    document.getElementById('caixa-nome-retornar').textContent = nome;
+                    document.getElementById('modal-retornar-caixa').style.display = 'flex';
+                });
+            });
+            
+            document.querySelectorAll('.btn-mover-coordenadas').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const nome = this.getAttribute('data-nome');
+                    document.getElementById('caixa-id-mover').value = id;
+                    document.getElementById('caixa-nome-mover').textContent = nome;
+                    document.getElementById('latitude-mover').value = '';
+                    document.getElementById('longitude-mover').value = '';
+                    document.getElementById('modal-mover-coordenadas').style.display = 'flex';
+                });
+            });
+        }
+
+        async function atualizarEstatisticasCaixas() {
+            const caixas = await obterCaixas();
+            const caixasDisponiveis = caixas.filter(caixa => caixa.status === 'disponivel').length;
+            
+            document.getElementById('caixas-disponiveis').textContent = caixasDisponiveis;
+        }
+
+        // Inicialização da aplicação
+        document.addEventListener('DOMContentLoaded', function() {
+            const navCaixas = document.getElementById('nav-caixas');
+            const navConsulta = document.getElementById('nav-consulta');
+            const pageCaixas = document.getElementById('page-caixas');
+            const pageConsulta = document.getElementById('page-consulta');
+            const formCaixas = document.getElementById('form-caixas');
+            const formRetornarCaixa = document.getElementById('form-retornar-caixa');
+            const formMoverCoordenadas = document.getElementById('form-mover-coordenadas');
+            const formUtilizarCaixas = document.getElementById('form-utilizar-caixas');
+            const formEditarCaixas = document.getElementById('form-editar-caixas');
+            const formConfirmarExclusao = document.getElementById('form-confirmar-exclusao');
+            const modalRetornar = document.getElementById('modal-retornar-caixa');
+            const modalMoverCoordenadas = document.getElementById('modal-mover-coordenadas');
+            const modalUtilizarCaixas = document.getElementById('modal-utilizar-caixas');
+            const modalEditarCaixas = document.getElementById('modal-editar-caixas');
+            const modalConfirmarExclusao = document.getElementById('modal-confirmar-exclusao');
+            const closeModalButtons = document.querySelectorAll('.close-modal, #btn-cancelar-retorno, #btn-cancelar-mover, #btn-cancelar-utilizacao, #btn-cancelar-editar, #btn-cancelar-exclusao');
+            const btnCopiar = document.getElementById('btn-copiar');
+            const btnExcluirCoordenadas = document.getElementById('btn-excluir-coordenadas');
+            const btnUtilizarCaixas = document.getElementById('btn-utilizar-caixas');
+            const btnEditarCaixas = document.getElementById('btn-editar-caixas');
+            const btnExcluirCaixas = document.getElementById('btn-excluir-caixas');
+            const caixasTexto = document.getElementById('caixas-texto');
+            const searchInput = document.getElementById('search-input');
+            const tipoLocalSelect = document.getElementById('tipo-local-select');
+            
+            if (caixasTexto) {
+                caixasTexto.addEventListener('input', function() {
+                    this.value = this.value.toUpperCase();
+                });
+            }
+
+            function mostrarPagina(pagina, linkAtivo) {
+                pageCaixas.classList.add('hidden');
+                pageConsulta.classList.add('hidden');
+                
+                navCaixas.classList.remove('active');
+                navConsulta.classList.remove('active');
+                
+                pagina.classList.remove('hidden');
+                linkAtivo.classList.add('active');
+                
+                if (pagina === pageConsulta) {
+                    modoPesquisaContexto = false;
+                    itemPesquisadoIndex = -1;
+                    // CORREÇÃO: Resetar seleção de coordenadas ao mudar de página
+                    coordenadasSelecionadas = [];
+                    atualizarBotoesAcao();
+                    atualizarTabela();
+                    carregarTiposDeLocal();
+                } else if (pagina === pageCaixas) {
+                    atualizarListaCaixas();
+                    atualizarEstatisticasCaixas();
+                }
+            }
+            
+            navCaixas.addEventListener('click', function(e) {
+                e.preventDefault();
+                mostrarPagina(pageCaixas, navCaixas);
+            });
+            
+            navConsulta.addEventListener('click', function(e) {
+                e.preventDefault();
+                mostrarPagina(pageConsulta, navConsulta);
+            });
+            
+            function copiarItensSelecionados() {
+                const checkboxesSelecionados = document.querySelectorAll('.item-checkbox:checked');
+                
+                if (checkboxesSelecionados.length === 0) {
+                    mostrarToast('Por favor, selecione pelo menos um item para copiar.', 'erro');
+                    return;
+                }
+                
+                const texto = gerarTextoParaCopiar();
+                
+                copiarParaAreaDeTransferencia(texto).then(() => {
+                    mostrarToast('Texto copiado para a área de transferência!');
+                }).catch(err => {
+                    console.error('Erro ao copiar texto: ', err);
+                    try {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = texto;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        mostrarToast('Texto copiado para a área de transferência!');
+                    } catch (err2) {
+                        console.error('Erro ao copiar texto (método alternativo): ', err2);
+                        mostrarToast('Erro ao copiar texto. Tente novamente.', 'erro');
+                    }
+                });
+            }
+            
+            btnCopiar.addEventListener('click', copiarItensSelecionados);
+            
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                    const checkboxesSelecionados = document.querySelectorAll('.item-checkbox:checked');
+                    
+                    if (checkboxesSelecionados.length > 0) {
+                        e.preventDefault();
+                        copiarItensSelecionados();
+                    }
+                }
+            });
+            
+            formCaixas.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const caixasTexto = document.getElementById('caixas-texto').value;
+                const usuarioCadastro = document.getElementById('usuario-cadastro').value;
+                
+                if (!caixasTexto.trim() || !usuarioCadastro.trim()) {
+                    mostrarToast('Por favor, preencha todos os campos obrigatórios.', 'erro');
+                    return;
+                }
+                
+                const nomesCaixas = caixasTexto.split(';').map(nome => nome.trim()).filter(nome => nome !== '');
+                
+                if (nomesCaixas.length === 0) {
+                    mostrarToast('Por favor, insira pelo menos um nome de caixa válido.', 'erro');
+                    return;
+                }
+                
+                const caixasParaCadastrar = nomesCaixas.map(nome => ({
+                    nome: nome,
+                    usuario_cadastro: usuarioCadastro,
+                    status: 'disponivel',
+                    categoria: 'Caixa CE',
+                    data_cadastro: new Date().toISOString()
+                }));
+                
+                const sucesso = await cadastrarCaixas(caixasParaCadastrar);
+                
+                if (sucesso) {
+                    mostrarToast(`✅ ${nomesCaixas.length} caixa(s) cadastrada(s) com sucesso!`);
+                    
+                    formCaixas.reset();
+                    
+                    atualizarListaCaixas();
+                    atualizarEstatisticasCaixas();
+                }
+            });
+            
+            document.getElementById('btn-limpar-caixas').addEventListener('click', function() {
+                formCaixas.reset();
+            });
+            
+            async function atualizarTabela(termoPesquisa = '') {
+                const coordenadas = await obterCoordenadas();
+                const tipoLocalSelecionado = tipoLocalSelect.value;
+                
+                coordenadasFiltradas = coordenadas;
+                if (termoPesquisa || tipoLocalSelecionado) {
+                    const termo = termoPesquisa.toLowerCase();
+                    coordenadasFiltradas = coordenadas.filter(coord => {
+                        const nome = coord.Nome || '';
+                        const tipoLocal = coord['Tipo de Local'] || coord['tipo_local'] || coord['Tipo_de_Local'] || coord['tipo'] || coord['Tipo'] || '';
+                        
+                        const correspondePesquisa = !termoPesquisa || 
+                            nome.toLowerCase().includes(termo) ||
+                            tipoLocal.toLowerCase().includes(termo);
+                        
+                        const correspondeTipoLocal = !tipoLocalSelecionado || 
+                            tipoLocal === tipoLocalSelecionado;
+                        
+                        return correspondePesquisa && correspondeTipoLocal;
+                    });
+                }
+                
+                // CORREÇÃO: Aplicar o contexto de pesquisa apenas quando houver um termo de pesquisa
+                if (termoPesquisa && coordenadasFiltradas.length > 0) {
+                    const indiceItem = encontrarItemPesquisado(coordenadasFiltradas, termoPesquisa);
+                    if (indiceItem !== -1) {
+                        coordenadasFiltradas = obterContextoPesquisa(coordenadasFiltradas, indiceItem, termoPesquisa);
+                    } else {
+                        modoPesquisaContexto = false;
+                        itemPesquisadoIndex = -1;
+                    }
+                } else {
+                    modoPesquisaContexto = false;
+                    itemPesquisadoIndex = -1;
+                }
+                
+                // CORREÇÃO: Resetar seleção de coordenadas ao atualizar a tabela
+                coordenadasSelecionadas = [];
+                atualizarBotoesAcao();
+                
+                if (!modoPesquisaContexto) {
+                    paginaAtual = 1;
+                }
+                
+                renderizarPagina();
+            }
+
+            formRetornarCaixa.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const caixaId = document.getElementById('caixa-id-retornar').value;
+                
+                const dadosAtualizacao = {
+                    status: 'disponivel',
+                    usuario_utilizou: null,
+                    evento: null,
+                    data_utilizacao: null
+                };
+                
+                const sucesso = await atualizarCaixa(caixaId, dadosAtualizacao);
+                
+                if (sucesso) {
+                    mostrarToast('✅ Caixa retornada para disponível com sucesso!');
+                    modalRetornar.style.display = 'none';
+                    atualizarListaCaixas();
+                    atualizarEstatisticasCaixas();
+                }
+            });
+            
+            formMoverCoordenadas.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const caixaId = document.getElementById('caixa-id-mover').value;
+                const latitude = document.getElementById('latitude-mover').value;
+                const longitude = document.getElementById('longitude-mover').value;
+                
+                if (!latitude || !longitude) {
+                    mostrarToast('Por favor, preencha a latitude e longitude.', 'erro');
+                    return;
+                }
+                
+                const sucesso = await moverCaixaParaCoordenadas(caixaId, latitude, longitude);
+                
+                if (sucesso) {
+                    mostrarToast('✅ Caixa movida para caixas ativas com sucesso!');
+                    modalMoverCoordenadas.style.display = 'none';
+                    atualizarListaCaixas();
+                    atualizarEstatisticasCaixas();
+                }
+            });
+            
+            formUtilizarCaixas.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const usuarioUtilizacao = document.getElementById('usuario-utilizacao').value;
+                const eventoUtilizacao = document.getElementById('evento-utilizacao').value;
+                
+                if (!usuarioUtilizacao.trim() || !eventoUtilizacao.trim()) {
+                    mostrarToast('Por favor, preencha todos os campos obrigatórios.', 'erro');
+                    return;
+                }
+                
+                if (caixasSelecionadas.length === 0) {
+                    mostrarToast('Por favor, selecione pelo menos uma caixa para utilizar.', 'erro');
+                    return;
+                }
+                
+                const dadosAtualizacao = {
+                    status: 'utilizada',
+                    usuario_utilizou: usuarioUtilizacao,
+                    evento: eventoUtilizacao,
+                    data_utilizacao: new Date().toISOString()
+                };
+                
+                const sucesso = await atualizarMultiplasCaixas(caixasSelecionadas, dadosAtualizacao);
+                
+                if (sucesso) {
+                    mostrarToast(`✅ ${caixasSelecionadas.length} caixa(s) utilizada(s) com sucesso!`);
+                    modalUtilizarCaixas.style.display = 'none';
+                    atualizarListaCaixas();
+                    atualizarEstatisticasCaixas();
+                    
+                    formUtilizarCaixas.reset();
+                }
+            });
+            
+            formEditarCaixas.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const novoNome = document.getElementById('novo-nome-caixa').value;
+                const novoUsuario = document.getElementById('novo-usuario-caixa').value;
+                
+                if (!novoNome && !novoUsuario) {
+                    mostrarToast('Por favor, preencha pelo menos um campo para editar.', 'erro');
+                    return;
+                }
+                
+                if (caixasSelecionadas.length === 0) {
+                    mostrarToast('Por favor, selecione pelo menos uma caixa para editar.', 'erro');
+                    return;
+                }
+                
+                const dadosAtualizacao = {};
+                if (novoNome) dadosAtualizacao.nome = novoNome;
+                if (novoUsuario) dadosAtualizacao.usuario_cadastro = novoUsuario;
+                
+                const sucesso = await atualizarMultiplasCaixas(caixasSelecionadas, dadosAtualizacao);
+                
+                if (sucesso) {
+                    mostrarToast(`✅ ${caixasSelecionadas.length} caixa(s) editada(s) com sucesso!`);
+                    modalEditarCaixas.style.display = 'none';
+                    atualizarListaCaixas();
+                    atualizarEstatisticasCaixas();
+                    
+                    formEditarCaixas.reset();
+                }
+            });
+            
+            formConfirmarExclusao.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const tipoExclusao = document.getElementById('itens-selecionados-exclusao').getAttribute('data-tipo');
+                
+                let sucesso = false;
+                if (tipoExclusao === 'caixas') {
+                    sucesso = await excluirMultiplasCaixas(caixasSelecionadas);
+                    if (sucesso) {
+                        mostrarToast(`✅ ${caixasSelecionadas.length} caixa(s) excluída(s) com sucesso!`);
+                        atualizarListaCaixas();
+                        atualizarEstatisticasCaixas();
+                    }
+                } else if (tipoExclusao === 'coordenadas') {
+                    sucesso = await excluirMultiplasCoordenadas(coordenadasSelecionadas);
+                    if (sucesso) {
+                        mostrarToast(`✅ ${coordenadasSelecionadas.length} coordenada(s) excluída(s) com sucesso!`);
+                        atualizarTabela();
+                    }
+                }
+                
+                if (sucesso) {
+                    modalConfirmarExclusao.style.display = 'none';
+                }
+            });
+            
+            btnUtilizarCaixas.addEventListener('click', function() {
+                if (caixasSelecionadas.length === 0) {
+                    mostrarToast('Por favor, selecione pelo menos uma caixa para utilizar.', 'erro');
+                    return;
+                }
+                
+                const caixasSelecionadasNomes = [];
+                caixasSelecionadas.forEach(id => {
+                    const checkbox = document.querySelector(`#caixa-${id}`);
+                    if (checkbox) {
+                        const nome = checkbox.closest('.caixa-item').querySelector('.caixa-nome').textContent;
+                        caixasSelecionadasNomes.push(nome);
+                    }
+                });
+                
+                document.getElementById('caixas-selecionadas-nomes').textContent = caixasSelecionadasNomes.join(', ');
+                document.getElementById('usuario-utilizacao').value = '';
+                document.getElementById('evento-utilizacao').value = '';
+                modalUtilizarCaixas.style.display = 'flex';
+            });
+            
+            btnEditarCaixas.addEventListener('click', function() {
+                if (caixasSelecionadas.length === 0) {
+                    mostrarToast('Por favor, selecione pelo menos uma caixa para editar.', 'erro');
+                    return;
+                }
+                
+                const caixasSelecionadasNomes = [];
+                caixasSelecionadas.forEach(id => {
+                    const checkbox = document.querySelector(`#caixa-${id}`);
+                    if (checkbox) {
+                        const nome = checkbox.closest('.caixa-item').querySelector('.caixa-nome').textContent;
+                        caixasSelecionadasNomes.push(nome);
+                    }
+                });
+                
+                document.getElementById('caixas-selecionadas-nomes-editar').textContent = caixasSelecionadasNomes.join(', ');
+                document.getElementById('novo-nome-caixa').value = '';
+                document.getElementById('novo-usuario-caixa').value = '';
+                modalEditarCaixas.style.display = 'flex';
+            });
+            
+            btnExcluirCaixas.addEventListener('click', function() {
+                if (caixasSelecionadas.length === 0) {
+                    mostrarToast('Por favor, selecione pelo menos uma caixa para excluir.', 'erro');
+                    return;
+                }
+                
+                const caixasSelecionadasNomes = [];
+                caixasSelecionadas.forEach(id => {
+                    const checkbox = document.querySelector(`#caixa-${id}`);
+                    if (checkbox) {
+                        const nome = checkbox.closest('.caixa-item').querySelector('.caixa-nome').textContent;
+                        caixasSelecionadasNomes.push(nome);
+                    }
+                });
+                
+                document.getElementById('itens-selecionados-exclusao').textContent = caixasSelecionadasNomes.join(', ');
+                document.getElementById('itens-selecionados-exclusao').setAttribute('data-tipo', 'caixas');
+                modalConfirmarExclusao.style.display = 'flex';
+            });
+            
+            btnExcluirCoordenadas.addEventListener('click', function() {
+                if (coordenadasSelecionadas.length === 0) {
+                    mostrarToast('Por favor, selecione pelo menos uma coordenada para excluir.', 'erro');
+                    return;
+                }
+                
+                const coordenadasSelecionadasNomes = [];
+                coordenadasSelecionadas.forEach(id => {
+                    const checkbox = document.querySelector(`.item-checkbox[data-id="${id}"]`);
+                    if (checkbox) {
+                        const nome = checkbox.getAttribute('data-nome');
+                        coordenadasSelecionadasNomes.push(nome);
+                    }
+                });
+                
+                document.getElementById('itens-selecionados-exclusao').textContent = coordenadasSelecionadasNomes.join(', ');
+                document.getElementById('itens-selecionados-exclusao').setAttribute('data-tipo', 'coordenadas');
+                modalConfirmarExclusao.style.display = 'flex';
+            });
+            
+            closeModalButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    modalRetornar.style.display = 'none';
+                    modalMoverCoordenadas.style.display = 'none';
+                    modalUtilizarCaixas.style.display = 'none';
+                    modalEditarCaixas.style.display = 'none';
+                    modalConfirmarExclusao.style.display = 'none';
+                });
+            });
+            
+            window.addEventListener('click', function(e) {
+                if (e.target === modalRetornar) {
+                    modalRetornar.style.display = 'none';
+                }
+                if (e.target === modalMoverCoordenadas) {
+                    modalMoverCoordenadas.style.display = 'none';
+                }
+                if (e.target === modalUtilizarCaixas) {
+                    modalUtilizarCaixas.style.display = 'none';
+                }
+                if (e.target === modalEditarCaixas) {
+                    modalEditarCaixas.style.display = 'none';
+                }
+                if (e.target === modalConfirmarExclusao) {
+                    modalConfirmarExclusao.style.display = 'none';
+                }
+            });
+            
+            let searchTimeout;
+            
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    const termo = searchInput.value.trim();
+                    if (termo) {
+                        atualizarTabela(termo);
+                    } else {
+                        modoPesquisaContexto = false;
+                        itemPesquisadoIndex = -1;
+                        atualizarTabela('');
+                    }
+                }, 500);
+            });
+            
+            tipoLocalSelect.addEventListener('change', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    const termo = searchInput.value.trim();
+                    atualizarTabela(termo);
+                }, 300);
+            });
+            
+            document.getElementById('btn-limpar-pesquisa').addEventListener('click', function() {
+                searchInput.value = '';
+                tipoLocalSelect.value = '';
+                paginaAtual = 1;
+                modoPesquisaContexto = false;
+                itemPesquisadoIndex = -1;
+                atualizarTabela();
+            });
+
+            async function inicializarAplicacao() {
+                console.log('🚀 Inicializando aplicação...');
+                
+                await verificarConexao();
+                
+                // CORREÇÃO: Detectar a coluna de ID uma vez durante a inicialização
+                await descobrirColunaIdCoordenadas();
+                
+                console.log('✅ Usando tabela de caixas: cx_disponiveis');
+                
+                mostrarPagina(pageConsulta, navConsulta);
+                
+                setInterval(verificarConexao, 30000);
+            }
+            
+            inicializarAplicacao();
+        });
+    </script>
+</body>
+</html>
