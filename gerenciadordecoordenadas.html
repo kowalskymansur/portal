@@ -702,6 +702,16 @@
             font-weight: 600;
         }
 
+        /* NOVO: Estilo para informações de pesquisa múltipla */
+        .pesquisa-multipla-info {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -773,7 +783,7 @@
                 <div class="search-bar">
                     <div class="search-input-container">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="search-input" class="search-input" placeholder="Digite para pesquisar por nome, localização ou tipo...">
+                        <input type="text" id="search-input" class="search-input" placeholder="Digite para pesquisar por nome, localização ou tipo (separado por ; sem espaços)">
                     </div>
                     <select id="tipo-local-select" class="categoria-select">
                         <option value="">Todos os Tipos de Local</option>
@@ -1592,40 +1602,67 @@
             }
         }
 
-        // CORREÇÃO: Função para encontrar item pesquisado
-        function encontrarItemPesquisado(coordenadas, termoPesquisa) {
-            if (!termoPesquisa) return -1;
+        // NOVA FUNÇÃO: Encontrar múltiplos itens pesquisados
+        function encontrarItensPesquisados(coordenadas, termosPesquisa) {
+            if (!termosPesquisa || termosPesquisa.length === 0) return [];
             
-            const termo = termoPesquisa.toLowerCase().trim();
+            const indicesEncontrados = [];
             
-            for (let i = 0; i < coordenadas.length; i++) {
-                const coord = coordenadas[i];
-                const nome = (coord.Nome || '').toLowerCase();
-                const tipoLocal = (coord['Tipo de Local'] || coord['tipo_local'] || coord['Tipo_de_Local'] || coord['tipo'] || coord['Tipo'] || '').toLowerCase();
+            termosPesquisa.forEach(termo => {
+                const termoLower = termo.toLowerCase().trim();
                 
-                if (nome.includes(termo) || tipoLocal.includes(termo)) {
-                    return i;
+                for (let i = 0; i < coordenadas.length; i++) {
+                    const coord = coordenadas[i];
+                    const nome = (coord.Nome || '').toLowerCase();
+                    const tipoLocal = (coord['Tipo de Local'] || coord['tipo_local'] || coord['Tipo_de_Local'] || coord['tipo'] || coord['Tipo'] || '').toLowerCase();
+                    
+                    if (nome.includes(termoLower) || tipoLocal.includes(termoLower)) {
+                        // Verificar se o índice já não foi adicionado (evitar duplicatas)
+                        if (!indicesEncontrados.includes(i)) {
+                            indicesEncontrados.push(i);
+                        }
+                    }
                 }
-            }
+            });
             
-            return -1;
+            return indicesEncontrados.sort((a, b) => a - b);
         }
 
-        // CORREÇÃO: Função para obter contexto de pesquisa (4 itens antes e 4 itens depois)
-        function obterContextoPesquisa(coordenadas, indiceItem, termoPesquisa) {
-            if (indiceItem === -1) return coordenadas;
+        // NOVA FUNÇÃO: Obter contexto de pesquisa para múltiplos itens
+        function obterContextoPesquisaMultipla(coordenadas, indicesItens) {
+            if (indicesItens.length === 0) return coordenadas;
             
-            const inicio = Math.max(0, indiceItem - 4);
-            const fim = Math.min(coordenadas.length, indiceItem + 5); // +5 porque queremos 4 itens depois + o próprio item
+            // Encontrar o menor e maior índice para determinar o contexto
+            const menorIndice = Math.min(...indicesItens);
+            const maiorIndice = Math.max(...indicesItens);
+            
+            // Calcular o contexto (4 itens antes do primeiro e 4 itens depois do último)
+            const inicio = Math.max(0, menorIndice - 4);
+            const fim = Math.min(coordenadas.length, maiorIndice + 5); // +5 porque queremos 4 itens depois + o próprio item
             
             modoPesquisaContexto = true;
-            itemPesquisadoIndex = indiceItem - inicio; // A posição do item pesquisado no contexto
             
-            console.log(`🔍 Contexto de pesquisa: item ${indiceItem} de ${coordenadas.length} total`);
+            // Mapear as posições dos itens pesquisados no contexto
+            itemPesquisadoIndex = indicesItens.map(indice => indice - inicio);
+            
+            console.log(`🔍 Contexto de pesquisa múltipla: ${indicesItens.length} itens de ${coordenadas.length} total`);
             console.log(`🔍 Mostrando itens ${inicio} a ${fim-1} (${fim - inicio} itens)`);
-            console.log(`🔍 Item pesquisado na posição ${itemPesquisadoIndex} do contexto`);
+            console.log(`🔍 Itens pesquisados nas posições:`, itemPesquisadoIndex);
             
             return coordenadas.slice(inicio, fim);
+        }
+
+        // MODIFICAÇÃO: Função para processar termos de pesquisa múltipla
+        function processarTermosPesquisa(termoPesquisa) {
+            if (!termoPesquisa) return [];
+            
+            // Separar por ponto e vírgula e remover espaços em branco
+            const termos = termoPesquisa.split(';')
+                .map(termo => termo.trim())
+                .filter(termo => termo !== '');
+            
+            console.log(`🔍 Termos de pesquisa processados:`, termos);
+            return termos;
         }
 
         // Funções de Paginação
@@ -1694,7 +1731,7 @@
             paginationInfo.classList.remove('hidden');
         }
 
-        // CORREÇÃO: Função renderizarPagina otimizada para não usar async
+        // MODIFICAÇÃO: Função renderizarPagina para suportar pesquisa múltipla
         function renderizarPagina() {
             const tabelaCorpo = document.getElementById('tabela-corpo');
             const emptyState = document.getElementById('empty-state');
@@ -1710,11 +1747,16 @@
                 fim = coordsPagina.length;
                 
                 if (infoPesquisa) {
+                    const searchInput = document.getElementById('search-input');
+                    const termos = processarTermosPesquisa(searchInput.value);
+                    
                     infoPesquisa.innerHTML = `
-                        <strong>🔍 Modo de pesquisa:</strong> 
-                        Mostrando o item pesquisado com contexto (4 itens anteriores e 4 posteriores).
-                        O item pesquisado está destacado em amarelo.
+                        <strong>🔍 Modo de pesquisa múltipla:</strong> 
+                        Mostrando os itens pesquisados com contexto (4 itens anteriores e 4 posteriores).
+                        Os itens pesquisados estão destacados em amarelo.
+                        <br><strong>Termos pesquisados:</strong> ${termos.join(', ')}
                         <br><strong>Total de itens no contexto:</strong> ${coordsPagina.length}
+                        <br><strong>Itens encontrados:</strong> ${Array.isArray(itemPesquisadoIndex) ? itemPesquisadoIndex.length : 1}
                     `;
                     infoPesquisa.classList.remove('hidden');
                 }
@@ -1749,9 +1791,19 @@
             coordsPagina.forEach((coord, index) => {
                 const tr = document.createElement('tr');
                 
-                // CORREÇÃO: Destacar o item pesquisado no modo de contexto
-                if (modoPesquisaContexto && index === itemPesquisadoIndex) {
-                    tr.classList.add('destaque-pesquisa');
+                // MODIFICAÇÃO: Destacar múltiplos itens pesquisados no modo de contexto
+                if (modoPesquisaContexto) {
+                    if (Array.isArray(itemPesquisadoIndex)) {
+                        // Pesquisa múltipla - destacar todos os itens encontrados
+                        if (itemPesquisadoIndex.includes(index)) {
+                            tr.classList.add('destaque-pesquisa');
+                        }
+                    } else {
+                        // Pesquisa única (compatibilidade)
+                        if (index === itemPesquisadoIndex) {
+                            tr.classList.add('destaque-pesquisa');
+                        }
+                    }
                 }
                 
                 const nome = coord.Nome || '';
@@ -1789,7 +1841,10 @@
                 const paginationInfo = document.getElementById('pagination-info');
                 if (paginationInfo) {
                     const totalItens = coordenadasFiltradas.length;
-                    paginationInfo.textContent = `Modo pesquisa: Mostrando ${coordsPagina.length} itens com contexto`;
+                    const searchInput = document.getElementById('search-input');
+                    const termos = processarTermosPesquisa(searchInput.value);
+                    
+                    paginationInfo.textContent = `Modo pesquisa múltipla: ${termos.length} termo(s), ${coordsPagina.length} itens com contexto`;
                     paginationInfo.classList.remove('hidden');
                 }
             }
@@ -2174,20 +2229,33 @@
                 formCaixas.reset();
             });
             
+            // MODIFICAÇÃO: Função atualizarTabela para suportar pesquisa múltipla
             async function atualizarTabela(termoPesquisa = '') {
                 const coordenadas = await obterCoordenadas();
                 const tipoLocalSelecionado = tipoLocalSelect.value;
                 
                 coordenadasFiltradas = coordenadas;
                 if (termoPesquisa || tipoLocalSelecionado) {
+                    const termos = processarTermosPesquisa(termoPesquisa);
                     const termo = termoPesquisa.toLowerCase();
+                    
                     coordenadasFiltradas = coordenadas.filter(coord => {
                         const nome = coord.Nome || '';
                         const tipoLocal = coord['Tipo de Local'] || coord['tipo_local'] || coord['Tipo_de_Local'] || coord['tipo'] || coord['Tipo'] || '';
                         
-                        const correspondePesquisa = !termoPesquisa || 
-                            nome.toLowerCase().includes(termo) ||
-                            tipoLocal.toLowerCase().includes(termo);
+                        // Pesquisa múltipla: verificar se corresponde a qualquer um dos termos
+                        let correspondePesquisa = !termoPesquisa;
+                        if (termos.length > 0) {
+                            correspondePesquisa = termos.some(termo => 
+                                nome.toLowerCase().includes(termo.toLowerCase()) ||
+                                tipoLocal.toLowerCase().includes(termo.toLowerCase())
+                            );
+                        } else if (termoPesquisa) {
+                            // Pesquisa única (compatibilidade)
+                            correspondePesquisa = 
+                                nome.toLowerCase().includes(termo) ||
+                                tipoLocal.toLowerCase().includes(termo);
+                        }
                         
                         const correspondeTipoLocal = !tipoLocalSelecionado || 
                             tipoLocal === tipoLocalSelecionado;
@@ -2196,11 +2264,18 @@
                     });
                 }
                 
-                // CORREÇÃO: Aplicar o contexto de pesquisa apenas quando houver um termo de pesquisa
+                // MODIFICAÇÃO: Aplicar o contexto de pesquisa para múltiplos itens
                 if (termoPesquisa && coordenadasFiltradas.length > 0) {
-                    const indiceItem = encontrarItemPesquisado(coordenadasFiltradas, termoPesquisa);
-                    if (indiceItem !== -1) {
-                        coordenadasFiltradas = obterContextoPesquisa(coordenadasFiltradas, indiceItem, termoPesquisa);
+                    const termos = processarTermosPesquisa(termoPesquisa);
+                    
+                    if (termos.length > 0) {
+                        const indicesItens = encontrarItensPesquisados(coordenadasFiltradas, termos);
+                        if (indicesItens.length > 0) {
+                            coordenadasFiltradas = obterContextoPesquisaMultipla(coordenadasFiltradas, indicesItens);
+                        } else {
+                            modoPesquisaContexto = false;
+                            itemPesquisadoIndex = -1;
+                        }
                     } else {
                         modoPesquisaContexto = false;
                         itemPesquisadoIndex = -1;
