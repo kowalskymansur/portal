@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Materiais</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #1abc9c;
+            --bg-color: #f5f7fa;
+            --text-color: #333;
+            --card-bg: white;
+            --border-color: #ddd;
+            --header-bg: #2c3e50;
+        }
+
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --card-bg: #2d2d2d;
+            --border-color: #444;
+            --header-bg: #1a1a1a;
+            --light: #3d3d3d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            margin: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--secondary);
+            color: var(--secondary);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .search-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .search-bar {
+            display: flex;
+            margin-bottom: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .search-input-container {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .search-input-container input {
+            width: 100%;
+            padding: 10px 40px 10px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .clear-search {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 5px;
+            display: none;
+        }
+        
+        .clear-search:hover {
+            color: var(--danger);
+        }
+        
+        .search-bar select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            flex: 1;
+            min-width: 200px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: var(--card-bg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle; /* Garantir alinhamento vertical */
+            height: 60px; /* Altura fixa para todas as células */
+        }
+        
+        th {
+            background-color: var(--light);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 5px;
+            align-items: center; /* Centralizar verticalmente os botões */
+            height: 100%; /* Usar toda a altura da célula */
+        }
+        
+        .btn {
+            padding: 8px 12px; /* Aumentar um pouco o padding para melhor preenchimento */
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            height: 36px; /* Altura fixa para os botões */
+            white-space: nowrap; /* Evitar quebra de linha nos botões */
+        }
+        
+        .btn-edit {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-save {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background-color: #27ae60;
+        }
+        
+        .form-container {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 5px;
+        }
+        
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            cursor: pointer;
+            border-radius: 4px;
+            color: var(--text-color);
+        }
+        
+        .pagination button.active {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        .form-title {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .export-btn {
+            background-color: var(--info);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .export-btn:hover {
+            background-color: #16a085;
+        }
+        
+        .validation-error {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .input-error {
+            border-color: var(--danger) !important;
+        }
+
+        .status-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .status-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .status-error {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .status-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .status-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .categoria-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+
+            .categoria-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1><i class="fas fa-boxes"></i> Consulta de Materiais</h1>
+                <!-- Botão modo escuro removido -->
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="statusMessage"></div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="consultar"><i class="fas fa-search"></i> Consultar Materiais</div>
+            <div class="tab" data-tab="cadastrar"><i class="fas fa-plus-circle"></i> Cadastrar/Editar Material</div>
+            <div class="tab" data-tab="categorias"><i class="fas fa-tags"></i> Gerenciar Categorias</div>
+        </div>
+
+        <div class="tab-content active" id="consultar">
+            <div class="search-container">
+                <div class="search-bar">
+                    <div class="search-input-container">
+                        <input type="text" id="searchInput" placeholder="Pesquisar por código, descrição ou observações...">
+                        <button class="clear-search" id="clearSearch" title="Limpar pesquisa">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <select id="categoryFilter">
+                        <option value="">Todas as categorias</option>
+                    </select>
+                </div>
+                
+                <div class="export-options">
+                    <button class="export-btn" id="printButton"><i class="fas fa-print"></i> Imprimir PDF</button>
+                </div>
+            </div>
+
+            <div id="resultsContainer">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descrição</th>
+                            <th>Observações</th>
+                            <th>Categoria</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <tr>
+                            <td colspan="5" class="no-results">
+                                <i class="fas fa-spinner fa-spin"></i> Carregando materiais...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="cadastrar">
+            <div class="form-container">
+                <h2 class="form-title" id="formTitle"><i class="fas fa-plus-circle"></i> Cadastrar Novo Material</h2>
+                <form id="materialForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="codigo">Código *</label>
+                            <input type="text" id="codigo" required>
+                            <div class="validation-error" id="codigoError">Código já existe ou é inválido</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="categoria">Categoria *</label>
+                            <select id="categoria" required>
+                                <option value="">Selecione uma categoria</option>
+                            </select>
+                            <div class="validation-error" id="categoriaError">Selecione uma categoria válida</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descricao">Descrição do Produto *</label>
+                        <input type="text" id="descricao" required>
+                        <div class="validation-error" id="descricaoError">Descrição é obrigatória</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="observacoes">Observações</label>
+                        <textarea id="observacoes"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="cancelButton">Cancelar</button>
+                        <button type="submit" class="btn-primary" id="submitButton"><i class="fas fa-save"></i> Cadastrar Material</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="tab-content" id="categorias">
+            <div class="form-container">
+                <h2 class="form-title"><i class="fas fa-tags"></i> Gerenciar Categorias</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="novaCategoria">Nova Categoria</label>
+                        <input type="text" id="novaCategoria" placeholder="Digite o nome da nova categoria">
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button class="btn-primary" id="addCategoria"><i class="fas fa-plus"></i> Adicionar Categoria</button>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 20px 0 10px 0;">Categorias Existentes</h3>
+                <div id="categoriasList">
+                    <p>Carregando categorias...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração do Supabase
+        const SUPABASE_URL = 'https://tfdniuwqjqvscwiypbuo.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmZG5pdXdxanF2c2N3aXlwYnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU1OTgsImV4cCI6MjA3NzUwMTU5OH0.ZeIef1hnlE4W10xD8Z23hiNEoOTdseNj_ox13uqchA0';
+        
+        // Inicializar Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Variáveis globais
+        let materiais = [];
+        let categorias = [];
+        let modoEscuro = localStorage.getItem('modoEscuro') === 'true';
+        let editando = false;
+        let codigoEditando = null;
+        let editandoCategoriaIndex = null;
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let searchTimeout; // Para o debounce da pesquisa
+
+        // Elementos da interface
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const searchInput = document.getElementById('searchInput');
+        const clearSearch = document.getElementById('clearSearch');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const resultsBody = document.getElementById('resultsBody');
+        const pagination = document.getElementById('pagination');
+        const materialForm = document.getElementById('materialForm');
+        const cancelButton = document.getElementById('cancelButton');
+        const formTitle = document.getElementById('formTitle');
+        const submitButton = document.getElementById('submitButton');
+        const codigoInput = document.getElementById('codigo');
+        const descricaoInput = document.getElementById('descricao');
+        const observacoesInput = document.getElementById('observacoes');
+        const categoriaInput = document.getElementById('categoria');
+        const printButton = document.getElementById('printButton');
+        const novaCategoriaInput = document.getElementById('novaCategoria');
+        const addCategoriaButton = document.getElementById('addCategoria');
+        const categoriasList = document.getElementById('categoriasList');
+        const statusMessage = document.getElementById('statusMessage');
+
+        // Elementos de validação
+        const codigoError = document.getElementById('codigoError');
+        const descricaoError = document.getElementById('descricaoError');
+        const categoriaError = document.getElementById('categoriaError');
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando sistema...');
+            aplicarTema();
+            setupEventListeners();
+            inicializarSistema();
+        });
+
+        // Mostrar mensagem de status
+        function mostrarStatus(mensagem, tipo = 'info') {
+            statusMessage.innerHTML = `<div class="status-message status-${tipo}">${mensagem}</div>`;
+            setTimeout(() => {
+                statusMessage.innerHTML = '';
+            }, 5000);
+        }
+
+        // Aplicar tema claro/escuro
+        function aplicarTema() {
+            if (modoEscuro) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Navegação entre abas
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === tabId) {
+                            content.classList.add('active');
+                        }
+                    });
+                    
+                    if (tabId === 'consultar') {
+                        currentPage = 1;
+                        displayMaterials(currentPage);
+                    }
+                });
+            });
+
+            // Pesquisa automática ao digitar (com debounce)
+            searchInput.addEventListener('input', function() {
+                updateClearButton();
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentPage = 1;
+                    displayMaterials(currentPage);
+                }, 300); // 300ms de delay para não sobrecarregar com muitas requisições
+            });
+
+            // Pesquisa ao pressionar Enter
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    clearTimeout(searchTimeout);
+                    currentPage = 1;
+                    displayMaterials(currentPage);
+                }
+            });
+
+            // Botão limpar pesquisa
+            clearSearch.addEventListener('click', function() {
+                searchInput.value = '';
+                updateClearButton();
+                currentPage = 1;
+                displayMaterials(currentPage);
+                searchInput.focus();
+            });
+
+            // Filtros - pesquisa automática ao alterar categoria
+            categoryFilter.addEventListener('change', function() {
+                clearTimeout(searchTimeout);
+                currentPage = 1;
+                displayMaterials(currentPage);
+            });
+
+            // Formulário de cadastro
+            materialForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (editando) {
+                    updateMaterial();
+                } else {
+                    addMaterial();
+                }
+            });
+
+            // Botão cancelar
+            cancelButton.addEventListener('click', function() {
+                resetForm();
+            });
+            
+            // Validação em tempo real
+            codigoInput.addEventListener('blur', validarCodigo);
+            descricaoInput.addEventListener('blur', validarDescricao);
+            categoriaInput.addEventListener('change', validarCategoria);
+            
+            // Impressão PDF
+            printButton.addEventListener('click', gerarPDF);
+            
+            // Gerenciamento de categorias
+            addCategoriaButton.addEventListener('click', adicionarCategoria);
+        }
+
+        // Atualizar visibilidade do botão limpar
+        function updateClearButton() {
+            if (searchInput.value.trim() !== '') {
+                clearSearch.style.display = 'block';
+            } else {
+                clearSearch.style.display = 'none';
+            }
+        }
+
+        // Gerar PDF
+        function gerarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Obter materiais filtrados
+            const searchTerm = searchInput.value.toLowerCase();
+            const categoriaSelecionada = categoryFilter.value;
+            
+            let filteredMaterials = materiais.filter(material => {
+                const matchesSearch = 
+                    material.codigo.toLowerCase().includes(searchTerm) ||
+                    material.descricao.toLowerCase().includes(searchTerm) ||
+                    (material.observacoes && material.observacoes.toLowerCase().includes(searchTerm));
+                
+                const matchesCategory = categoriaSelecionada === '' || material.categoria === categoriaSelecionada;
+                
+                return matchesSearch && matchesCategory;
+            });
+
+            // Ordenar por código
+            filteredMaterials.sort((a, b) => a.codigo.localeCompare(b.codigo));
+
+            // Configurações do PDF
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 14;
+
+            // Cabeçalho do relatório
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text('RELATÓRIO DE MATERIAIS', pageWidth / 2, 20, { align: 'center' });
+            
+            // Informações do relatório
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            const dataEmissao = new Date().toLocaleDateString('pt-BR');
+            const totalItens = filteredMaterials.length;
+            doc.text(`Data de emissão: ${dataEmissao}`, margin, 35);
+            doc.text(`Total de itens: ${totalItens}`, pageWidth - margin, 35, { align: 'right' });
+
+            // Preparar dados da tabela - APENAS Código, Descrição e Categoria
+            const tableData = filteredMaterials.map(material => [
+                material.codigo,
+                material.descricao,
+                material.categoria
+            ]);
+
+            // Configurar a tabela
+            doc.autoTable({
+                startY: 45,
+                head: [['Código', 'Descrição', 'Categoria']], // Apenas 3 colunas
+                body: tableData,
+                margin: { left: margin, right: margin },
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 4,
+                },
+                headStyles: {
+                    fillColor: [52, 152, 219],
+                    textColor: 255,
+                    fontStyle: 'bold'
+                },
+                alternateRowStyles: {
+                    fillColor: [240, 240, 240]
+                },
+                columnStyles: {
+                    0: { cellWidth: 25 }, // Código
+                    1: { cellWidth: 'auto' }, // Descrição (largura automática)
+                    2: { cellWidth: 35 }  // Categoria
+                },
+                didDrawPage: function(data) {
+                    // Rodapé
+                    const pageCount = doc.internal.getNumberOfPages();
+                    doc.setFontSize(8);
+                    doc.text(
+                        `Página ${data.pageNumber} de ${pageCount}`,
+                        pageWidth / 2,
+                        doc.internal.pageSize.getHeight() - 10,
+                        { align: 'center' }
+                    );
+                }
+            });
+
+            // Salvar o PDF
+            const dataEmissaoArquivo = new Date().toISOString().split('T')[0];
+            doc.save(`relatorio_materiais_${dataEmissaoArquivo}.pdf`);
+            
+            mostrarStatus('PDF gerado com sucesso!', 'success');
+        }
+
+        // Inicializar sistema
+        async function inicializarSistema() {
+            try {
+                console.log('🔧 Iniciando carregamento do sistema...');
+                mostrarStatus('Conectando ao banco de dados...', 'info');
+                
+                // Carregar dados
+                await carregarDadosIniciais();
+                mostrarStatus('Sistema carregado com sucesso!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Erro na inicialização:', error);
+                mostrarStatus('Erro ao carregar dados do servidor.', 'error');
+            }
+        }
+
+        // Carregar dados iniciais do Supabase
+        async function carregarDadosIniciais() {
+            try {
+                // Carregar materiais - usando os nomes exatos das colunas
+                console.log('📦 Carregando materiais...');
+                const { data: materiaisData, error: materiaisError } = await supabase
+                    .from('materiais')
+                    .select('*');
+                
+                if (materiaisError) {
+                    console.error('❌ Erro ao carregar materiais:', materiaisError);
+                    throw materiaisError;
+                }
+                
+                console.log('📊 Dados brutos recebidos:', materiaisData);
+                
+                // Mapear os dados para os nomes corretos
+                materiais = (materiaisData || []).map(item => ({
+                    codigo: item.Código || item.codigo || '',
+                    descricao: item.Descrição || item.descricao || '',
+                    observacoes: item.Observações || item.observacoes || '',
+                    categoria: item.Categoria || item.categoria || '',
+                    dataCadastro: item['Data de Cadastro'] || item.dataCadastro || ''
+                }));
+                
+                console.log(`✅ ${materiais.length} materiais carregados após mapeamento:`, materiais);
+                
+                // Carregar categorias
+                console.log('🏷️ Carregando categorias...');
+                const { data: categoriasData, error: categoriasError } = await supabase
+                    .from('categorias')
+                    .select('nome');
+                
+                if (categoriasError) {
+                    console.error('❌ Erro ao carregar categorias:', categoriasError);
+                    // Se não conseguir carregar categorias, extrair das materiais
+                    categorias = [...new Set(materiais.map(m => m.categoria).filter(Boolean))];
+                    console.log('📋 Categorias extraídas dos materiais:', categorias);
+                } else {
+                    categorias = categoriasData ? categoriasData.map(cat => cat.nome) : [];
+                    console.log(`✅ ${categorias.length} categorias carregadas:`, categorias);
+                }
+                
+                // Inicializar interface
+                console.log('🎨 Inicializando interface...');
+                inicializarCategorias();
+                displayMaterials(currentPage);
+                
+                console.log('✅ Sistema totalmente carregado!');
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados:', error);
+                throw error;
+            }
+        }
+
+        // Inicializar categorias nos selects
+        function inicializarCategorias() {
+            console.log('🔄 Inicializando categorias...');
+            categoryFilter.innerHTML = '<option value="">Todas as categorias</option>';
+            categoriaInput.innerHTML = '<option value="">Selecione uma categoria</option>';
+            
+            categorias.forEach(categoria => {
+                const option1 = document.createElement('option');
+                option1.value = categoria;
+                option1.textContent = categoria;
+                categoryFilter.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = categoria;
+                option2.textContent = categoria;
+                categoriaInput.appendChild(option2);
+            });
+            
+            atualizarListaCategorias();
+        }
+
+        // Atualizar lista de categorias
+        function atualizarListaCategorias() {
+            categoriasList.innerHTML = '';
+            
+            if (categorias.length === 0) {
+                categoriasList.innerHTML = '<p>Nenhuma categoria cadastrada.</p>';
+                return;
+            }
+            
+            categorias.forEach((categoria, index) => {
+                const div = document.createElement('div');
+                div.className = 'categoria-item';
+                div.style.padding = '10px';
+                div.style.borderBottom = '1px solid var(--border-color)';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.alignItems = 'center';
+                
+                if (editandoCategoriaIndex === index) {
+                    div.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                            <input type="text" class="categoria-edit-input" value="${categoria}" style="flex: 1; padding: 5px;">
+                            <div class="categoria-actions">
+                                <button class="btn btn-save" data-index="${index}"><i class="fas fa-check"></i> Salvar</button>
+                                <button class="btn btn-secondary" data-index="${index}"><i class="fas fa-times"></i> Cancelar</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span style="flex: 1;">${categoria}</span>
+                            <div class="categoria-actions">
+                                <button class="btn btn-edit" data-index="${index}"><i class="fas fa-edit"></i> Editar</button>
+                                <button class="btn btn-delete" data-index="${index}"><i class="fas fa-trash"></i> Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                categoriasList.appendChild(div);
+            });
+            
+            adicionarEventListenersCategorias();
+        }
+
+        // Adicionar event listeners para categorias
+        function adicionarEventListenersCategorias() {
+            document.querySelectorAll('#categoriasList .btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    iniciarEdicaoCategoria(index);
+                });
+            });
+            
+            document.querySelectorAll('#categoriasList .btn-save').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    salvarEdicaoCategoria(index);
+                });
+            });
+            
+            document.querySelectorAll('#categoriasList .btn-secondary').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    cancelarEdicaoCategoria();
+                });
+            });
+            
+            document.querySelectorAll('#categoriasList .btn-delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    excluirCategoria(index);
+                });
+            });
+        }
+
+        // Iniciar edição de categoria
+        function iniciarEdicaoCategoria(index) {
+            editandoCategoriaIndex = parseInt(index);
+            atualizarListaCategorias();
+        }
+
+        // Salvar edição de categoria
+        async function salvarEdicaoCategoria(index) {
+            const input = document.querySelector('#categoriasList .categoria-edit-input');
+            const novoNome = input.value.trim();
+            
+            if (novoNome === '') {
+                alert('O nome da categoria não pode estar vazio.');
+                return;
+            }
+            
+            if (categorias.some((cat, i) => i !== parseInt(index) && cat === novoNome)) {
+                alert('Já existe uma categoria com este nome.');
+                return;
+            }
+            
+            const nomeAntigo = categorias[index];
+            
+            try {
+                // Atualizar no Supabase
+                const { error } = await supabase
+                    .from('categorias')
+                    .update({ nome: novoNome })
+                    .eq('nome', nomeAntigo);
+                
+                if (error) throw error;
+                
+                // Atualizar localmente
+                categorias[index] = novoNome;
+                
+                // Atualizar materiais que usavam a categoria antiga
+                const { error: updateMateriaisError } = await supabase
+                    .from('materiais')
+                    .update({ Categoria: novoNome })
+                    .eq('Categoria', nomeAntigo);
+                
+                if (updateMateriaisError) {
+                    console.warn('Erro ao atualizar materiais:', updateMateriaisError);
+                }
+                
+                // Recarregar materiais
+                const { data: materiaisData } = await supabase.from('materiais').select('*');
+                if (materiaisData) {
+                    materiais = materiaisData.map(item => ({
+                        codigo: item.Código || item.codigo || '',
+                        descricao: item.Descrição || item.descricao || '',
+                        observacoes: item.Observações || item.observacoes || '',
+                        categoria: item.Categoria || item.categoria || '',
+                        dataCadastro: item['Data de Cadastro'] || item.dataCadastro || ''
+                    }));
+                    displayMaterials(currentPage);
+                }
+                
+                editandoCategoriaIndex = null;
+                inicializarCategorias();
+                
+                mostrarStatus('Categoria atualizada com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao atualizar categoria:', error);
+                mostrarStatus('Erro ao atualizar categoria.', 'error');
+            }
+        }
+
+        // Cancelar edição de categoria
+        function cancelarEdicaoCategoria() {
+            editandoCategoriaIndex = null;
+            atualizarListaCategorias();
+        }
+
+        // Excluir categoria
+        async function excluirCategoria(index) {
+            const categoria = categorias[index];
+            
+            // Verificar se há materiais usando esta categoria
+            const materiaisNaCategoria = materiais.filter(m => m.categoria === categoria);
+            
+            if (materiaisNaCategoria.length > 0) {
+                alert(`Não é possível excluir a categoria "${categoria}" porque existem ${materiaisNaCategoria.length} material(is) vinculado(s) a ela.`);
+                return;
+            }
+            
+            if (confirm(`Tem certeza que deseja excluir a categoria "${categoria}"?`)) {
+                try {
+                    // Excluir do Supabase
+                    const { error } = await supabase
+                        .from('categorias')
+                        .delete()
+                        .eq('nome', categoria);
+                    
+                    if (error) throw error;
+                    
+                    // Atualizar localmente
+                    categorias.splice(index, 1);
+                    
+                    inicializarCategorias();
+                    mostrarStatus('Categoria excluída com sucesso!', 'success');
+                } catch (error) {
+                    console.error('Erro ao excluir categoria:', error);
+                    mostrarStatus('Erro ao excluir categoria.', 'error');
+                }
+            }
+        }
+
+        // Adicionar categoria
+        async function adicionarCategoria() {
+            const novaCategoria = novaCategoriaInput.value.trim();
+            
+            if (novaCategoria === '') {
+                alert('Digite o nome da nova categoria.');
+                return;
+            }
+            
+            if (categorias.includes(novaCategoria)) {
+                alert('Já existe uma categoria com este nome.');
+                return;
+            }
+            
+            try {
+                // Inserir no Supabase
+                const { error } = await supabase
+                    .from('categorias')
+                    .insert([{ nome: novaCategoria }]);
+                
+                if (error) throw error;
+                
+                // Atualizar localmente
+                categorias.push(novaCategoria);
+                
+                novaCategoriaInput.value = '';
+                inicializarCategorias();
+                
+                mostrarStatus('Categoria adicionada com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao adicionar categoria:', error);
+                mostrarStatus('Erro ao adicionar categoria.', 'error');
+            }
+        }
+
+        // Validar código
+        function validarCodigo() {
+            const codigo = codigoInput.value.trim();
+            
+            if (codigo === '') {
+                mostrarErro(codigoInput, codigoError, 'Código é obrigatório');
+                return false;
+            }
+            
+            if (!editando && materiais.some(m => m.codigo === codigo)) {
+                mostrarErro(codigoInput, codigoError, 'Código já existe');
+                return false;
+            }
+            
+            ocultarErro(codigoInput, codigoError);
+            return true;
+        }
+
+        // Validar descrição
+        function validarDescricao() {
+            const descricao = descricaoInput.value.trim();
+            
+            if (descricao === '') {
+                mostrarErro(descricaoInput, descricaoError, 'Descrição é obrigatória');
+                return false;
+            }
+            
+            ocultarErro(descricaoInput, descricaoError);
+            return true;
+        }
+
+        // Validar categoria
+        function validarCategoria() {
+            const categoria = categoriaInput.value;
+            
+            if (categoria === '') {
+                mostrarErro(categoriaInput, categoriaError, 'Categoria é obrigatória');
+                return false;
+            }
+            
+            ocultarErro(categoriaInput, categoriaError);
+            return true;
+        }
+
+        // Mostrar erro de validação
+        function mostrarErro(input, errorElement, mensagem) {
+            input.classList.add('input-error');
+            errorElement.textContent = mensagem;
+            errorElement.style.display = 'block';
+        }
+
+        // Ocultar erro de validação
+        function ocultarErro(input, errorElement) {
+            input.classList.remove('input-error');
+            errorElement.style.display = 'none';
+        }
+
+        // Adicionar material
+        async function addMaterial() {
+            if (!validarCodigo() || !validarDescricao() || !validarCategoria()) {
+                return;
+            }
+            
+            const novoMaterial = {
+                Código: codigoInput.value.trim(),
+                Descrição: descricaoInput.value.trim(),
+                Observações: observacoesInput.value.trim(),
+                Categoria: categoriaInput.value,
+                'Data de Cadastro': new Date().toISOString().split('T')[0]
+            };
+            
+            try {
+                const { error } = await supabase
+                    .from('materiais')
+                    .insert([novoMaterial]);
+                
+                if (error) throw error;
+                
+                // Adicionar ao array local com mapeamento
+                materiais.push({
+                    codigo: novoMaterial.Código,
+                    descricao: novoMaterial.Descrição,
+                    observacoes: novoMaterial.Observações,
+                    categoria: novoMaterial.Categoria,
+                    dataCadastro: novoMaterial['Data de Cadastro']
+                });
+                
+                resetForm();
+                displayMaterials(currentPage);
+                
+                mostrarStatus('Material cadastrado com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao cadastrar material:', error);
+                mostrarStatus('Erro ao cadastrar material.', 'error');
+            }
+        }
+
+        // Atualizar material
+        async function updateMaterial() {
+            if (!validarDescricao() || !validarCategoria()) {
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('materiais')
+                    .update({
+                        Descrição: descricaoInput.value.trim(),
+                        Observações: observacoesInput.value.trim(),
+                        Categoria: categoriaInput.value
+                    })
+                    .eq('Código', codigoEditando);
+                
+                if (error) throw error;
+                
+                // Atualizar localmente
+                const index = materiais.findIndex(m => m.codigo === codigoEditando);
+                if (index !== -1) {
+                    materiais[index].descricao = descricaoInput.value.trim();
+                    materiais[index].observacoes = observacoesInput.value.trim();
+                    materiais[index].categoria = categoriaInput.value;
+                }
+                
+                resetForm();
+                displayMaterials(currentPage);
+                
+                mostrarStatus('Material atualizado com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao atualizar material:', error);
+                mostrarStatus('Erro ao atualizar material.', 'error');
+            }
+        }
+
+        // Resetar formulário
+        function resetForm() {
+            materialForm.reset();
+            editando = false;
+            codigoEditando = null;
+            formTitle.innerHTML = '<i class="fas fa-plus-circle"></i> Cadastrar Novo Material';
+            submitButton.innerHTML = '<i class="fas fa-save"></i> Cadastrar Material';
+            
+            ocultarErro(codigoInput, codigoError);
+            ocultarErro(descricaoInput, descricaoError);
+            ocultarErro(categoriaInput, categoriaError);
+            
+            codigoInput.disabled = false;
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            document.querySelector('.tab[data-tab="consultar"]').classList.add('active');
+            document.getElementById('consultar').classList.add('active');
+        }
+
+        // Exibir materiais na tabela
+        function displayMaterials(page) {
+            const searchTerm = searchInput.value.toLowerCase();
+            const categoriaSelecionada = categoryFilter.value;
+            
+            let filteredMaterials = materiais.filter(material => {
+                const matchesSearch = 
+                    material.codigo.toLowerCase().includes(searchTerm) ||
+                    material.descricao.toLowerCase().includes(searchTerm) ||
+                    (material.observacoes && material.observacoes.toLowerCase().includes(searchTerm));
+                
+                const matchesCategory = categoriaSelecionada === '' || material.categoria === categoriaSelecionada;
+                
+                return matchesSearch && matchesCategory;
+            });
+            
+            // Ordenar por código
+            filteredMaterials.sort((a, b) => a.codigo.localeCompare(b.codigo));
+            
+            const totalPages = Math.ceil(filteredMaterials.length / itemsPerPage);
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedMaterials = filteredMaterials.slice(startIndex, endIndex);
+            
+            resultsBody.innerHTML = '';
+            
+            if (paginatedMaterials.length === 0) {
+                resultsBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="no-results">
+                            <i class="fas fa-search"></i> Nenhum material encontrado
+                        </td>
+                    </tr>
+                `;
+            } else {
+                paginatedMaterials.forEach(material => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${material.codigo}</td>
+                        <td>${material.descricao}</td>
+                        <td>${material.observacoes || '-'}</td>
+                        <td>${material.categoria}</td>
+                        <td class="actions">
+                            <button class="btn btn-edit" data-codigo="${material.codigo}"><i class="fas fa-edit"></i> Editar</button>
+                            <button class="btn btn-delete" data-codigo="${material.codigo}"><i class="fas fa-trash"></i> Excluir</button>
+                        </td>
+                    `;
+                    
+                    resultsBody.appendChild(row);
+                });
+            }
+            
+            updatePagination(totalPages, page);
+            adicionarEventListenersAcoes();
+        }
+
+        // Adicionar event listeners para os botões de ação
+        function adicionarEventListenersAcoes() {
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const codigo = this.getAttribute('data-codigo');
+                    editarMaterial(codigo);
+                });
+            });
+            
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const codigo = this.getAttribute('data-codigo');
+                    excluirMaterial(codigo);
+                });
+            });
+        }
+
+        // Editar material
+        function editarMaterial(codigo) {
+            const material = materiais.find(m => m.codigo === codigo);
+            
+            if (material) {
+                codigoInput.value = material.codigo;
+                descricaoInput.value = material.descricao;
+                observacoesInput.value = material.observacoes || '';
+                categoriaInput.value = material.categoria;
+                
+                editando = true;
+                codigoEditando = codigo;
+                formTitle.innerHTML = '<i class="fas fa-edit"></i> Editar Material';
+                submitButton.innerHTML = '<i class="fas fa-save"></i> Atualizar Material';
+                
+                codigoInput.disabled = true;
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                document.querySelector('.tab[data-tab="cadastrar"]').classList.add('active');
+                document.getElementById('cadastrar').classList.add('active');
+            }
+        }
+
+        // Excluir material
+        async function excluirMaterial(codigo) {
+            if (confirm(`Tem certeza que deseja excluir o material "${codigo}"?`)) {
+                try {
+                    const { error } = await supabase
+                        .from('materiais')
+                        .delete()
+                        .eq('Código', codigo);
+                    
+                    if (error) throw error;
+                    
+                    materiais = materiais.filter(m => m.codigo !== codigo);
+                    
+                    displayMaterials(currentPage);
+                    mostrarStatus('Material excluído com sucesso!', 'success');
+                } catch (error) {
+                    console.error('Erro ao excluir material:', error);
+                    mostrarStatus('Erro ao excluir material.', 'error');
+                }
+            }
+        }
+
+        // Atualizar paginação
+        function updatePagination(totalPages, currentPage) {
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            const prevButton = document.createElement('button');
+            prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    displayMaterials(currentPage - 1);
+                }
+            });
+            pagination.appendChild(prevButton);
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.classList.toggle('active', i === currentPage);
+                pageButton.addEventListener('click', () => {
+                    displayMaterials(i);
+                });
+                pagination.appendChild(pageButton);
+            }
+            
+            const nextButton = document.createElement('button');
+            nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    displayMaterials(currentPage + 1);
+                }
+            });
+            pagination.appendChild(nextButton);
+        }
+    </script>
+</body>
+</html>
