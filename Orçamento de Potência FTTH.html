@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Orçamento de Potência FTTH</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --editable-color: #d6eaf8;
+            --calculated-color: #f8f9fa;
+            --fixed-color: #e8f5e9;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px 0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .editable {
+            background-color: var(--editable-color);
+        }
+        
+        .calculated {
+            background-color: var(--calculated-color);
+            font-weight: 600;
+        }
+        
+        .fixed {
+            background-color: var(--fixed-color);
+            color: #2e7d32;
+            font-weight: 600;
+        }
+        
+        input[readonly] {
+            background-color: var(--fixed-color);
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            cursor: not-allowed;
+        }
+        
+        .result-box {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .result-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .status-ok {
+            color: var(--success-color);
+        }
+        
+        .status-warning {
+            color: var(--warning-color);
+        }
+        
+        .status-error {
+            color: var(--accent-color);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .info-section {
+            margin-top: 30px;
+        }
+        
+        .info-box {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-box h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .info-box ul {
+            padding-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background-color: #fff9c4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .note {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .button:hover {
+            background-color: #2980b9;
+        }
+        
+        .button-reset {
+            background-color: var(--accent-color);
+        }
+        
+        .button-reset:hover {
+            background-color: #c0392b;
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            border: 1px solid #000; /* Borda preta fina adicionada */
+        }
+        
+        .editable-legend {
+            background-color: var(--editable-color);
+        }
+        
+        .calculated-legend {
+            background-color: var(--calculated-color);
+        }
+        
+        .fixed-legend {
+            background-color: var(--fixed-color);
+        }
+        
+        .parameter-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 3px;
+            font-style: italic;
+        }
+        
+        .section-divider {
+            border-top: 2px solid var(--light-color);
+            margin: 20px 0;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calculadora de Orçamento de Potência FTTH</h1>
+            <p class="subtitle">Análise completa de orçamento de potência para redes Fiber-to-the-Home</p>
+        </header>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color editable-legend"></div>
+                <span>Células editáveis</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color calculated-legend"></div>
+                <span>Valores calculados</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color fixed-legend"></div>
+                <span>Valores fixos</span>
+            </div>
+        </div>
+        
+        <div class="grid-container">
+            <div class="card">
+                <h2>Parâmetros da Fibra Óptica</h2>
+                
+                <div class="form-group">
+                    <label for="fiberLoss1490">Perda por Km (1490nm) - dB/km</label>
+                    <input type="number" id="fiberLoss1490" step="0.01" value="0.25" readonly class="fixed">
+                    <div class="parameter-info">Valor fixo: 0.25 dB/km</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fiberLoss1310">Perda por Km (1310nm) - dB/km</label>
+                    <input type="number" id="fiberLoss1310" step="0.01" value="0.35" readonly class="fixed">
+                    <div class="parameter-info">Valor fixo: 0.35 dB/km</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="connectorLoss">Perda por Conexão - dB</label>
+                    <input type="number" id="connectorLoss" step="0.01" value="0.30" readonly class="fixed">
+                    <div class="parameter-info">Valor fixo: 0.30 dB</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="spliceLoss">Perda por Fusão - dB</label>
+                    <input type="number" id="spliceLoss" step="0.01" value="0.06" readonly class="fixed">
+                    <div class="parameter-info">Valor fixo: 0.06 dB</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="oltSensitivity">Sensibilidade OLT - dBm</label>
+                    <input type="number" id="oltSensitivity" step="0.01" value="-32.00" readonly class="fixed">
+                    <div class="parameter-info">Valor fixo: -32.00 dBm</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="oltClass">Classe OLT</label>
+                    <select id="oltClass" class="editable">
+                        <option value="B+">B+ (Sensibilidade: -28 dBm)</option>
+                        <option value="C+" selected>C+ (Sensibilidade: -32 dBm)</option>
+                        <option value="C++">C++ (Sensibilidade: -35 dBm)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="onuClass">Classe ONU</label>
+                    <select id="onuClass" class="editable">
+                        <option value="B+" selected>B+ (Sensibilidade: -28 dBm)</option>
+                        <option value="C+">C+ (Sensibilidade: -32 dBm)</option>
+                        <option value="C++">C++ (Sensibilidade: -35 dBm)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="onuSensitivity">Sensibilidade ONU - dBm</label>
+                    <input type="number" id="onuSensitivity" step="0.01" value="-27.00" readonly class="fixed">
+                    <div class="parameter-info">Valor fixo: -27.00 dBm</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Configuração da Rede</h2>
+                
+                <div class="form-group">
+                    <label for="oltTxPower">Potência de Transmissão OLT - dBm</label>
+                    <input type="number" id="oltTxPower" step="0.1" value="5" class="editable">
+                </div>
+                
+                <div class="form-group">
+                    <label for="distance">Distância - Km</label>
+                    <input type="number" id="distance" step="0.1" value="6" class="editable">
+                </div>
+                
+                <div class="section-divider"></div>
+                
+                <div class="form-group">
+                    <label for="splitter1Type">Splitter de L1</label>
+                    <select id="splitter1Type" class="editable">
+                        <option value="SPL 1X2">SPL 1X2 (Atenuação: 3.7 dB)</option>
+                        <option value="SPL 1X8" selected>SPL 1X8 (Atenuação: 10.5 dB)</option>
+                        <option value="SPL 1X16">SPL 1X16 (Atenuação: 13.7 dB)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="splitter1Loss">Perda do Splitter L1 - dB</label>
+                    <input type="number" id="splitter1Loss" step="0.1" value="10.5" readonly class="calculated">
+                </div>
+                
+                <div class="form-group">
+                    <label for="splitter2Type">Splitter de L2</label>
+                    <select id="splitter2Type" class="editable">
+                        <option value="SPL 1X2">SPL 1X2 (Atenuação: 3.7 dB)</option>
+                        <option value="SPL 1X8">SPL 1X8 (Atenuação: 10.5 dB)</option>
+                        <option value="SPL 1X16" selected>SPL 1X16 (Atenuação: 13.7 dB)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="splitter2Loss">Perda do Splitter L2 - dB</label>
+                    <input type="number" id="splitter2Loss" step="0.1" value="13.7" readonly class="calculated">
+                </div>
+                
+                <div class="form-group">
+                    <label for="spliceCount">Quantidade de Fusões</label>
+                    <input type="number" id="spliceCount" value="20" class="editable">
+                </div>
+                
+                <div class="form-group">
+                    <label for="connectorCount">Quantidade de Conexões</label>
+                    <input type="number" id="connectorCount" value="2" class="editable">
+                </div>
+                
+                <div class="form-group">
+                    <label for="margin">Margem de Segurança - dB</label>
+                    <input type="number" id="margin" step="0.1" value="0" class="editable">
+                </div>
+                
+                <div class="form-group">
+                    <label for="onuTxPower">Potência de Transmissão ONU - dBm</label>
+                    <input type="number" id="onuTxPower" step="0.1" value="2" class="editable">
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Resultados do Orçamento de Potência</h2>
+            
+            <div class="grid-container">
+                <div>
+                    <h3>Downlink (OLT → ONU)</h3>
+                    
+                    <div class="result-box">
+                        <label>Sinal Recebido na ONU - dBm</label>
+                        <div class="result-value" id="rxOnuResult">-27.0</div>
+                        <div id="rxOnuStatus" class="status-ok">✓ Dentro da sensibilidade da ONU</div>
+                    </div>
+                    
+                    <div class="result-box">
+                        <label>Margem Disponível - dB</label>
+                        <div class="result-value" id="downlinkMargin">1.0</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Uplink (ONU → OLT)</h3>
+                    <div class="result-box">
+                        <label>Sinal Recebido na OLT - dBm</label>
+                        <div class="result-value" id="rxOltResult">-25.4</div>
+                        <div id="rxOltStatus" class="status-ok">✓ Dentro da sensibilidade da OLT</div>
+                    </div>
+                    
+                    <div class="result-box">
+                        <label>Margem Disponível - dB</label>
+                        <div class="result-value" id="uplinkMargin">6.6</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-container">
+                <button class="button" id="calculateBtn">Calcular Orçamento</button>
+                <button class="button button-reset" id="resetBtn">Redefinir Valores</button>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-box">
+                <h3>📊 Tabela de Referência - Splitters</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tipo de Splitter</th>
+                                <th>Atenuação (dB)</th>
+                                <th>Aplicação Típica</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SPL 1X2</td>
+                                <td>3.7</td>
+                                <td>Divisão básica, ramificações simples</td>
+                            </tr>
+                            <tr>
+                                <td>SPL 1X8</td>
+                                <td>10.5</td>
+                                <td>Redes com até 8 assinantes</td>
+                            </tr>
+                            <tr>
+                                <td>SPL 1X16</td>
+                                <td>13.7</td>
+                                <td>Redes com até 16 assinantes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h3>🔧 Classes de Equipamentos Ópticos</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Classe</th>
+                                <th>Sensibilidade (dBm)</th>
+                                <th>Aplicação</th>
+                                <th>Alcance Máximo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Classe B+</td>
+                                <td>-28</td>
+                                <td>Aplicações básicas, curtas distâncias</td>
+                                <td>Até 20 km</td>
+                            </tr>
+                            <tr>
+                                <td>Classe C+</td>
+                                <td>-32</td>
+                                <td>Aplicações padrão, média distância</td>
+                                <td>Até 30 km</td>
+                            </tr>
+                            <tr>
+                                <td>Classe C++</td>
+                                <td>-35</td>
+                                <td>Longas distâncias, redes estendidas</td>
+                                <td>Até 40 km</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h3>💡 Como Funciona o Cálculo</h3>
+                <p>O orçamento de potência calcula se o sinal óptico terá potência suficiente após todas as perdas na rede:</p>
+                <ul>
+                    <li><strong>Downlink (OLT→ONU):</strong> Considera transmissão em 1490nm com atenuação de 0.25 dB/km</li>
+                    <li><strong>Uplink (ONU→OLT):</strong> Considera transmissão em 1310nm com atenuação de 0.35 dB/km</li>
+                    <li><strong>Perdas calculadas:</strong> Fibra, splitters, conexões, fusões e margem de segurança</li>
+                    <li><strong>Validação:</strong> Sinal recebido deve ser maior que a sensibilidade do equipamento</li>
+                </ul>
+                <p class="note">Nota: Valores em verde indicam que o enlace é viável. Valores em vermelho indicam que o sinal não atende aos requisitos mínimos.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Calculadora de Orçamento de Potência FTTH - Desenvolvido para projetos de redes ópticas</p>
+            <p>© 2023 - Todos os direitos reservados</p>
+        </div>
+    </div>
+
+    <script>
+        // Dados de referência
+        const splitterData = {
+            'SPL 1X2': 3.7,
+            'SPL 1X8': 10.5,
+            'SPL 1X16': 13.7
+        };
+        
+        const classData = {
+            'B+': -28,
+            'C+': -32,
+            'C++': -35
+        };
+        
+        // Elementos DOM
+        const oltClassSelect = document.getElementById('oltClass');
+        const onuClassSelect = document.getElementById('onuClass');
+        const splitter1TypeSelect = document.getElementById('splitter1Type');
+        const splitter2TypeSelect = document.getElementById('splitter2Type');
+        const splitter1LossInput = document.getElementById('splitter1Loss');
+        const splitter2LossInput = document.getElementById('splitter2Loss');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        // Atualizar valores baseados nas seleções
+        function updateReferenceValues() {
+            // Atualizar perdas de splitters
+            splitter1LossInput.value = splitterData[splitter1TypeSelect.value];
+            splitter2LossInput.value = splitterData[splitter2TypeSelect.value];
+        }
+        
+        // Calcular orçamento de potência
+        function calculatePowerBudget() {
+            // Obter valores dos inputs
+            const fiberLoss1490 = parseFloat(document.getElementById('fiberLoss1490').value);
+            const fiberLoss1310 = parseFloat(document.getElementById('fiberLoss1310').value);
+            const connectorLoss = parseFloat(document.getElementById('connectorLoss').value);
+            const spliceLoss = parseFloat(document.getElementById('spliceLoss').value);
+            const distance = parseFloat(document.getElementById('distance').value);
+            const spliceCount = parseInt(document.getElementById('spliceCount').value);
+            const connectorCount = parseInt(document.getElementById('connectorCount').value);
+            const margin = parseFloat(document.getElementById('margin').value);
+            const onuTxPower = parseFloat(document.getElementById('onuTxPower').value);
+            const oltTxPower = parseFloat(document.getElementById('oltTxPower').value);
+            
+            // Obter valores fixos
+            const oltSensitivity = parseFloat(document.getElementById('oltSensitivity').value);
+            const onuSensitivity = parseFloat(document.getElementById('onuSensitivity').value);
+            const splitter1Loss = parseFloat(splitter1LossInput.value);
+            const splitter2Loss = parseFloat(splitter2LossInput.value);
+            
+            // Calcular Downlink (OLT → ONU)
+            const downlinkLoss = 
+                splitter1Loss + 
+                splitter2Loss + 
+                (fiberLoss1490 * distance) + 
+                (spliceLoss * spliceCount) + 
+                (connectorLoss * connectorCount) + 
+                margin;
+            
+            const rxOnu = oltTxPower - downlinkLoss;
+            const downlinkMarginValue = onuSensitivity - rxOnu;
+            
+            // Calcular Uplink (ONU → OLT)
+            const uplinkLoss = 
+                splitter1Loss + 
+                splitter2Loss + 
+                (fiberLoss1310 * distance) + 
+                (spliceLoss * spliceCount) + 
+                (connectorLoss * connectorCount) + 
+                margin;
+            
+            const rxOlt = onuTxPower - uplinkLoss;
+            const uplinkMarginValue = oltSensitivity - rxOlt;
+            
+            // Atualizar resultados na interface
+            document.getElementById('rxOnuResult').textContent = rxOnu.toFixed(1);
+            document.getElementById('rxOltResult').textContent = rxOlt.toFixed(1);
+            document.getElementById('downlinkMargin').textContent = downlinkMarginValue.toFixed(1);
+            document.getElementById('uplinkMargin').textContent = uplinkMarginValue.toFixed(1);
+            
+            // Atualizar status
+            const rxOnuStatus = document.getElementById('rxOnuStatus');
+            const rxOltStatus = document.getElementById('rxOltStatus');
+            
+            if (rxOnu >= onuSensitivity) {
+                rxOnuStatus.textContent = '✓ Dentro da sensibilidade da ONU';
+                rxOnuStatus.className = 'status-ok';
+            } else {
+                rxOnuStatus.textContent = '✗ Abaixo da sensibilidade da ONU';
+                rxOnuStatus.className = 'status-error';
+            }
+            
+            if (rxOlt >= oltSensitivity) {
+                rxOltStatus.textContent = '✓ Dentro da sensibilidade da OLT';
+                rxOltStatus.className = 'status-ok';
+            } else {
+                rxOltStatus.textContent = '✗ Abaixo da sensibilidade da OLT';
+                rxOltStatus.className = 'status-error';
+            }
+        }
+        
+        // Redefinir valores padrão
+        function resetToDefaults() {
+            document.getElementById('oltTxPower').value = 5;
+            document.getElementById('distance').value = 6;
+            document.getElementById('spliceCount').value = 20;
+            document.getElementById('connectorCount').value = 2;
+            document.getElementById('margin').value = 0;
+            document.getElementById('onuTxPower').value = 2;
+            
+            oltClassSelect.value = 'C+';
+            onuClassSelect.value = 'B+';
+            splitter1TypeSelect.value = 'SPL 1X8';
+            splitter2TypeSelect.value = 'SPL 1X16';
+            
+            updateReferenceValues();
+            calculatePowerBudget();
+        }
+        
+        // Event Listeners
+        splitter1TypeSelect.addEventListener('change', updateReferenceValues);
+        splitter2TypeSelect.addEventListener('change', updateReferenceValues);
+        calculateBtn.addEventListener('click', calculatePowerBudget);
+        resetBtn.addEventListener('click', resetToDefaults);
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            updateReferenceValues();
+            calculatePowerBudget();
+        });
+    </script>
+</body>
+</html>
