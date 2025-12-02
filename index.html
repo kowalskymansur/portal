@@ -1501,7 +1501,7 @@
                 opacity: 0;
             }
             to {
-                transform: translateX(0);
+                transform: translateY(0);
                 opacity: 1;
             }
         }
@@ -3090,10 +3090,10 @@
         }
 
         // =============================================
-        // FUNÇÕES DE CONTROLE DE ACESSO
+        // FUNÇÕES DE CONTROLE DE ACESSO ATUALIZADAS
         // =============================================
 
-        // Função para verificar se o usuário tem acesso à funcionalidade
+        // Função para verificar se o usuário tem acesso à funcionalidade - ATUALIZADA PARA INCLUIR PROJETOS
         function verificarAcesso(permissaoRequerida = 'Administrador') {
             if (!usuarioLogado) return false;
             
@@ -3115,12 +3115,27 @@
                 case 'AlterarPropriaSenha':
                     // Todos os usuários podem alterar sua própria senha
                     return true;
+                case 'ExcluirCoordenadas':
+                    // ATUALIZADO: Agora permite Administrador e Projetos
+                    return usuarioLogado.hierarquia === 'Administrador' || usuarioLogado.hierarquia === 'Projetos';
+                case 'ExcluirCaixas':
+                    // Apenas Administrador pode excluir caixas
+                    return usuarioLogado.hierarquia === 'Administrador';
+                case 'EditarMateriais':
+                    // Apenas Administrador pode editar materiais
+                    return usuarioLogado.hierarquia === 'Administrador';
+                case 'GerenciarCategorias':
+                    // Apenas Administrador pode gerenciar categorias
+                    return usuarioLogado.hierarquia === 'Administrador';
+                case 'CadastrarMateriais':
+                    // Administrador e Projetos podem cadastrar materiais
+                    return usuarioLogado.hierarquia === 'Administrador' || usuarioLogado.hierarquia === 'Projetos';
                 default:
                     return false;
             }
         }
 
-        // Função para aplicar controle de acesso nas páginas
+        // Função para aplicar controle de acesso nas páginas - ATUALIZADA
         function aplicarControleAcesso() {
             if (!usuarioLogado) return;
 
@@ -3162,7 +3177,7 @@
             ocultarBotoesSemPermissao();
         }
 
-        // Função para ocultar botões de ação baseado nas permissões do usuário
+        // Função para ocultar botões de ação baseado nas permissões do usuário - ATUALIZADA
         function ocultarBotoesSemPermissao() {
             if (!usuarioLogado) return;
 
@@ -3176,13 +3191,67 @@
                 }
             }
 
-            // Botões de exclusão em várias páginas
-            const botoesExclusao = document.querySelectorAll('.btn-danger');
-            botoesExclusao.forEach(botao => {
-                if (botao.textContent.includes('Excluir') && !verificarAcesso('Administrador')) {
+            // Botão de exclusão de coordenadas - ATUALIZADO: Permite Administrador e Projetos
+            const btnExcluirCoordenadas = document.getElementById('btn-excluir-coordenadas');
+            if (btnExcluirCoordenadas) {
+                if (!verificarAcesso('ExcluirCoordenadas')) {
+                    btnExcluirCoordenadas.style.display = 'none';
+                } else {
+                    btnExcluirCoordenadas.style.display = 'block';
+                }
+            }
+
+            // Botões de exclusão em caixas - apenas Administrador
+            const btnExcluirCaixas = document.getElementById('btn-excluir-caixas');
+            if (btnExcluirCaixas) {
+                if (!verificarAcesso('ExcluirCaixas')) {
+                    btnExcluirCaixas.style.display = 'none';
+                } else {
+                    btnExcluirCaixas.style.display = 'block';
+                }
+            }
+
+            // Botões de edição em materiais - apenas Administrador
+            const botoesEditarMateriais = document.querySelectorAll('.btn-edit-materiais');
+            botoesEditarMateriais.forEach(botao => {
+                if (!verificarAcesso('EditarMateriais')) {
                     botao.style.display = 'none';
+                } else {
+                    botao.style.display = 'block';
                 }
             });
+
+            // Botões de exclusão em materiais - apenas Administrador
+            const botoesExcluirMateriais = document.querySelectorAll('.btn-delete-materiais');
+            botoesExcluirMateriais.forEach(botao => {
+                if (!verificarAcesso('EditarMateriais')) {
+                    botao.style.display = 'none';
+                } else {
+                    botao.style.display = 'block';
+                }
+            });
+
+            // Botão de adicionar categoria - apenas Administrador
+            const btnAddCategoria = document.getElementById('addCategoria');
+            if (btnAddCategoria) {
+                if (!verificarAcesso('GerenciarCategorias')) {
+                    btnAddCategoria.style.display = 'none';
+                } else {
+                    btnAddCategoria.style.display = 'block';
+                }
+            }
+
+            // Botão de cadastrar material - ATUALIZADO: Permite Administrador e Projetos
+            const btnSubmitMaterial = document.getElementById('submitButtonMateriais');
+            if (btnSubmitMaterial) {
+                if (!verificarAcesso('CadastrarMateriais')) {
+                    btnSubmitMaterial.disabled = true;
+                    btnSubmitMaterial.title = 'Você não tem permissão para cadastrar materiais';
+                } else {
+                    btnSubmitMaterial.disabled = false;
+                    btnSubmitMaterial.title = '';
+                }
+            }
         }
 
         // =============================================
@@ -4023,7 +4092,7 @@
         }
 
         // =============================================
-        // SISTEMA DE COORDENADAS - FUNÇÕES CORRIGIDAS
+        // SISTEMA DE COORDENADAS - FUNÇÕES ATUALIZADAS
         // =============================================
 
         // Configurar sistema de coordenadas
@@ -4057,7 +4126,8 @@
 
             if (btnExcluirCoordenadas) {
                 btnExcluirCoordenadas.addEventListener('click', function() {
-                    if (!verificarAcesso('Administrador')) {
+                    // ATUALIZADO: Permite Administrador e Projetos
+                    if (!verificarAcesso('ExcluirCoordenadas')) {
                         mostrarToast('Você não tem permissão para excluir coordenadas.', 'erro');
                         return;
                     }
@@ -4687,13 +4757,13 @@
             }, 5000);
         }
 
-        // Funções de UI (User Interface)
+        // Funções de UI (User Interface) - ATUALIZADA
         function atualizarBotoesAcao() {
             const btnExcluirCoordenadas = document.getElementById('btn-excluir-coordenadas');
             
             if (coordenadasSelecionadas.length > 0) {
-                // Mostrar botão de exclusão apenas para administradores
-                if (verificarAcesso('Administrador')) {
+                // ATUALIZADO: Mostrar botão de exclusão para Administrador e Projetos
+                if (verificarAcesso('ExcluirCoordenadas')) {
                     btnExcluirCoordenadas.classList.remove('hidden');
                 } else {
                     btnExcluirCoordenadas.classList.add('hidden');
@@ -4940,6 +5010,7 @@
 
             if (btnEditarCaixas) {
                 btnEditarCaixas.addEventListener('click', function() {
+                    // ATUALIZADO: Apenas Administrador pode editar caixas
                     if (!verificarAcesso('Administrador')) {
                         mostrarToast('Você não tem permissão para editar caixas.', 'erro');
                         return;
@@ -4968,7 +5039,8 @@
 
             if (btnExcluirCaixas) {
                 btnExcluirCaixas.addEventListener('click', function() {
-                    if (!verificarAcesso('Administrador')) {
+                    // ATUALIZADO: Apenas Administrador pode excluir caixas
+                    if (!verificarAcesso('ExcluirCaixas')) {
                         mostrarToast('Você não tem permissão para excluir caixas.', 'erro');
                         return;
                     }
@@ -5526,7 +5598,7 @@
         }
 
         // =============================================
-        // SISTEMA DE MATERIAIS - FUNÇÕES CORRIGIDAS
+        // SISTEMA DE MATERIAIS - FUNÇÕES ATUALIZADAS
         // =============================================
 
         // Configurar sistema de materiais
@@ -5693,7 +5765,7 @@
                     <td>${material.Observações || ''}</td>
                     <td>${material.Categoria || ''}</td>
                     <td class="categoria-actions-materiais">
-                        ${verificarAcesso('Administrador') ? `
+                        ${verificarAcesso('EditarMateriais') ? `
                             <button class="btn-edit-materiais" onclick="editarMaterial('${material.Código}')">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
@@ -5711,7 +5783,7 @@
         // CORREÇÃO COMPLETA: Função para editar material com modal - VERSÃO CORRIGIDA
         function editarMaterial(codigo) {
             // Verificar permissão
-            if (!verificarAcesso('Administrador')) {
+            if (!verificarAcesso('EditarMateriais')) {
                 mostrarStatusMateriais('Você não tem permissão para editar materiais.', 'error');
                 return;
             }
@@ -5903,7 +5975,7 @@
         // CORREÇÃO: Função para salvar material (criar ou atualizar) - VERSÃO MELHORADA
         async function salvarMaterial() {
             // Verificar permissão para usuários não administradores
-            if (!verificarAcesso('Administrador') && !verificarAcesso('InformacoesLimitadas')) {
+            if (!verificarAcesso('CadastrarMateriais')) {
                 mostrarStatusMateriais('Você não tem permissão para cadastrar materiais.', 'error');
                 return;
             }
@@ -5975,7 +6047,7 @@
         // CORREÇÃO: Função para excluir material
         async function excluirMaterial(codigo) {
             // Verificar permissão
-            if (!verificarAcesso('Administrador')) {
+            if (!verificarAcesso('EditarMateriais')) {
                 mostrarStatusMateriais('Você não tem permissão para excluir materiais.', 'error');
                 return;
             }
@@ -6195,7 +6267,7 @@
                         <span>${categoria.nome}</span>
                         <div class="categoria-actions">
                             <!-- CORREÇÃO: Botão Editar adicionado -->
-                            ${verificarAcesso('Administrador') ? `
+                            ${verificarAcesso('GerenciarCategorias') ? `
                                 <button class="btn btn-edit-materiais" onclick="editarCategoria(${categoria.id}, '${categoria.nome}')">
                                     <i class="fas fa-edit"></i> Editar
                                 </button>
@@ -6214,7 +6286,7 @@
         // CORREÇÃO: Adicionar nova categoria
         async function adicionarCategoria() {
             // Verificar permissão
-            if (!verificarAcesso('Administrador')) {
+            if (!verificarAcesso('GerenciarCategorias')) {
                 mostrarStatusMateriais('Você não tem permissão para gerenciar categorias.', 'error');
                 return;
             }
@@ -6263,7 +6335,7 @@
         // CORREÇÃO: Função para editar categoria
         async function editarCategoria(id, nomeAtual) {
             // Verificar permissão
-            if (!verificarAcesso('Administrador')) {
+            if (!verificarAcesso('GerenciarCategorias')) {
                 mostrarStatusMateriais('Você não tem permissão para editar categorias.', 'error');
                 return;
             }
@@ -6319,7 +6391,7 @@
         // CORREÇÃO: Excluir categoria
         async function excluirCategoria(id, nome) {
             // Verificar permissão
-            if (!verificarAcesso('Administrador')) {
+            if (!verificarAcesso('GerenciarCategorias')) {
                 mostrarStatusMateriais('Você não tem permissão para excluir categorias.', 'error');
                 return;
             }
