@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS DO SISTEMA PRINCIPAL */
+        /* CSS DO SISTEMA PRINCIPAL (MANTIDO IGUAL) */
         :root {
             --primary: #2c3e50;
             --secondary: #3498db;
@@ -317,8 +317,10 @@
         }
 
         .role-admin { background-color: #e74c3c; color: white; }
+        .role-supervisão { background-color: #e67e22; color: white; }
         .role-supervisao { background-color: #e67e22; color: white; }
         .role-analistas { background-color: #f39c12; color: white; }
+        .role-técnico { background-color: #3498db; color: white; }
         .role-tecnico { background-color: #3498db; color: white; }
         .role-projetos { background-color: #9b59b6; color: white; }
 
@@ -1855,11 +1857,10 @@
                     Gerenciar Coordenadas
                 </h2>
                 
-                <!-- Abas de navegação - ATUALIZADA COM NOVA ABA -->
+                <!-- Abas de navegação -->
                 <div class="abas-navegacao">
                     <div class="aba active" id="aba-consulta">Consulta de Coordenadas</div>
                     <div class="aba" id="aba-caixas">Caixas Disponíveis</div>
-                    <!-- NOVA ABA DE IMPORTAR CSV -->
                     <div class="aba" id="aba-importar">Importar CSV</div>
                 </div>
 
@@ -1931,9 +1932,9 @@
                     </div>
                 </div>
 
-                <!-- Conteúdo da aba Caixas - SISTEMA CORRIGIDO -->
+                <!-- Conteúdo da aba Caixas -->
                 <div id="conteudo-caixas" class="conteudo-aba">
-                    <!-- MODAIS PARA CAIXAS (APENAS AQUI) -->
+                    <!-- MODAIS PARA CAIXAS -->
                     <!-- Modal para retornar caixa -->
                     <div id="modal-retornar-caixa" class="modal">
                         <div class="modal-content">
@@ -2139,7 +2140,7 @@
                     </div>
                 </div>
 
-                <!-- NOVO CONTEÚDO: Aba Importar CSV - FORMULÁRIO CORRIGIDO -->
+                <!-- CONTEÚDO: Aba Importar CSV - FORMULÁRIO CORRIGIDO -->
                 <div id="conteudo-importar" class="conteudo-aba">
                     <div class="card">
                         <h3>📤 Importar Dados via CSV</h3>
@@ -2243,7 +2244,7 @@
                 </div>
             </section>
 
-            <!-- Página Materiais - SISTEMA COMPLETO -->
+            <!-- Página Materiais -->
             <section id="page-materiais" class="page-content">
                 <h2 class="page-title"><span>📦</span>Gerenciar Materiais</h2>
                 
@@ -2281,7 +2282,6 @@
                         <button class="copy-btn" id="copySelectedMateriais" disabled>
                             <i class="fas fa-copy"></i> Copiar Selecionados
                         </button>
-                        <!-- CORREÇÃO: Botão Solicitar adicionado -->
                         <button class="btn-primary-materiais" id="btn-solicitar-materiais" disabled>
                             <i class="fas fa-envelope"></i> Solicitar Selecionados
                         </button>
@@ -2510,7 +2510,7 @@
                 </div>
             </section>
 
-            <!-- Página Perfil do Usuário - NOVA PÁGINA -->
+            <!-- Página Perfil do Usuário -->
             <section id="page-perfil" class="page-content">
                 <h2 class="page-title"><span>👤</span>Meu Perfil</h2>
                 
@@ -2567,7 +2567,7 @@
                 </div>
             </section>
 
-            <!-- NOVA PÁGINA: Links Úteis -->
+            <!-- Página: Links Úteis -->
             <section id="page-links" class="page-content">
                 <h2 class="page-title"><span>🔗</span>Links Úteis</h2>
                 
@@ -2617,7 +2617,6 @@
                                 </a>
                             </div>
                             
-                            <!-- NOVO LINK: Formulário de Baixa de Material -->
                             <div class="link-card">
                                 <div class="link-icon">
                                     <i class="fas fa-clipboard-list"></i>
@@ -2726,7 +2725,7 @@
             const TABELA_CATEGORIAS = 'categorias';
             const TABELA_LOGS = 'logs_sistema';
             
-            // Inicializar Supabase (com verificação)
+            // Inicializar Supabase
             let supabase;
             try {
                 if (window.supabaseClientInstance) {
@@ -2739,7 +2738,6 @@
                 }
             } catch (error) {
                 console.error('❌ Erro ao inicializar Supabase:', error);
-                // Fallback para evitar erros
                 supabase = {
                     from: () => ({
                         select: () => Promise.resolve({ data: [], error: null }),
@@ -2781,11 +2779,11 @@
             // Variáveis do sistema de logs
             let logsSistema = [];
 
-            // Lista de técnicos para solicitação de materiais - ATUALIZADA COM NOVOS TÉCNICOS E ORDENADA
+            // Lista de técnicos para solicitação de materiais
             const tecnicos = [
                 "Adilson de Oliveira",
                 "Ailton Júnior da Silva Moreira",
-                "Aldo José de Oliveira", // NOVO TÉCNICO ADICIONADO
+                "Aldo José de Oliveira",
                 "Calebe de Andrade Garcia",
                 "Cosme José Alves",
                 "Daniel Fernando Filipe Quirino",
@@ -2805,7 +2803,7 @@
                 "Mário Sérgio Rezende da Silva",
                 "Marcelo",
                 "Pablo da Silva Veloso",
-                "Rainstel", // NOVO TÉCNICO ADICIONADO
+                "Rainstel",
                 "Ramom da Silva Moreira",
                 "Rodrigo de Lima Vicente",
                 "TurboNet",
@@ -2816,10 +2814,9 @@
             ];
 
             // =============================================
-            // FUNÇÕES DE INICIALIZAÇÃO
+            // FUNÇÕES DE INICIALIZAÇÃO (MANTIDAS)
             // =============================================
 
-            // Inicialização
             document.addEventListener('DOMContentLoaded', function() {
                 console.log('🚀 DOM carregado. Iniciando sistema de gestão de redes...');
                 if (!window.__SYSTEM_INITIALIZED__) {
@@ -2828,27 +2825,20 @@
                 }
             });
 
-            // Inicializar sistema - VERSÃO SIMPLIFICADA
             async function inicializarSistema() {
                 try {
                     mostrarStatusSetup('🔍 Conectando ao banco de dados...');
                     
-                    // Verificar se podemos acessar o banco
                     const bancoAcessivel = await verificarAcessoBanco();
                     
                     if (bancoAcessivel) {
                         mostrarStatusSetup('✅ Sistema pronto!');
-                        
-                        // Verificar se existe pelo menos um usuário
                         await verificarExistenciaUsuarios();
                     } else {
                         mostrarStatusSetup('❌ Não foi possível conectar ao banco de dados. Verifique sua conexão com a internet.');
                     }
                     
-                    // Configurar event listeners
                     setupEventListeners();
-                    
-                    // Carregar email salvo se existir
                     carregarEmailSalvo();
                     
                 } catch (error) {
@@ -2857,10 +2847,8 @@
                 }
             }
 
-            // Verificar acesso ao banco - VERSÃO SIMPLIFICADA
             async function verificarAcessoBanco() {
                 try {
-                    // Tentar uma consulta simples para verificar conexão
                     const { data, error } = await supabase
                         .from('usuarios')
                         .select('count')
@@ -2868,10 +2856,8 @@
 
                     if (error) {
                         console.log('ℹ️ A tabela usuarios pode não existir, mas a conexão está OK');
-                        // Mesmo se a tabela não existir, a conexão está funcionando
                         return true;
                     }
-                    
                     return true;
                 } catch (error) {
                     console.error('❌ Erro de conexão com o banco:', error);
@@ -2879,7 +2865,6 @@
                 }
             }
 
-            // Verificar existência de usuários - NOVA FUNÇÃO
             async function verificarExistenciaUsuarios() {
                 try {
                     console.log('👤 Verificando existência de usuários...');
@@ -2902,7 +2887,6 @@
                         console.log('ℹ️ Nenhum usuário encontrado no sistema');
                         mostrarStatusSetup('⚠️ Nenhum usuário cadastrado. Contate o administrador para criar seu usuário.');
                     }
-                    
                 } catch (error) {
                     console.error('❌ Erro ao verificar usuários:', error);
                     mostrarStatusSetup('ℹ️ Sistema pronto para uso. Faça login com suas credenciais.');
@@ -2910,10 +2894,9 @@
             }
 
             // =============================================
-            // SISTEMA DE LOGIN CORRIGIDO
+            // SISTEMA DE LOGIN (MANTIDO)
             // =============================================
 
-            // Fazer login - VERSÃO CORRIGIDA
             async function fazerLogin(e) {
                 e.preventDefault();
                 
@@ -2926,7 +2909,6 @@
                     return;
                 }
 
-                // Mostrar loading
                 if (loginButton) {
                     loginButton.disabled = true;
                     loginButton.textContent = 'Entrando...';
@@ -2935,7 +2917,6 @@
                 try {
                     console.log('🔐 Tentando login para:', email);
                     
-                    // Buscar usuário no Supabase
                     const { data, error } = await supabase
                         .from('usuarios')
                         .select('*')
@@ -2955,34 +2936,25 @@
                     
                     console.log('👤 Usuário encontrado:', data);
                     
-                    // Verificar status
                     if (data.status !== 'ativo') {
                         mostrarAlertaLogin('Usuário inativo. Contate o administrador.');
                         return;
                     }
                     
-                    // Verificar senha
                     const senhaCriptografada = CryptoJS.SHA256(senha).toString();
-                    console.log('🔑 Comparando senhas:', {
-                        senhaDigitada: senhaCriptografada,
-                        senhaBanco: data.senha
-                    });
                     
                     if (data.senha !== senhaCriptografada) {
                         mostrarAlertaLogin('Senha incorreta. Tente novamente.');
                         return;
                     }
                     
-                    // Login bem-sucedido
                     usuarioLogado = data;
                     localStorage.setItem('usuario_logado', JSON.stringify(data));
                     
-                    // Salvar email se o checkbox estiver marcado
                     salvarEmailSeLembrar(email);
                     
                     console.log('✅ Login realizado com sucesso');
                     
-                    // REGISTRAR LOG DE LOGIN
                     try {
                         await registrarLog(usuarioLogado.nome, 'Login realizado no sistema', 'Autenticação', `Usuário: ${usuarioLogado.email}`);
                     } catch (logError) {
@@ -2995,7 +2967,6 @@
                     console.error('❌ Erro no login:', error);
                     mostrarAlertaLogin('Erro inesperado: ' + error.message);
                 } finally {
-                    // Restaurar botão
                     if (loginButton) {
                         loginButton.disabled = false;
                         loginButton.textContent = 'Entrar';
@@ -3003,11 +2974,6 @@
                 }
             }
 
-            // =============================================
-            // FUNÇÕES AUXILIARES (MANTIDAS)
-            // =============================================
-
-            // Mostrar status do setup
             function mostrarStatusSetup(mensagem) {
                 const setupStatus = document.getElementById('setup-status');
                 if (setupStatus) {
@@ -3016,7 +2982,6 @@
                 }
             }
 
-            // Carregar email salvo do localStorage
             function carregarEmailSalvo() {
                 const emailSalvo = localStorage.getItem('lembrar_email');
                 const checkboxLembrar = document.getElementById('remember-email');
@@ -3029,7 +2994,6 @@
                 }
             }
 
-            // Salvar email no localStorage se o checkbox estiver marcado
             function salvarEmailSeLembrar(email) {
                 const checkboxLembrar = document.getElementById('remember-email');
                 
@@ -3040,7 +3004,6 @@
                 }
             }
 
-            // Configurar event listeners
             function setupEventListeners() {
                 const loginForm = document.getElementById('login-form');
                 
@@ -3049,7 +3012,6 @@
                 }
             }
 
-            // Mostrar alerta de login
             function mostrarAlertaLogin(mensagem) {
                 const loginAlert = document.getElementById('login-alert');
                 if (loginAlert) {
@@ -3062,7 +3024,6 @@
                 }
             }
 
-            // Mostrar sistema principal
             function mostrarSistemaPrincipal() {
                 console.log('🎯 Mostrando sistema principal...');
                 
@@ -3070,16 +3031,11 @@
                 const mainSystem = document.getElementById('main-system');
                 
                 if (loginPage && mainSystem) {
-                    // Ocultar login
                     loginPage.classList.add('hidden');
-                    
-                    // Mostrar sistema principal
                     mainSystem.classList.remove('hidden');
                     
-                    // Atualizar interface com dados do usuário
                     atualizarInterfaceUsuario();
                     
-                    // CORREÇÃO: Preencher campo de usuário nas caixas
                     const usuarioCadastroInput = document.getElementById('usuario-cadastro');
                     if (usuarioCadastroInput && usuarioLogado) {
                         usuarioCadastroInput.value = usuarioLogado.nome;
@@ -3092,10 +3048,9 @@
             }
 
             // =============================================
-            // FUNÇÃO CORRIGIDA: GERAR NAVEGAÇÃO POR HIERARQUIA
+            // FUNÇÃO CORRIGIDA: GERAR NAVEGAÇÃO POR HIERARQUIA (MANTIDA)
             // =============================================
 
-            // Função para gerar a navegação baseada na hierarquia do usuário - VERSÃO ATUALIZADA
             function gerarNavegacaoPorHierarquia() {
                 const navContainer = document.getElementById('main-navigation');
                 
@@ -3106,50 +3061,38 @@
                 
                 console.log(`👤 Gerando navegação para hierarquia: ${hierarquia}`);
                 
-                // Dashboard - apenas para Administrador e Supervisão
                 if (hierarquia === 'Administrador' || hierarquia === 'Supervisão') {
                     navegacaoItens += `<li><a href="#" id="nav-dashboard" class="nav-link active">Dashboard</a></li>`;
                 }
                 
-                // Meu Perfil - sempre visível para todos, mas com posição diferente para Técnicos
                 if (hierarquia === 'Técnico') {
-                    // Para Técnicos: Meu Perfil entre Dashboard e Coordenadas
                     navegacaoItens += `<li><a href="#" id="nav-perfil" class="nav-link">Meu Perfil</a></li>`;
                 }
                 
-                // Usuários - apenas para Administrador
                 if (hierarquia === 'Administrador') {
                     navegacaoItens += `<li><a href="#" id="nav-usuarios" class="nav-link">Usuários</a></li>`;
                 }
                 
-                // Coordenadas - visível para todos
                 navegacaoItens += `<li><a href="#" id="nav-coordenadas" class="nav-link">Coordenadas</a></li>`;
-                
-                // Materiais - visível para todos
                 navegacaoItens += `<li><a href="#" id="nav-materiais" class="nav-link">Materiais</a></li>`;
                 
-                // Meu Perfil - para outras hierarquias (não Técnicos), fica na posição normal
                 if (hierarquia !== 'Técnico') {
                     navegacaoItens += `<li><a href="#" id="nav-perfil" class="nav-link">Meu Perfil</a></li>`;
                 }
                 
-                // NOVO: Links Úteis - visível para todos, após Meu Perfil
                 navegacaoItens += `<li><a href="#" id="nav-links" class="nav-link">Links Úteis</a></li>`;
                 
-                // Logs do Sistema - apenas para Administrador
                 if (hierarquia === 'Administrador') {
                     navegacaoItens += `<li><a href="#" id="nav-logs" class="nav-link">Logs do Sistema</a></li>`;
                 }
                 
                 navContainer.innerHTML = navegacaoItens;
                 
-                // Reconfigurar os event listeners após gerar a navegação
                 reconfigurarNavegacao();
                 
                 console.log(`✅ Navegação gerada para ${hierarquia}:`, navContainer.innerHTML);
             }
 
-            // Função para reconfigurar os event listeners de navegação
             function reconfigurarNavegacao() {
                 const navLinks = document.querySelectorAll('.nav-link');
                 navLinks.forEach(link => {
@@ -3160,11 +3103,9 @@
                 });
             }
 
-            // Atualizar interface com dados do usuário - MODIFICADA
             function atualizarInterfaceUsuario() {
                 if (!usuarioLogado) return;
                 
-                // Atualizar informações do usuário
                 const userAvatar = document.getElementById('user-avatar');
                 const userName = document.getElementById('user-name');
                 const userRole = document.getElementById('user-role');
@@ -3179,12 +3120,11 @@
                 if (welcomeMessage) welcomeMessage.textContent = `Bem-vindo, ${usuarioLogado.nome}!`;
                 if (userRoleBadge) {
                     userRoleBadge.textContent = usuarioLogado.hierarquia;
-                    userRoleBadge.className = `role-badge role-${usuarioLogado.hierarquia.toLowerCase().replace('ã', 'a').replace('ç', 'c')}`;
+                    userRoleBadge.className = `role-badge role-${usuarioLogado.hierarquia.toLowerCase().replace('ã', 'a').replace('ç', 'c').replace('é', 'e')}`;
                 }
                 if (loginUser) loginUser.textContent = usuarioLogado.nome;
                 if (loginTime) loginTime.textContent = new Date().toLocaleString('pt-BR');
                 
-                // Atualizar informações do perfil
                 const profileAvatar = document.getElementById('profile-avatar');
                 const profileName = document.getElementById('profile-name');
                 const profileEmail = document.getElementById('profile-email');
@@ -3195,82 +3135,53 @@
                 if (profileName) profileName.textContent = usuarioLogado.nome;
                 if (profileEmail) profileEmail.textContent = usuarioLogado.email;
                 if (profileRole) {
-                    profileRole.innerHTML = `<span class="role-badge role-${usuarioLogado.hierarquia.toLowerCase().replace('ã', 'a').replace('ç', 'c')}">${usuarioLogado.hierarquia}</span>`;
+                    profileRole.innerHTML = `<span class="role-badge role-${usuarioLogado.hierarquia.toLowerCase().replace('ã', 'a').replace('ç', 'c').replace('é', 'e')}">${usuarioLogado.hierarquia}</span>`;
                 }
                 if (profileStatus) {
                     profileStatus.innerHTML = `<span class="status-badge status-${usuarioLogado.status}">${usuarioLogado.status}</span>`;
                 }
                 
-                // GERAR NAVEGAÇÃO BASEADA NA HIERARQUIA
                 gerarNavegacaoPorHierarquia();
-                
-                // Aplicar controle de acesso
                 aplicarControleAcesso();
-                
-                // Configurar event listeners do sistema
                 configurarEventListenersSistema();
             }
 
-            // Configurar event listeners do sistema - MODIFICADA
             function configurarEventListenersSistema() {
-                // Logout
                 const logoutBtn = document.getElementById('logout-btn');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', async function() {
-                        // REGISTRAR LOG OF LOGOUT
                         if (usuarioLogado) {
                             await registrarLog(usuarioLogado.nome, 'Logout realizado', 'Autenticação');
                         }
-                        
                         usuarioLogado = null;
                         localStorage.removeItem('usuario_logado');
                         location.reload();
                     });
                 }
 
-                // Navegação entre páginas (já configurada em reconfigurarNavegacao())
-
-                // Configurar sistema de coordenadas
                 configurarSistemaCoordenadas();
-
-                // Configurar sistema de materiais
                 configurarSistemaMateriais();
-
-                // Configurar sistema de usuários
                 configurarBotaoNovoUsuario();
-
-                // Configurar sistema de logs
                 configurarSistemaLogs();
-
-                // Configurar sistema de perfil
                 configurarSistemaPerfil();
-
-                // Carregar dados iniciais
                 carregarUsuarios();
             }
 
-            // Função navegarParaPagina - MODIFICADA para lidar com páginas que podem não estar disponíveis
             function navegarParaPagina(pagina) {
-                // Verificar se a página existe na navegação atual
                 const navLink = document.getElementById(`nav-${pagina}`);
                 if (!navLink) {
                     console.warn(`Página ${pagina} não disponível para este usuário`);
-                    // Navegar para dashboard como fallback
                     pagina = 'dashboard';
                 }
                 
-                // Atualizar navegação
                 document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
                 document.getElementById(`nav-${pagina}`).classList.add('active');
 
-                // Mostrar página correspondente
                 document.querySelectorAll('.page-content').forEach(content => content.classList.remove('active'));
                 document.getElementById(`page-${pagina}`).classList.add('active');
 
-                // Aplicar controle de acesso específico da página
                 aplicarControleAcesso();
 
-                // Carregar dados específicos da página se necessário
                 switch(pagina) {
                     case 'usuarios':
                         if (verificarAcesso('GerenciarUsuarios')) {
@@ -3278,7 +3189,6 @@
                         }
                         break;
                     case 'coordenadas':
-                        // CORREÇÃO: Preencher campo de usuário ao acessar coordenadas (que contém a aba de caixas)
                         const usuarioCadastroInput = document.getElementById('usuario-cadastro');
                         if (usuarioCadastroInput && usuarioLogado) {
                             usuarioCadastroInput.value = usuarioLogado.nome;
@@ -3294,29 +3204,24 @@
                         }
                         break;
                     case 'perfil':
-                        // Não é necessário carregar dados adicionais, pois já estão carregados na inicialização
                         break;
                     case 'links':
-                        // Página de links úteis - não requer carregamento de dados adicionais
                         console.log('🔗 Acessando página de Links Úteis');
                         break;
                 }
             }
 
             // =============================================
-            // FUNÇÕES DE CONTROLE DE ACESSO ATUALIZADAS
+            // FUNÇÕES DE CONTROLE DE ACESSO (MANTIDAS)
             // =============================================
 
-            // Função para verificar se o usuário tem acesso à funcionalidade - ATUALIZADA PARA INCLUIR PROJETOS
             function verificarAcesso(permissaoRequerida = 'Administrador') {
                 if (!usuarioLogado) return false;
                 
-                // Administrador tem acesso total
                 if (usuarioLogado.hierarquia === 'Administrador') {
                     return true;
                 }
                 
-                // Verificar permissões específicas
                 switch(permissaoRequerida) {
                     case 'Administrador':
                         return usuarioLogado.hierarquia === 'Administrador';
@@ -3327,33 +3232,25 @@
                     case 'InformacoesLimitadas':
                         return ['Projetos', 'Supervisão', 'Analistas'].includes(usuarioLogado.hierarquia);
                     case 'AlterarPropriaSenha':
-                        // Todos os usuários podem alterar sua própria senha
                         return true;
                     case 'ExcluirCoordenadas':
-                        // ATUALIZADO: Agora permite Administrador e Projetos
                         return usuarioLogado.hierarquia === 'Administrador' || usuarioLogado.hierarquia === 'Projetos';
                     case 'ExcluirCaixas':
-                        // Apenas Administrador pode excluir caixas
                         return usuarioLogado.hierarquia === 'Administrador';
                     case 'EditarMateriais':
-                        // Apenas Administrador pode editar materiais
                         return usuarioLogado.hierarquia === 'Administrador';
                     case 'GerenciarCategorias':
-                        // Apenas Administrador pode gerenciar categorias
                         return usuarioLogado.hierarquia === 'Administrador';
                     case 'CadastrarMateriais':
-                        // Administrador e Projetos podem cadastrar materiais
                         return usuarioLogado.hierarquia === 'Administrador' || usuarioLogado.hierarquia === 'Projetos';
                     default:
                         return false;
                 }
             }
 
-            // Função para aplicar controle de acesso nas páginas - ATUALIZADA
             function aplicarControleAcesso() {
                 if (!usuarioLogado) return;
 
-                // Controle de acesso para página de Usuários
                 const acessoUsuarios = verificarAcesso('GerenciarUsuarios');
                 const accessControlUsuarios = document.getElementById('access-control-usuarios');
                 const contentUsuarios = document.getElementById('content-usuarios');
@@ -3363,14 +3260,13 @@
                         accessControlUsuarios.classList.remove('hidden');
                         contentUsuarios.classList.add('hidden');
                         document.getElementById('current-user-role').textContent = usuarioLogado.hierarquia;
-                        document.getElementById('current-user-role').className = `role-badge role-${usuarioLogado.hierarquia.toLowerCase().replace('ã', 'a').replace('ç', 'c')}`;
+                        document.getElementById('current-user-role').className = `role-badge role-${usuarioLogado.hierarquia.toLowerCase().replace('ã', 'a').replace('ç', 'c').replace('é', 'e')}`;
                     } else {
                         accessControlUsuarios.classList.add('hidden');
                         contentUsuarios.classList.remove('hidden');
                     }
                 }
 
-                // Controle de acesso para página de Logs
                 const acessoLogs = verificarAcesso('VisualizarLogs');
                 const accessControlLogs = document.getElementById('access-control-logs');
                 const contentLogs = document.getElementById('content-logs');
@@ -3380,22 +3276,19 @@
                         accessControlLogs.classList.remove('hidden');
                         contentLogs.classList.add('hidden');
                         document.getElementById('current-user-role-logs').textContent = usuarioLogado.hierarquia;
-                        document.getElementById('current-user-role-logs').className = `role-badge role-${usuarioLogado.hierarquia.toLowerCase().replace('ã', 'a').replace('ç', 'c')}`;
+                        document.getElementById('current-user-role-logs').className = `role-badge role-${usuarioLogado.hierarquia.toLowerCase().replace('ã', 'a').replace('ç', 'c').replace('é', 'e')}`;
                     } else {
                         accessControlLogs.classList.add('hidden');
                         contentLogs.classList.remove('hidden');
                     }
                 }
 
-                // Ocultar botões de ação baseado nas permissões
                 ocultarBotoesSemPermissao();
             }
 
-            // Função para ocultar botões de ação baseado nas permissões do usuário - ATUALIZADA
             function ocultarBotoesSemPermissao() {
                 if (!usuarioLogado) return;
 
-                // Botão "Novo Usuário" - apenas Administrador
                 const btnNovoUsuario = document.getElementById('btn-novo-usuario');
                 if (btnNovoUsuario) {
                     if (!verificarAcesso('GerenciarUsuarios')) {
@@ -3405,7 +3298,6 @@
                     }
                 }
 
-                // Botão de exclusão de coordenadas - ATUALIZADO: Permite Administrador e Projetos
                 const btnExcluirCoordenadas = document.getElementById('btn-excluir-coordenadas');
                 if (btnExcluirCoordenadas) {
                     if (!verificarAcesso('ExcluirCoordenadas')) {
@@ -3415,7 +3307,6 @@
                     }
                 }
 
-                // Botões de exclusão em caixas - apenas Administrador
                 const btnExcluirCaixas = document.getElementById('btn-excluir-caixas');
                 if (btnExcluirCaixas) {
                     if (!verificarAcesso('ExcluirCaixas')) {
@@ -3425,7 +3316,6 @@
                     }
                 }
 
-                // Botões de edição em materiais - apenas Administrador
                 const botoesEditarMateriais = document.querySelectorAll('.btn-edit-materiais');
                 botoesEditarMateriais.forEach(botao => {
                     if (!verificarAcesso('EditarMateriais')) {
@@ -3435,7 +3325,6 @@
                     }
                 });
 
-                // Botões de exclusão em materiais - apenas Administrador
                 const botoesExcluirMateriais = document.querySelectorAll('.btn-delete-materiais');
                 botoesExcluirMateriais.forEach(botao => {
                     if (!verificarAcesso('EditarMateriais')) {
@@ -3445,7 +3334,6 @@
                     }
                 });
 
-                // Botão de adicionar categoria - apenas Administrador
                 const btnAddCategoria = document.getElementById('addCategoria');
                 if (btnAddCategoria) {
                     if (!verificarAcesso('GerenciarCategorias')) {
@@ -3455,7 +3343,6 @@
                     }
                 }
 
-                // Botão de cadastrar material - ATUALIZADO: Permite Administrador e Projetos
                 const btnSubmitMaterial = document.getElementById('submitButtonMateriais');
                 if (btnSubmitMaterial) {
                     if (!verificarAcesso('CadastrarMateriais')) {
@@ -3469,12 +3356,10 @@
             }
 
             // =============================================
-            // SISTEMA DE PERFIL DO USUÁRIO - NOVO SISTEMA
+            // SISTEMA DE PERFIL DO USUÁRIO (MANTIDO)
             // =============================================
 
-            // Configurar sistema de perfil
             function configurarSistemaPerfil() {
-                // Configurar formulário de alteração de senha
                 const formAlterarSenha = document.getElementById('form-alterar-senha');
                 if (formAlterarSenha) {
                     formAlterarSenha.addEventListener('submit', async function(e) {
@@ -3484,9 +3369,7 @@
                 }
             }
 
-            // Função para alterar senha do usuário
             async function alterarSenhaUsuario() {
-                // Verificar permissão
                 if (!verificarAcesso('AlterarPropriaSenha')) {
                     mostrarToast('Você não tem permissão para alterar a senha.', 'erro');
                     return;
@@ -3496,26 +3379,22 @@
                 const novaSenha = document.getElementById('nova-senha').value;
                 const confirmarSenha = document.getElementById('confirmar-senha').value;
                 
-                // Validar campos obrigatórios
                 if (!senhaAtual || !novaSenha || !confirmarSenha) {
                     mostrarToast('Preencha todos os campos obrigatórios', 'erro');
                     return;
                 }
                 
-                // Validar se as novas senhas coincidem
                 if (novaSenha !== confirmarSenha) {
                     mostrarToast('As novas senhas não coincidem', 'erro');
                     return;
                 }
                 
-                // Validar força da senha
                 if (!validarForcaSenha(novaSenha)) {
                     mostrarToast('A nova senha não atende aos requisitos de segurança', 'erro');
                     return;
                 }
                 
                 try {
-                    // Verificar se a senha atual está correta
                     const senhaAtualCriptografada = CryptoJS.SHA256(senhaAtual).toString();
                     
                     if (senhaAtualCriptografada !== usuarioLogado.senha) {
@@ -3523,10 +3402,8 @@
                         return;
                     }
                     
-                    // Criptografar a nova senha
                     const novaSenhaCriptografada = CryptoJS.SHA256(novaSenha).toString();
                     
-                    // Atualizar a senha no banco de dados
                     const { data, error } = await supabase
                         .from('usuarios')
                         .update({ senha: novaSenhaCriptografada })
@@ -3540,14 +3417,11 @@
                     
                     console.log('✅ Senha alterada com sucesso:', data);
                     
-                    // Atualizar o usuário logado com a nova senha
                     usuarioLogado.senha = novaSenhaCriptografada;
                     localStorage.setItem('usuario_logado', JSON.stringify(usuarioLogado));
                     
-                    // REGISTRAR LOG DE ALTERAÇÃO DE SENHA
                     await registrarLog(usuarioLogado.nome, 'Senha alterada com sucesso', 'Perfil', 'Usuário alterou sua própria senha');
                     
-                    // Limpar formulário
                     document.getElementById('form-alterar-senha').reset();
                     
                     mostrarToast('Senha alterada com sucesso!', 'success');
@@ -3556,60 +3430,34 @@
                     console.error('❌ Erro ao alterar senha:', error);
                     mostrarToast('Erro ao alterar senha: ' + error.message, 'erro');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao alterar senha', 'Perfil', error.message);
                 }
             }
 
-            // Função para validar força da senha
             function validarForcaSenha(senha) {
-                // Mínimo de 8 caracteres
-                if (senha.length < 8) {
-                    return false;
-                }
-                
-                // Pelo menos uma letra maiúscula
-                if (!/[A-Z]/.test(senha)) {
-                    return false;
-                }
-                
-                // Pelo menos uma letra minúscula
-                if (!/[a-z]/.test(senha)) {
-                    return false;
-                }
-                
-                // Pelo menos um número
-                if (!/\d/.test(senha)) {
-                    return false;
-                }
-                
-                // Pelo menos um caractere especial
-                if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(senha)) {
-                    return false;
-                }
-                
+                if (senha.length < 8) return false;
+                if (!/[A-Z]/.test(senha)) return false;
+                if (!/[a-z]/.test(senha)) return false;
+                if (!/\d/.test(senha)) return false;
+                if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(senha)) return false;
                 return true;
             }
 
             // =============================================
-            // SISTEMA DE LOGS - FUNÇÕES COMPLETAS
+            // SISTEMA DE LOGS (MANTIDO)
             // =============================================
 
-            // Função para obter IP do usuário (simulação)
             async function obterIPUsuario() {
                 try {
-                    // Tentar obter IP real de um serviço externo
                     const response = await fetch('https://api.ipify.org?format=json');
                     const data = await response.json();
                     return data.ip;
                 } catch (error) {
                     console.log('Não foi possível obter IP real, usando fallback');
-                    // Fallback: gerar IP aleatório para demonstração
                     return `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
                 }
             }
 
-            // Função para registrar logs no sistema - VERSÃO ATUALIZADA (SEM TIPO)
             async function registrarLog(usuario, mensagem, modulo = 'Sistema', detalhes = null) {
                 try {
                     const logData = {
@@ -3630,7 +3478,6 @@
                     if (error) {
                         console.error('❌ Erro ao registrar log:', error);
                         
-                        // Se a tabela não existir, criar uma versão simplificada em localStorage
                         if (error.message.includes('Could not find the table') || error.code === 'PGRST301') {
                             console.log('📋 Tabela de logs não encontrada, armazenando em localStorage...');
                             await salvarLogLocalStorage(logData);
@@ -3644,7 +3491,6 @@
                 } catch (error) {
                     console.error('❌ Erro ao registrar log:', error);
                     
-                    // Fallback para localStorage em caso de erro
                     try {
                         const logData = {
                             usuario: usuario,
@@ -3663,13 +3509,11 @@
                 }
             }
 
-            // Função para salvar logs no localStorage (fallback)
             async function salvarLogLocalStorage(logData) {
                 try {
                     const logsExistentes = JSON.parse(localStorage.getItem('logs_sistema_backup') || '[]');
                     logsExistentes.push(logData);
                     
-                    // Manter apenas os últimos 1000 logs para não sobrecarregar o localStorage
                     if (logsExistentes.length > 1000) {
                         logsExistentes.splice(0, logsExistentes.length - 1000);
                     }
@@ -3683,12 +3527,10 @@
                 }
             }
 
-            // Função para carregar logs do sistema - VERSÃO ATUALIZADA
             async function carregarLogsSistema() {
                 try {
                     console.log('📋 Carregando logs do sistema...');
                     
-                    // Primeiro tentar carregar do Supabase
                     const { data, error } = await supabase
                         .from(TABELA_LOGS)
                         .select('*')
@@ -3697,7 +3539,6 @@
                     if (error) {
                         console.error('❌ Erro ao carregar logs do Supabase:', error);
                         
-                        // Se a tabela não existir, carregar do localStorage
                         if (error.message.includes('Could not find the table') || error.code === 'PGRST301') {
                             console.log('📋 Carregando logs do localStorage...');
                             const logsBackup = JSON.parse(localStorage.getItem('logs_sistema_backup') || '[]');
@@ -3711,14 +3552,12 @@
                         console.log(`✅ ${logsSistema.length} logs carregados do Supabase`);
                     }
                     
-                    // Atualizar estatísticas
                     document.getElementById('total-logs').textContent = logsSistema.length;
                     
                     return logsSistema;
                 } catch (error) {
                     console.error('❌ Erro ao carregar logs:', error);
                     
-                    // Fallback para localStorage
                     try {
                         const logsBackup = JSON.parse(localStorage.getItem('logs_sistema_backup') || '[]');
                         logsSistema = logsBackup;
@@ -3733,12 +3572,10 @@
                 }
             }
 
-            // Função para exibir logs na interface - VERSÃO ATUALIZADA (SEM TIPO)
             function exibirLogs(logsFiltrados = null) {
                 const logsContainer = document.getElementById('logs-container');
                 const logsParaExibir = logsFiltrados || logsSistema;
                 
-                // Verificar se há logs no backup do localStorage
                 const logsBackup = JSON.parse(localStorage.getItem('logs_sistema_backup') || '[]');
                 const usandoBackup = logsParaExibir.length === 0 && logsBackup.length > 0;
                 
@@ -3798,7 +3635,6 @@
                 }).join('');
             }
 
-            // Função para filtrar logs
             function filtrarLogs() {
                 const usuario = document.getElementById('filtro-usuario').value;
                 const modulo = document.getElementById('filtro-modulo').value;
@@ -3807,12 +3643,11 @@
                 
                 let logsFiltrados = [...logsSistema];
                 
-                // Aplicar filtros
                 if (usuario) {
                     logsFiltrados = logsFiltrados.filter(log => log.usuario === usuario);
                 }
                 
-                if (modo) {
+                if (modulo) {
                     logsFiltrados = logsFiltrados.filter(log => log.modulo === modulo);
                 }
                 
@@ -3823,18 +3658,15 @@
                 
                 if (dataFim) {
                     const fim = new Date(dataFim);
-                    fim.setHours(23, 59, 59, 999); // Fim do dia
+                    fim.setHours(23, 59, 59, 999);
                     logsFiltrados = logsFiltrados.filter(log => new Date(log.data_hora) <= fim);
                 }
                 
-                // Exibir logs filtrados
                 exibirLogs(logsFiltrados);
             }
 
-            // Função para carregar usuários para o filtro
             async function carregarUsuariosFiltro() {
                 try {
-                    // Extrair usuários únicos dos logs
                     const usuarios = [...new Set(logsSistema.map(log => log.usuario))].sort();
                     
                     const selectUsuario = document.getElementById('filtro-usuario');
@@ -3851,24 +3683,19 @@
                 }
             }
 
-            // Função para exportar logs
             function exportarLogs() {
                 try {
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF();
                     
-                    // Título
                     doc.setFontSize(16);
                     doc.text('Relatório de Logs do Sistema', 14, 15);
                     
-                    // Data de geração
                     doc.setFontSize(10);
                     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 22);
                     
-                    // Cabeçalho da tabela
                     const headers = [['Data/Hora', 'Usuário', 'Módulo', 'Mensagem']];
                     
-                    // Dados da tabela
                     const data = logsSistema.map(log => {
                         const dataHora = new Date(log.data_hora);
                         return [
@@ -3879,7 +3706,6 @@
                         ];
                     });
                     
-                    // Adicionar tabela
                     doc.autoTable({
                         head: headers,
                         body: data,
@@ -3888,7 +3714,6 @@
                         headStyles: { fillColor: [44, 62, 80] }
                     });
                     
-                    // Salvar PDF
                     doc.save(`logs_sistema_${new Date().toISOString().slice(0, 10)}.pdf`);
                     
                     mostrarToast('Logs exportados com sucesso!', 'success');
@@ -3898,9 +3723,7 @@
                 }
             }
 
-            // Configurar sistema de logs
             function configurarSistemaLogs() {
-                // Event listeners para logs
                 document.getElementById('btn-atualizar-logs').addEventListener('click', async () => {
                     if (!verificarAcesso('VisualizarLogs')) {
                         mostrarToast('Você não tem permissão para visualizar logs.', 'erro');
@@ -3912,7 +3735,6 @@
                     mostrarToast('Logs atualizados com sucesso!', 'success');
                 });
 
-                // Logs - Filtros
                 document.getElementById('btn-aplicar-filtro').addEventListener('click', filtrarLogs);
                 document.getElementById('btn-limpar-filtro').addEventListener('click', () => {
                     document.getElementById('filtro-usuario').value = '';
@@ -3922,22 +3744,15 @@
                     exibirLogs();
                 });
 
-                // Logs - Exportar
                 document.getElementById('btn-exportar-logs').addEventListener('click', exportarLogs);
             }
 
-            // Inicializar sistema de logs
             async function inicializarSistemaLogs() {
                 console.log('📋 Inicializando sistema de logs...');
                 
                 try {
-                    // Carregar logs
                     await carregarLogsSistema();
-                    
-                    // Carregar usuários para filtro
                     await carregarUsuariosFiltro();
-                    
-                    // Exibir logs
                     exibirLogs();
                     
                     console.log('✅ Sistema de logs inicializado com sucesso');
@@ -3948,10 +3763,9 @@
             }
 
             // =============================================
-            // SISTEMA DE USUÁRIOS - FUNÇÕES CORRIGIDAS
+            // SISTEMA DE USUÁRIOS (MANTIDO)
             // =============================================
 
-            // FUNÇÕES PARA USUÁRIOS - CORRIGIDAS
             async function carregarUsuarios() {
                 try {
                     const { data: usuarios, error } = await supabase
@@ -3967,7 +3781,7 @@
                             <tr>
                                 <td>${usuario.nome}</td>
                                 <td>${usuario.email}</td>
-                                <td><span class="role-badge role-${usuario.hierarquia.toLowerCase().replace('ã', 'a').replace('ç', 'c')}">${usuario.hierarquia}</span></td>
+                                <td><span class="role-badge role-${usuario.hierarquia.toLowerCase().replace('ã', 'a').replace('ç', 'c').replace('é', 'e')}">${usuario.hierarquia}</span></td>
                                 <td><span class="status-badge status-${usuario.status}">${usuario.status}</span></td>
                                 <td>${new Date(usuario.data_cadastro).toLocaleDateString('pt-BR')}</td>
                                 <td class="actions">
@@ -3981,7 +3795,6 @@
                             </tr>
                         `).join('');
                         
-                        // Atualizar estatísticas
                         document.getElementById('total-usuarios').textContent = usuarios.length;
                     } else {
                         tbody.innerHTML = `
@@ -3999,7 +3812,6 @@
                 }
             }
 
-            // Configurar botão novo usuario
             function configurarBotaoNovoUsuario() {
                 const btnNovoUsuario = document.getElementById('btn-novo-usuario');
                 if (btnNovoUsuario) {
@@ -4013,15 +3825,12 @@
                 }
             }
 
-            // Abrir modal para criar/editar usuario
             function abrirModalUsuario(usuario = null) {
-                // Verificar permissão
                 if (!verificarAcesso('GerenciarUsuarios')) {
                     mostrarToast('Você não tem permissão para gerenciar usuários.', 'erro');
                     return;
                 }
                 
-                // Criar modal dinamicamente se não existir
                 let modal = document.getElementById('modal-usuario');
                 if (!modal) {
                     modal = document.createElement('div');
@@ -4080,11 +3889,9 @@
                     `;
                     document.body.appendChild(modal);
                     
-                    // Configurar event listeners do modal
                     configurarModalUsuario();
                 }
                 
-                // Preencher dados se for edição
                 if (usuario) {
                     document.getElementById('modal-usuario-titulo').textContent = 'Editar Usuário';
                     document.getElementById('usuario-id').value = usuario.id;
@@ -4103,14 +3910,12 @@
                 modal.style.display = 'flex';
             }
 
-            // Configurar modal de usuario
             function configurarModalUsuario() {
                 const modal = document.getElementById('modal-usuario');
                 const closeBtn = modal.querySelector('.close-modal');
                 const cancelBtn = modal.querySelector('#btn-cancelar-usuario');
                 const form = modal.querySelector('#form-usuario');
                 
-                // Fechar modal
                 closeBtn.addEventListener('click', function() {
                     modal.style.display = 'none';
                 });
@@ -4119,30 +3924,25 @@
                     modal.style.display = 'none';
                 });
                 
-                // Fechar ao clicar fora do modal
                 modal.addEventListener('click', function(e) {
                     if (e.target === modal) {
                         modal.style.display = 'none';
                     }
                 });
                 
-                // Submeter formulário
                 form.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     await salvarUsuario();
                 });
             }
 
-            // Salvar usuario (criar ou editar)
             async function salvarUsuario() {
-                // Verificar permissão
                 if (!verificarAcesso('GerenciarUsuarios')) {
                     mostrarToast('Você não tem permissão para gerenciar usuários.', 'erro');
                     return;
                 }
                 
                 const modal = document.getElementById('modal-usuario');
-                const form = document.getElementById('form-usuario');
                 
                 const usuarioId = document.getElementById('usuario-id').value;
                 const nome = document.getElementById('usuario-nome').value;
@@ -4156,7 +3956,6 @@
                     return;
                 }
                 
-                // Verificar se é edição ou criação
                 const editando = !!usuarioId;
                 
                 try {
@@ -4167,7 +3966,6 @@
                         status: status
                     };
                     
-                    // Se for nova senha, criptografar
                     if (senha) {
                         dadosUsuario.senha = CryptoJS.SHA256(senha).toString();
                     }
@@ -4175,7 +3973,6 @@
                     let resultado;
                     
                     if (editando) {
-                        // Atualizar usuario existente
                         const { data, error } = await supabase
                             .from('usuarios')
                             .update(dadosUsuario)
@@ -4185,11 +3982,8 @@
                         if (error) throw error;
                         resultado = data;
                         
-                        // REGISTRAR LOG DE EDIÇÃO DE USUÁRIO
                         await registrarLog(usuarioLogado.nome, 'Usuário atualizado', 'Usuários', `ID: ${usuarioId}, Nome: ${nome}, Email: ${email}, Hierarquia: ${hierarquia}, Status: ${status}`);
                     } else {
-                        // Criar novo usuario
-                        // Verificar se email já existe
                         const { data: usuarioExistente, error: erroBusca } = await supabase
                             .from('usuarios')
                             .select('id')
@@ -4201,7 +3995,6 @@
                             return;
                         }
                         
-                        // Adicionar data de cadastro para novo usuario
                         dadosUsuario.data_cadastro = new Date().toISOString();
                         
                         const { data, error } = await supabase
@@ -4212,13 +4005,11 @@
                         if (error) throw error;
                         resultado = data;
                         
-                        // REGISTRAR LOG DE CRIAÇÃO DE USUÁRIO
                         await registrarLog(usuarioLogado.nome, 'Novo usuário criado', 'Usuários', `Nome: ${nome}, Email: ${email}, Hierarquia: ${hierarquia}, Status: ${status}`);
                     }
                     
                     mostrarToast(`Usuário ${editando ? 'atualizado' : 'criado'} com sucesso!`);
                     
-                    // Fechar modal e recarregar lista
                     modal.style.display = 'none';
                     await carregarUsuarios();
                     
@@ -4226,21 +4017,17 @@
                     console.error('Erro ao salvar usuário:', error);
                     mostrarToast('Erro ao salvar usuário: ' + error.message, 'erro');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao salvar usuário', 'Usuários', error.message);
                 }
             }
 
-            // Editar usuario - FUNÇÃO CORRIGIDA
             async function editarUsuario(id) {
-                // Verificar permissão
                 if (!verificarAcesso('GerenciarUsuarios')) {
                     mostrarToast('Você não tem permissão para editar usuários.', 'erro');
                     return;
                 }
                 
                 try {
-                    // Buscar dados do usuario
                     const { data: usuario, error } = await supabase
                         .from('usuarios')
                         .select('*')
@@ -4249,7 +4036,6 @@
                     
                     if (error) throw error;
                     
-                    // Abrir modal de edição
                     abrirModalUsuario(usuario);
                     
                 } catch (error) {
@@ -4258,15 +4044,12 @@
                 }
             }
 
-            // Excluir usuario
             async function excluirUsuario(id) {
-                // Verificar permissão
                 if (!verificarAcesso('GerenciarUsuarios')) {
                     mostrarToast('Você não tem permissão para excluir usuários.', 'erro');
                     return;
                 }
                 
-                // Não permitir excluir o próprio usuário
                 if (usuarioLogado && usuarioLogado.id === id) {
                     mostrarToast('Você não pode excluir sua própria conta', 'erro');
                     return;
@@ -4274,7 +4057,6 @@
                 
                 if (confirm('Tem certeza que deseja excluir este usuário?')) {
                     try {
-                        // Buscar informações do usuario antes de excluir para registrar no log
                         const { data: usuario, error: erroBusca } = await supabase
                             .from('usuarios')
                             .select('*')
@@ -4288,7 +4070,6 @@
 
                         if (error) throw error;
                         
-                        // REGISTRAR LOG DE EXCLUSÃO DE USUÁRIO
                         if (usuario) {
                             await registrarLog(usuarioLogado.nome, 'Usuário excluído', 'Usuários', `ID: ${id}, Nome: ${usuario.nome}, Email: ${usuario.email}`);
                         }
@@ -4299,26 +4080,22 @@
                         console.error('Erro ao excluir usuário:', error);
                         mostrarToast('Erro ao excluir usuário: ' + error.message, 'erro');
                         
-                        // REGISTRAR LOG DE ERRO
                         await registrarLog(usuarioLogado.nome, 'Erro ao excluir usuário', 'Usuários', error.message);
                     }
                 }
             }
 
             // =============================================
-            // SISTEMA DE COORDENADAS - FUNÇÕES ATUALIZADAS
+            // SISTEMA DE COORDENADAS - FUNÇÕES CORRIGIDAS
             // =============================================
 
-            // Configurar sistema de coordenadas
             function configurarSistemaCoordenadas() {
-                // Event listeners específicos do sistema de coordenadas
                 const btnCopiar = document.getElementById('btn-copiar');
                 const btnExcluirCoordenadas = document.getElementById('btn-excluir-coordenadas');
                 const searchInput = document.getElementById('search-input');
                 const tipoLocalSelect = document.getElementById('tipo-local-select');
                 const btnLimparPesquisa = document.getElementById('btn-limpar-pesquisa');
 
-                // Abas de navegação
                 const abaConsulta = document.getElementById('aba-consulta');
                 const abaCaixas = document.getElementById('aba-caixas');
                 const abaImportar = document.getElementById('aba-importar');
@@ -4347,7 +4124,6 @@
 
                 if (btnExcluirCoordenadas) {
                     btnExcluirCoordenadas.addEventListener('click', function() {
-                        // ATUALIZADO: Permite Administrador e Projetos
                         if (!verificarAcesso('ExcluirCoordenadas')) {
                             mostrarToast('Você não tem permissão para excluir coordenadas.', 'erro');
                             return;
@@ -4412,53 +4188,38 @@
                     });
                 }
 
-                // Configurar sistema de caixas
                 configurarSistemaCaixas();
-
-                // Configurar sistema de importação CSV
                 configurarImportacaoCSV();
-
-                // Inicializar sistema de coordenadas
                 inicializarSistemaCoordenadas();
             }
 
-            // Alternar entre abas
             function alternarAba(aba) {
-                // Atualizar abas
                 document.querySelectorAll('.aba').forEach(a => a.classList.remove('active'));
                 document.querySelectorAll('.conteudo-aba').forEach(c => c.classList.remove('active'));
                 
                 document.getElementById(`aba-${aba}`).classList.add('active');
                 document.getElementById(`conteudo-${aba}`).classList.add('active');
                 
-                // Carregar dados específicos da aba
                 if (aba === 'consulta') {
                     carregarCoordenadas();
                 } else if (aba === 'caixas') {
-                    // CORREÇÃO: Preencher campo de usuário ao acessar a aba
                     const usuarioCadastroInput = document.getElementById('usuario-cadastro');
                     if (usuarioCadastroInput && usuarioLogado) {
                         usuarioCadastroInput.value = usuarioLogado.nome;
                     }
                     atualizarListaCaixas();
                 } else if (aba === 'importar') {
-                    // Limpar formulário de importação
                     limparFormularioImportacao();
                 }
             }
 
-            // Inicializar sistema de coordenadas
             async function inicializarSistemaCoordenadas() {
                 console.log('📍 Inicializando sistema de coordenadas...');
                 
-                // Detectar a coluna de ID
                 await descobrirColunaIdCoordenadas();
-                
-                // Carregar tipos de local
                 await carregarTiposDeLocal();
             }
 
-            // CORREÇÃO: Função otimizada para descobrir a coluna de ID
             async function descobrirColunaIdCoordenadas() {
                 if (colunaIdCoordenadas) {
                     return colunaIdCoordenadas;
@@ -4503,20 +4264,16 @@
                 }
             }
 
-            // Função para normalizar coordenadas (substituir vírgula por ponto)
             function normalizarCoordenada(valor) {
                 if (!valor) return '';
                 return valor.toString().replace(',', '.');
             }
 
-            // CORREÇÃO: Validar se coordenada já existe (nome, latitude e longitude)
             async function validarCoordenadaDuplicada(nome, latitude, longitude) {
                 try {
-                    // Normalizar coordenadas para comparação
                     const latNormalizada = normalizarCoordenada(latitude);
                     const lngNormalizada = normalizarCoordenada(longitude);
                     
-                    // Buscar coordenadas com mesmo nome OU mesma localização
                     const { data, error } = await supabase
                         .from(TABELA_COORDENADAS)
                         .select('*')
@@ -4524,11 +4281,10 @@
 
                     if (error) {
                         console.error('❌ Erro ao validar coordenada:', error);
-                        return false; // Em caso de erro, permitir o cadastro
+                        return false;
                     }
 
                     if (data && data.length > 0) {
-                        // Verificar se é duplicata exata
                         const duplicata = data.find(coord => {
                             const coordLat = normalizarCoordenada(coord.Y);
                             const coordLng = normalizarCoordenada(coord.X);
@@ -4553,7 +4309,6 @@
                 }
             }
 
-            // Funções de CRUD para Coordenadas
             async function obterTodasCoordenadas() {
                 console.log('🔍 Buscando TODOS os dados do Supabase...');
                 
@@ -4696,34 +4451,61 @@
                 }
             }
 
-            // CORREÇÃO: Função para excluir múltiplas coordenadas usando a coluna de ID correta
+            // =============================================
+            // FUNÇÃO CORRIGIDA: EXCLUIR MÚLTIPLAS COORDENADAS
+            // =============================================
+
             async function excluirMultiplasCoordenadas(ids) {
                 try {
                     const colunaId = await descobrirColunaIdCoordenadas();
                     console.log(`🗑️ Excluindo coordenadas usando a coluna: ${colunaId}`);
                     console.log(`🗑️ IDs para excluir:`, ids);
                     
-                    // Buscar informações das coordenadas antes de excluir para registrar no log
                     const { data: coordenadasInfo, error: erroBusca } = await supabase
                         .from(TABELA_COORDENADAS)
                         .select('*')
                         .in(colunaId, ids);
 
-                    const result = await supabase
-                        .from(TABELA_COORDENADAS)
-                        .delete()
-                        .in(colunaId, ids)
-                        .select();
+                    // CORREÇÃO IMPORTANTE: Identificar qual coluna usar para deletar
+                    // A tabela coordenadas NÃO TEM coluna 'id', então precisamos deletar baseado em 'Nome' ou combinação de 'X' e 'Y'
+                    
+                    // Estratégia 1: Se os IDs são os nomes das coordenadas (mais provável)
+                    if (ids[0] && ids[0].includes('/')) {
+                        console.log('📌 IDs parecem ser nomes, deletando por Nome');
+                        
+                        const result = await supabase
+                            .from(TABELA_COORDENADAS)
+                            .delete()
+                            .in('Nome', ids)
+                            .select();
 
-                    if (result.error) {
-                        if (result.error.message.includes('row-level security policy')) {
-                            console.error('❌ Erro de RLS detectado:', result.error);
-                            mostrarToast('Erro de permissão: A tabela está protegida por políticas de segurança. Entre em contato com o administrador.', 'erro');
-                        }
-                        throw result.error;
+                        if (result.error) throw result.error;
+                    } 
+                    // Estratégia 2: Se temos a coluna de ID correta e ela existe
+                    else if (colunaId !== 'id') {
+                        console.log(`📌 Deletando usando coluna: ${colunaId}`);
+                        
+                        const result = await supabase
+                            .from(TABELA_COORDENADAS)
+                            .delete()
+                            .in(colunaId, ids)
+                            .select();
+
+                        if (result.error) throw result.error;
+                    }
+                    // Estratégia 3: Fallback - tentar deletar por Nome mesmo que os IDs não pareçam nomes
+                    else {
+                        console.log('📌 Tentando deletar por Nome (fallback)');
+                        
+                        const result = await supabase
+                            .from(TABELA_COORDENADAS)
+                            .delete()
+                            .in('Nome', ids)
+                            .select();
+
+                        if (result.error) throw result.error;
                     }
                     
-                    // REGISTRAR LOG DE EXCLUSÃO DE COORDENADAS
                     if (coordenadasInfo && coordenadasInfo.length > 0) {
                         const nomesCoordenadas = coordenadasInfo.map(coord => coord.Nome || 'Sem nome').join(', ');
                         await registrarLog(usuarioLogado.nome, `${ids.length} coordenada(s) excluída(s)`, 'Coordenadas', `Coordenadas excluídas: ${nomesCoordenadas}`);
@@ -4736,13 +4518,11 @@
                     console.error('Erro ao excluir coordenadas:', error);
                     mostrarToast('Erro ao excluir coordenadas: ' + error.message, 'erro');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao excluir coordenadas', 'Coordenadas', error.message);
                     return false;
                 }
             }
 
-            // CORREÇÃO: Função renderizarPagina para suportar pesquisa múltipla
             function renderizarPagina() {
                 const tabelaCorpo = document.getElementById('tabela-corpo');
                 const emptyState = document.getElementById('empty-state');
@@ -4801,15 +4581,12 @@
                 coordsPagina.forEach((coord, index) => {
                     const tr = document.createElement('tr');
                     
-                    // CORREÇÃO: Destacar múltiplos itens pesquisados no modo de contexto
                     if (modoPesquisaContexto) {
                         if (Array.isArray(itemPesquisadoIndex)) {
-                            // Pesquisa múltipla - destacar todos os itens encontrados
                             if (itemPesquisadoIndex.includes(index)) {
                                 tr.classList.add('destaque-pesquisa');
                             }
                         } else {
-                            // Pesquisa única (compatibilidade)
                             if (index === itemPesquisadoIndex) {
                                 tr.classList.add('destaque-pesquisa');
                             }
@@ -4820,7 +4597,9 @@
                     const tipoLocal = coord['Tipo de Local'] || coord['tipo_local'] || coord['Tipo_de_Local'] || coord['tipo'] || coord['Tipo'] || '';
                     const latitude = normalizarCoordenada(coord.Y);
                     const longitude = normalizarCoordenada(coord.X);
-                    const idCoordenada = coord[colunaId] || '';
+                    
+                    // CORREÇÃO: Usar Nome como ID para facilitar exclusão
+                    const idCoordenada = nome || coord[colunaId] || '';
                     
                     tr.innerHTML = `
                         <td class="checkbox-column">
@@ -4859,11 +4638,9 @@
                 }
             }
 
-            // CORREÇÃO: Função para processar termos de pesquisa múltipla
             function processarTermosPesquisa(termoPesquisa) {
                 if (!termoPesquisa) return [];
                 
-                // Separar por ponto e vírgula e remover espaços em branco
                 const termos = termoPesquisa.split(';')
                     .map(termo => termo.trim())
                     .filter(termo => termo !== '');
@@ -4872,7 +4649,6 @@
                 return termos;
             }
 
-            // CORREÇÃO: Encontrar múltiplos itens pesquisados
             function encontrarItensPesquisados(coordenadas, termosPesquisa) {
                 if (!termosPesquisa || termosPesquisa.length === 0) return [];
                 
@@ -4887,7 +4663,6 @@
                         const tipoLocal = (coord['Tipo de Local'] || coord['tipo_local'] || coord['Tipo_de_Local'] || coord['tipo'] || coord['Tipo'] || '').toLowerCase();
                         
                         if (nome.includes(termoLower) || tipoLocal.includes(termoLower)) {
-                            // Verificar se o índice já não foi adicionado (evitar duplicatas)
                             if (!indicesEncontrados.includes(i)) {
                                 indicesEncontrados.push(i);
                             }
@@ -4898,21 +4673,17 @@
                 return indicesEncontrados.sort((a, b) => a - b);
             }
 
-            // CORREÇÃO: Obter contexto de pesquisa para múltiplos itens
             function obterContextoPesquisaMultipla(coordenadas, indicesItens) {
                 if (indicesItens.length === 0) return coordenadas;
                 
-                // Encontrar o menor e maior índice para determinar o contexto
                 const menorIndice = Math.min(...indicesItens);
                 const maiorIndice = Math.max(...indicesItens);
                 
-                // Calcular o contexto (4 itens antes do primeiro e 4 itens depois do último)
                 const inicio = Math.max(0, menorIndice - 4);
-                const fim = Math.min(coordenadas.length, maiorIndice + 5); // +5 porque queremos 4 itens depois + o próprio item
+                const fim = Math.min(coordenadas.length, maiorIndice + 5);
                 
                 modoPesquisaContexto = true;
                 
-                // Mapear as posições dos itens pesquisados no contexto
                 itemPesquisadoIndex = indicesItens.map(indice => indice - inicio);
                 
                 console.log(`🔍 Contexto de pesquisa múltipla: ${indicesItens.length} itens de ${coordenadas.length} total`);
@@ -4984,12 +4755,10 @@
                 }, 5000);
             }
 
-            // Funções de UI (User Interface) - ATUALIZADA
             function atualizarBotoesAcao() {
                 const btnExcluirCoordenadas = document.getElementById('btn-excluir-coordenadas');
                 
                 if (coordenadasSelecionadas.length > 0) {
-                    // ATUALIZADO: Mostrar botão de exclusão para Administrador e Projetos
                     if (verificarAcesso('ExcluirCoordenadas')) {
                         btnExcluirCoordenadas.classList.remove('hidden');
                     } else {
@@ -5023,7 +4792,6 @@
                 const texto = gerarTextoParaCopiar();
                 
                 copiarParaAreaDeTransferencia(texto).then(() => {
-                    // REGISTRAR LOG DE CÓPIA DE COORDENADAS
                     registrarLog(usuarioLogado.nome, 'Coordenadas copiadas para área de transferência', 'Coordenadas', `${checkboxesSelecionados.length} coordenada(s) copiada(s)`);
                     
                     mostrarToast('Texto copiado para a área de transferência!');
@@ -5037,7 +4805,6 @@
                         document.execCommand('copy');
                         document.body.removeChild(textArea);
                         
-                        // REGISTRAR LOG DE CÓPIA DE COORDENADAS
                         registrarLog(usuarioLogado.nome, 'Coordenadas copiadas para área de transferência', 'Coordenadas', `${checkboxesSelecionados.length} coordenada(s) copiada(s)`);
                         
                         mostrarToast('Texto copiado para a área de transferência!');
@@ -5048,7 +4815,6 @@
                 });
             }
 
-            // CORREÇÃO: Função atualizarTabela para suportar pesquisa múltipla
             async function atualizarTabela(termoPesquisa = '') {
                 const coordenadas = await obterCoordenadas();
                 const tipoLocalSelecionado = document.getElementById('tipo-local-select').value;
@@ -5062,7 +4828,6 @@
                         const nome = coord.Nome || '';
                         const tipoLocal = coord['Tipo de Local'] || coord['tipo_local'] || coord['Tipo_de_Local'] || coord['tipo'] || coord['Tipo'] || '';
                         
-                        // CORREÇÃO: Pesquisa múltipla: verificar se corresponde a qualquer um dos termos
                         let correspondePesquisa = !termoPesquisa;
                         if (termos.length > 0) {
                             correspondePesquisa = termos.some(termo => 
@@ -5070,7 +4835,6 @@
                                 tipoLocal.toLowerCase().includes(termo.toLowerCase())
                             );
                         } else if (termoPesquisa) {
-                            // Pesquisa única (compatibilidade)
                             correspondePesquisa = 
                                 nome.toLowerCase().includes(termo) ||
                                 tipoLocal.toLowerCase().includes(termo);
@@ -5083,7 +4847,6 @@
                     });
                 }
                 
-                // CORREÇÃO: Aplicar o contexto de pesquisa para múltiplos itens
                 if (termoPesquisa && coordenadasFiltradas.length > 0) {
                     const termos = processarTermosPesquisa(termoPesquisa);
                     
@@ -5116,32 +4879,21 @@
                 document.getElementById('total-coordenadas').textContent = coordenadas.length;
             }
 
-            // Carregar coordenadas (função principal)
             async function carregarCoordenadas() {
                 console.log('📍 Carregando coordenadas...');
                 await atualizarTabela();
             }
 
             // =============================================
-            // SISTEMA DE IMPORTACAO CSV - FUNCOES CORRIGIDAS
+            // SISTEMA DE IMPORTACAO CSV - FUNÇÕES CORRIGIDAS
             // =============================================
 
             function configurarImportacaoCSV() {
-                const abaImportar = document.getElementById('aba-importar');
-                const conteudoImportar = document.getElementById('conteudo-importar');
                 const inputArquivo = document.getElementById('arquivo-csv');
                 const btnProcessar = document.getElementById('btn-processar-csv');
                 const btnLimpar = document.getElementById('btn-limpar-importacao');
                 const previewContainer = document.getElementById('preview-container');
 
-                // Alternar para aba de importação
-                if (abaImportar) {
-                    abaImportar.addEventListener('click', function() {
-                        alternarAba('importar');
-                    });
-                }
-
-                // Processar seleção de arquivo
                 if (inputArquivo) {
                     inputArquivo.addEventListener('change', function(e) {
                         const arquivo = e.target.files[0];
@@ -5156,14 +4908,12 @@
                     });
                 }
 
-                // Processar importação
                 if (btnProcessar) {
                     btnProcessar.addEventListener('click', function() {
                         iniciarImportacaoCSV();
                     });
                 }
 
-                // Limpar formulário
                 if (btnLimpar) {
                     btnLimpar.addEventListener('click', function() {
                         limparFormularioImportacao();
@@ -5171,7 +4921,6 @@
                 }
             }
 
-            // Limpar formulário de importação
             function limparFormularioImportacao() {
                 const inputArquivo = document.getElementById('arquivo-csv');
                 const btnProcessar = document.getElementById('btn-processar-csv');
@@ -5189,7 +4938,6 @@
                 if (progressoImportacao) progressoImportacao.style.display = 'none';
             }
 
-            // Ler prévia do CSV
             function lerPreviewCSV(arquivo) {
                 const leitor = new FileReader();
                 const previewContainer = document.getElementById('preview-container');
@@ -5207,24 +4955,19 @@
                         return;
                     }
 
-                    // Parse simples do CSV
                     const cabecalhos = parseCSVLinha(linhas[0]);
                     const dadosPreview = [];
                     
-                    // Processar até 5 linhas para preview
                     for (let i = 1; i < Math.min(linhas.length, 6); i++) {
                         dadosPreview.push(parseCSVLinha(linhas[i]));
                     }
 
-                    // Exibir cabeçalhos
                     previewCabecalho.innerHTML = '<tr>' + cabecalhos.map(h => `<th>${h}</th>`).join('') + '</tr>';
                     
-                    // Exibir dados
                     previewCorpo.innerHTML = dadosPreview.map(linha => 
                         '<tr>' + linha.map(celula => `<td>${celula || ''}</td>`).join('') + '</tr>'
                     ).join('');
 
-                    // Exibir informações
                     previewInfo.textContent = `Total de linhas no arquivo: ${linhas.length - 1} | Colunas: ${cabecalhos.length}`;
                     previewContainer.style.display = 'block';
                 };
@@ -5232,7 +4975,6 @@
                 leitor.readAsText(arquivo, 'UTF-8');
             }
 
-            // Parse simples de uma linha CSV
             function parseCSVLinha(linha) {
                 const resultado = [];
                 let dentroDasAspas = false;
@@ -5245,7 +4987,7 @@
                     if (caractere === '"') {
                         if (dentroDasAspas && proximoCaractere === '"') {
                             valorAtual += '"';
-                            i++; // Pular próxima aspa
+                            i++;
                         } else {
                             dentroDasAspas = !dentroDasAspas;
                         }
@@ -5261,7 +5003,10 @@
                 return resultado;
             }
 
-            // Iniciar importação do CSV
+            // =============================================
+            // FUNÇÃO CORRIGIDA: INICIAR IMPORTAÇÃO CSV
+            // =============================================
+
             async function iniciarImportacaoCSV() {
                 const tabelaDestino = document.getElementById('tabela-destino').value;
                 const arquivoInput = document.getElementById('arquivo-csv');
@@ -5277,7 +5022,6 @@
                     return;
                 }
 
-                // Verificar permissões
                 if (tabelaDestino === 'coordenadas' && !verificarAcesso('ExcluirCoordenadas')) {
                     mostrarStatusImportacao('Você não tem permissão para importar coordenadas.', 'error');
                     return;
@@ -5303,7 +5047,6 @@
                     const cabecalhos = parseCSVLinha(linhas[0]);
                     const dados = [];
                     
-                    // Parse de todos os dados
                     for (let i = 1; i < linhas.length; i++) {
                         const valores = parseCSVLinha(linhas[i]);
                         if (valores.length === cabecalhos.length) {
@@ -5315,21 +5058,17 @@
                         }
                     }
 
-                    // Mostrar interface de progresso
                     document.getElementById('progresso-importacao').style.display = 'block';
                     document.getElementById('status-importacao').style.display = 'none';
                     
-                    // Executar importação
                     const resultado = await executarImportacaoCSV(tabelaDestino, dados, modo);
                     
-                    // Mostrar resultado
                     if (resultado.sucesso) {
                         mostrarStatusImportacao(
                             `✅ Importação concluída! ${resultado.importados} de ${dados.length} registros importados com sucesso.`,
                             'success'
                         );
                         
-                        // Registrar log
                         await registrarLog(
                             usuarioLogado.nome, 
                             `Importação CSV para ${tabelaDestino}`, 
@@ -5337,7 +5076,6 @@
                             `Modo: ${modo}, Registros: ${resultado.importados}/${dados.length}, Falhas: ${resultado.falhas}`
                         );
                         
-                        // Atualizar interface se necessário
                         if (tabelaDestino === 'coordenadas') {
                             setTimeout(() => atualizarTabela(), 1000);
                         } else if (tabelaDestino === 'cx_disponiveis') {
@@ -5347,7 +5085,6 @@
                         mostrarStatusImportacao(`❌ Erro na importação: ${resultado.erro}`, 'error');
                     }
                     
-                    // Esconder barra de progresso após 5 segundos
                     setTimeout(() => {
                         document.getElementById('progresso-importacao').style.display = 'none';
                     }, 5000);
@@ -5356,7 +5093,10 @@
                 leitor.readAsText(arquivo, 'UTF-8');
             }
 
-            // Executar importação no banco de dados
+            // =============================================
+            // FUNÇÃO CORRIGIDA: EXECUTAR IMPORTAÇÃO CSV
+            // =============================================
+
             async function executarImportacaoCSV(tabelaDestino, dados, modo) {
                 const progressoBarra = document.getElementById('progresso-barra');
                 const progressoTexto = document.getElementById('progresso-texto');
@@ -5368,33 +5108,64 @@
                 const erros = [];
                 
                 try {
-                    // Modo "substituir": limpar tabela primeiro
+                    // CORREÇÃO: Modo "substituir" para tabela coordenadas
                     if (modo === 'substituir') {
                         progressoTexto.textContent = 'Limpando tabela existente...';
                         progressoPorcentagem.textContent = '0%';
                         progressoBarra.style.width = '0%';
                         
-                        // Nota: Para produção, considere desabilitar triggers temporariamente para performance
-                        const { error } = await supabase.from(tabelaDestino).delete().neq('id', 0);
-                        if (error) throw error;
+                        if (tabelaDestino === 'coordenadas') {
+                            // Tabela coordenadas NÃO TEM coluna 'id'
+                            // Opção 1: Deletar todos os registros (limpar tabela)
+                            console.log('🗑️ Limpando tabela coordenadas...');
+                            
+                            // Tentar obter todos os registros para deletar um por um (alternativa segura)
+                            const { data: todosRegistros, error: erroBusca } = await supabase
+                                .from(TABELA_COORDENADAS)
+                                .select('Nome');
+                                
+                            if (erroBusca) throw erroBusca;
+                            
+                            if (todosRegistros && todosRegistros.length > 0) {
+                                // Deletar registros em lotes de 100
+                                const lotes = [];
+                                for (let i = 0; i < todosRegistros.length; i += 100) {
+                                    lotes.push(todosRegistros.slice(i, i + 100).map(r => r.Nome));
+                                }
+                                
+                                for (const lote of lotes) {
+                                    const { error } = await supabase
+                                        .from(TABELA_COORDENADAS)
+                                        .delete()
+                                        .in('Nome', lote);
+                                    
+                                    if (error) throw error;
+                                }
+                            }
+                        } 
+                        else if (tabelaDestino === 'cx_disponiveis') {
+                            // Tabela cx_disponiveis TEM coluna 'id'
+                            const { error } = await supabase
+                                .from(tabelaDestino)
+                                .delete()
+                                .neq('id', 0);
+                            if (error) throw error;
+                        }
                     }
                     
                     // Importar registros um por um
                     for (let i = 0; i < dados.length; i++) {
                         const registro = dados[i];
                         
-                        // Atualizar progresso
                         const porcentagem = Math.round((i / dados.length) * 100);
                         progressoPorcentagem.textContent = `${porcentagem}%`;
                         progressoBarra.style.width = `${porcentagem}%`;
                         progressoTexto.textContent = `Processando registro ${i + 1} de ${dados.length}`;
                         
                         try {
-                            // Preparar registro baseado na tabela
                             let registroParaInserir;
                             
                             if (tabelaDestino === 'coordenadas') {
-                                // Mapear para estrutura de coordenadas
                                 registroParaInserir = {
                                     Nome: registro.Nome || registro.nome || '',
                                     'Tipo de Local': registro['Tipo de Local'] || registro.tipo_local || 'Caixa CE',
@@ -5402,13 +5173,11 @@
                                     Y: parseFloat(registro.Y || registro.y || registro.Latitude || 0)
                                 };
                                 
-                                // Validar coordenadas
                                 if (!registroParaInserir.Nome || isNaN(registroParaInserir.X) || isNaN(registroParaInserir.Y)) {
                                     throw new Error(`Registro ${i + 1}: Dados inválidos`);
                                 }
                             } 
                             else if (tabelaDestino === 'cx_disponiveis') {
-                                // Mapear para estrutura de caixas
                                 registroParaInserir = {
                                     nome: registro.nome || registro.Nome || '',
                                     categoria: registro.categoria || 'Caixa CE',
@@ -5417,13 +5186,11 @@
                                     data_cadastro: new Date().toISOString()
                                 };
                                 
-                                // Validar caixa
                                 if (!registroParaInserir.nome) {
                                     throw new Error(`Registro ${i + 1}: Nome da caixa é obrigatório`);
                                 }
                             }
                             
-                            // Inserir no Supabase
                             const { error } = await supabase
                                 .from(tabelaDestino)
                                 .insert([registroParaInserir]);
@@ -5440,11 +5207,9 @@
                             detalhesImportacao.textContent = `Último erro: ${erroRegistro.message}`;
                         }
                         
-                        // Pequena pausa para não sobrecarregar a API
                         await new Promise(resolve => setTimeout(resolve, 10));
                     }
                     
-                    // Progresso final
                     progressoPorcentagem.textContent = '100%';
                     progressoBarra.style.width = '100%';
                     progressoTexto.textContent = 'Importação concluída!';
@@ -5453,7 +5218,7 @@
                         sucesso: true,
                         importados,
                         falhas,
-                        erros: erros.slice(0, 5) // Retornar apenas primeiros 5 erros
+                        erros: erros.slice(0, 5)
                     };
                     
                 } catch (erroGeral) {
@@ -5466,22 +5231,19 @@
                 }
             }
 
-            // Mostrar status da importação
             function mostrarStatusImportacao(mensagem, tipo) {
                 const statusElement = document.getElementById('status-importacao');
                 statusElement.textContent = mensagem;
                 statusElement.className = `status-message-materiais status-${tipo}-materiais`;
                 statusElement.style.display = 'block';
                 
-                // Rolar para o status
                 statusElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
 
             // =============================================
-            // SISTEMA DE CAIXAS - FUNÇÕES PRODUÇÃO
+            // SISTEMA DE CAIXAS (MANTIDO)
             // =============================================
 
-            // Configurar sistema de caixas
             function configurarSistemaCaixas() {
                 const formCaixas = document.getElementById('form-caixas');
                 const btnLimparCaixas = document.getElementById('btn-limpar-caixas');
@@ -5489,14 +5251,12 @@
                 const btnEditarCaixas = document.getElementById('btn-editar-caixas');
                 const btnExcluirCaixas = document.getElementById('btn-excluir-caixas');
 
-                // Event listeners para fechar modais
                 document.querySelectorAll('.close-modal').forEach(closeBtn => {
                     closeBtn.addEventListener('click', function() {
                         this.closest('.modal').style.display = 'none';
                     });
                 });
 
-                // CORREÇÃO: Preencher automaticamente o campo de usuário ao carregar a página
                 document.addEventListener('DOMContentLoaded', function() {
                     if (usuarioLogado) {
                         const usuarioCadastroInput = document.getElementById('usuario-cadastro');
@@ -5518,7 +5278,6 @@
                             return;
                         }
                         
-                        // CORREÇÃO: Converter texto para maiúsculas
                         const nomesCaixas = caixasTexto.split(';').map(nome => nome.trim().toUpperCase()).filter(nome => nome !== '');
                         
                         if (nomesCaixas.length === 0) {
@@ -5526,14 +5285,12 @@
                             return;
                         }
                         
-                        // Cadastrar as caixas no banco de dados
                         const sucesso = await cadastrarCaixas(nomesCaixas, usuarioCadastro);
                         
                         if (sucesso) {
                             mostrarToast(`✅ ${nomesCaixas.length} caixa(s) cadastrada(s) com sucesso!`);
                             formCaixas.reset();
                             
-                            // CORREÇÃO: Manter o campo de usuário preenchido após limpar o formulário
                             const usuarioCadastroInput = document.getElementById('usuario-cadastro');
                             if (usuarioCadastroInput && usuarioLogado) {
                                 usuarioCadastroInput.value = usuarioLogado.nome;
@@ -5544,7 +5301,6 @@
                     });
                 }
 
-                // CORREÇÃO: Event listener para converter texto para maiúsculas automaticamente
                 const caixasTextoInput = document.getElementById('caixas-texto');
                 if (caixasTextoInput) {
                     caixasTextoInput.addEventListener('input', function() {
@@ -5556,7 +5312,6 @@
                     btnLimparCaixas.addEventListener('click', function() {
                         document.getElementById('form-caixas').reset();
                         
-                        // CORREÇÃO: Manter o campo de usuário preenchido após limpar o formulário
                         const usuarioCadastroInput = document.getElementById('usuario-cadastro');
                         if (usuarioCadastroInput && usuarioLogado) {
                             usuarioCadastroInput.value = usuarioLogado.nome;
@@ -5582,7 +5337,6 @@
                         
                         document.getElementById('caixas-selecionadas-nomes').textContent = caixasSelecionadasNomes.join(', ');
                         
-                        // CORREÇÃO: Preencher automaticamente o campo "Usuário que está utilizando" com o nome do usuário logado
                         document.getElementById('usuario-utilizacao').value = usuarioLogado ? usuarioLogado.nome : '';
                         
                         document.getElementById('evento-utilizacao').value = '';
@@ -5592,7 +5346,6 @@
 
                 if (btnEditarCaixas) {
                     btnEditarCaixas.addEventListener('click', function() {
-                        // ATUALIZADO: Apenas Administrador pode editar caixas
                         if (!verificarAcesso('Administrador')) {
                             mostrarToast('Você não tem permissão para editar caixas.', 'erro');
                             return;
@@ -5621,7 +5374,6 @@
 
                 if (btnExcluirCaixas) {
                     btnExcluirCaixas.addEventListener('click', function() {
-                        // ATUALIZADO: Apenas Administrador pode excluir caixas
                         if (!verificarAcesso('ExcluirCaixas')) {
                             mostrarToast('Você não tem permissão para excluir caixas.', 'erro');
                             return;
@@ -5647,7 +5399,6 @@
                     });
                 }
 
-                // Event listeners para botões de cancelar nos modais
                 document.getElementById('btn-cancelar-retorno').addEventListener('click', function() {
                     document.getElementById('modal-retornar-caixa').style.display = 'none';
                 });
@@ -5668,7 +5419,6 @@
                     document.getElementById('modal-confirmar-exclusao').style.display = 'none';
                 });
 
-                // Event listeners para formulários dos modais
                 document.getElementById('form-retornar-caixa').addEventListener('submit', async function(e) {
                     e.preventDefault();
                     const caixaId = document.getElementById('caixa-id-retornar').value;
@@ -5730,9 +5480,6 @@
                 });
             }
 
-            // FUNÇÕES DO BANCO DE DADOS PARA CAIXAS - MODO PRODUÇÃO
-
-            // Buscar todas as caixas do banco
             async function obterCaixas() {
                 document.getElementById('loading-caixas-disponiveis').classList.remove('hidden');
                 document.getElementById('loading-caixas-utilizadas').classList.remove('hidden');
@@ -5762,12 +5509,10 @@
                 }
             }
 
-            // PRODUÇÃO: Cadastrar novas caixas - VERSÃO OTIMIZADA
             async function cadastrarCaixas(nomesCaixas, usuarioCadastro) {
                 try {
                     console.log('➕ Cadastrando caixas:', nomesCaixas);
                     
-                    // Preparar dados para inserção
                     const caixasParaCadastrar = nomesCaixas.map(nome => ({
                         nome: nome,
                         usuario_cadastro: usuarioCadastro,
@@ -5781,7 +5526,6 @@
 
                     console.log('Dados para cadastrar:', caixasParaCadastrar);
 
-                    // Inserir no banco
                     const { data, error } = await supabase
                         .from(TABELA_CAIXAS)
                         .insert(caixasParaCadastrar)
@@ -5794,7 +5538,6 @@
 
                     console.log('✅ Caixas cadastradas com sucesso:', data);
                     
-                    // REGISTRAR LOG DE CADASTRO DE CAIXAS
                     await registrarLog(usuarioLogado.nome, `${nomesCaixas.length} caixa(s) cadastrada(s)`, 'Caixas', `Caixas: ${nomesCaixas.join(', ')}, Cadastrado por: ${usuarioCadastro}`);
                     
                     mostrarToast(`✅ ${nomesCaixas.length} caixa(s) cadastrada(s) com sucesso!`);
@@ -5803,18 +5546,15 @@
                     console.error('❌ Erro ao cadastrar caixas:', error);
                     mostrarToast('Erro ao cadastrar caixas: ' + error.message, 'erro');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao cadastrar caixas', 'Caixas', error.message);
                     return false;
                 }
             }
 
-            // PRODUÇÃO: Utilizar caixas (marcar como utilizadas)
             async function utilizarCaixas(idsCaixas, usuarioUtilizou, evento) {
                 try {
                     console.log('🔧 Utilizando caixas:', idsCaixas);
                     
-                    // Buscar informações das caixas antes de atualizar para registrar no log
                     const { data: caixasInfo, error: erroBusca } = await supabase
                         .from(TABELA_CAIXAS)
                         .select('*')
@@ -5838,7 +5578,6 @@
 
                     console.log('✅ Caixas utilizadas com sucesso:', data);
                     
-                    // REGISTRAR LOG DE UTILIZAÇÃO DE CAIXAS
                     if (caixasInfo && caixasInfo.length > 0) {
                         const nomesCaixas = caixasInfo.map(caixa => caixa.nome).join(', ');
                         await registrarLog(usuarioLogado.nome, `${idsCaixas.length} caixa(s) utilizada(s)`, 'Caixas', `Caixas: ${nomesCaixas}, Utilizado por: ${usuarioUtilizou}, Evento: ${evento}`);
@@ -5850,18 +5589,15 @@
                     console.error('❌ Erro ao utilizar caixas:', error);
                     mostrarToast('Erro ao utilizar caixas: ' + error.message, 'erro');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao utilizar caixas', 'Caixas', error.message);
                     return false;
                 }
             }
 
-            // PRODUÇÃO: Retornar caixa para disponível
             async function retornarCaixaParaDisponivel(caixaId) {
                 try {
                     console.log('🔄 Retornando caixa para disponível:', caixaId);
                     
-                    // Buscar informações da caixa antes de atualizar para registrar no log
                     const { data: caixaInfo, error: erroBusca } = await supabase
                         .from(TABELA_CAIXAS)
                         .select('*')
@@ -5886,7 +5622,6 @@
 
                     console.log('✅ Caixa retornada para disponível:', data);
                     
-                    // REGISTRAR LOG DE RETORNO DE CAIXA
                     if (caixaInfo) {
                         await registrarLog(usuarioLogado.nome, 'Caixa retornada para disponível', 'Caixas', `Caixa: ${caixaInfo.nome}`);
                     }
@@ -5897,18 +5632,15 @@
                     console.error('❌ Erro ao retornar caixa:', error);
                     mostrarToast('Erro ao retornar caixa: ' + error.message, 'erro');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao retornar caixa', 'Caixas', error.message);
                     return false;
                 }
             }
 
-            // PRODUÇÃO: Excluir caixas
             async function excluirCaixas(idsCaixas) {
                 try {
                     console.log('🗑️ Excluindo caixas:', idsCaixas);
                     
-                    // Buscar informações das caixas antes de excluir para registrar no log
                     const { data: caixasInfo, error: erroBusca } = await supabase
                         .from(TABELA_CAIXAS)
                         .select('*')
@@ -5927,7 +5659,6 @@
 
                     console.log('✅ Caixas excluídas com sucesso:', data);
                     
-                    // REGISTRAR LOG DE EXCLUSÃO DE CAIXAS
                     if (caixasInfo && caixasInfo.length > 0) {
                         const nomesCaixas = caixasInfo.map(caixa => caixa.nome).join(', ');
                         await registrarLog(usuarioLogado.nome, `${idsCaixas.length} caixa(s) excluída(s)`, 'Caixas', `Caixas excluídas: ${nomesCaixas}`);
@@ -5939,18 +5670,15 @@
                     console.error('❌ Erro ao excluir caixas:', error);
                     mostrarToast('Erro ao excluir caixas: ' + error.message, 'erro');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao excluir caixas', 'Caixas', error.message);
                     return false;
                 }
             }
 
-            // CORREÇÃO: Mover caixa para coordenadas (Caixas Ativas) com validação de duplicata
             async function moverCaixaParaCoordenadas(caixaId, latitude, longitude) {
                 try {
                     console.log('🔄 Movendo caixa para coordenadas:', caixaId);
                     
-                    // Buscar dados da caixa
                     const { data: caixa, error: erroBusca } = await supabase
                         .from(TABELA_CAIXAS)
                         .select('*')
@@ -5962,13 +5690,11 @@
                         throw erroBusca;
                     }
 
-                    // CORREÇÃO: Validar se já existe coordenada com mesmo nome ou localização
                     const existeDuplicata = await validarCoordenadaDuplicada(caixa.nome, latitude, longitude);
                     if (existeDuplicata) {
                         return false;
                     }
 
-                    // Inserir na tabela de coordenadas
                     const { data: novaCoordenada, error: erroInsercao } = await supabase
                         .from(TABELA_COORDENADAS)
                         .insert([
@@ -5986,7 +5712,6 @@
                         throw erroInsercao;
                     }
 
-                    // Excluir a caixa da tabela de caixas
                     const { error: erroExclusao } = await supabase
                         .from(TABELA_CAIXAS)
                         .delete()
@@ -5999,7 +5724,6 @@
 
                     console.log('✅ Caixa movida para coordenadas com sucesso:', novaCoordenada);
                     
-                    // REGISTRAR LOG DE MOVIMENTAÇÃO DE CAIXA
                     await registrarLog(usuarioLogado.nome, 'Caixa movida para Caixas Ativas', 'Caixas', `Caixa: ${caixa.nome}, Coordenadas: ${latitude}, ${longitude}`);
                     
                     mostrarToast('✅ Caixa movida para Caixas Ativas com sucesso!');
@@ -6009,13 +5733,11 @@
                     console.error('❌ Erro ao mover caixa para coordenadas:', error);
                     mostrarToast('Erro ao mover caixa: ' + error.message, 'erro');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao mover caixa para coordenadas', 'Caixas', error.message);
                     return false;
                 }
             }
 
-            // PRODUÇÃO: Atualizar lista de caixas na interface - VERSÃO CORRIGIDA
             async function atualizarListaCaixas() {
                 try {
                     const caixas = await obterCaixas();
@@ -6024,7 +5746,6 @@
                     const emptyStateDisponiveis = document.getElementById('empty-state-caixas');
                     const emptyStateUtilizadas = document.getElementById('empty-state-caixas-utilizadas');
                     
-                    // CORREÇÃO: Preencher automaticamente o campo de usuário logado
                     const usuarioCadastroInput = document.getElementById('usuario-cadastro');
                     if (usuarioCadastroInput && usuarioLogado) {
                         usuarioCadastroInput.value = usuarioLogado.nome;
@@ -6036,7 +5757,6 @@
                     const caixasDisponiveis = caixas.filter(caixa => caixa.status === 'disponivel');
                     const caixasUtilizadas = caixas.filter(caixa => caixa.status === 'utilizada');
                     
-                    // Atualizar lista de caixas disponíveis
                     listaDisponiveis.innerHTML = '';
                     
                     if (caixasDisponiveis.length === 0) {
@@ -6080,7 +5800,6 @@
                         });
                     }
                     
-                    // Atualizar lista de caixas utilizadas - VERSÃO CORRIGIDA
                     listaUtilizadas.innerHTML = '';
                     
                     if (caixasUtilizadas.length === 0) {
@@ -6115,7 +5834,6 @@
                             listaUtilizadas.appendChild(div);
                         });
                         
-                        // Adicionar event listeners para os botões de ação nas caixas reservadas
                         document.querySelectorAll('.btn-retornar-caixa').forEach(btn => {
                             btn.addEventListener('click', function() {
                                 const id = this.getAttribute('data-id');
@@ -6126,7 +5844,6 @@
                             });
                         });
                         
-                        // CORREÇÃO: Adicionar event listeners para o botão "Mover para Caixas Ativas"
                         document.querySelectorAll('.btn-mover-coordenadas').forEach(btn => {
                             btn.addEventListener('click', function() {
                                 const id = this.getAttribute('data-id');
@@ -6166,7 +5883,6 @@
                     utilizarCaixasContainer.classList.remove('hidden');
                     document.getElementById('btn-utilizar-caixas').textContent = `Utilizar ${caixasSelecionadas.length} Caixa(s)`;
                     
-                    // Mostrar botões de edição e exclusão apenas para administradores
                     if (verificarAcesso('Administrador')) {
                         document.getElementById('btn-editar-caixas').style.display = 'block';
                         document.getElementById('btn-excluir-caixas').style.display = 'block';
@@ -6180,12 +5896,10 @@
             }
 
             // =============================================
-            // SISTEMA DE MATERIAIS - FUNÇÕES ATUALIZADAS
+            // SISTEMA DE MATERIAIS (MANTIDO)
             // =============================================
 
-            // Configurar sistema de materiais
             function configurarSistemaMateriais() {
-                // Configurar tabs
                 document.querySelectorAll('.tab-materiais').forEach(tab => {
                     tab.addEventListener('click', function() {
                         const tabId = this.getAttribute('data-tab');
@@ -6193,19 +5907,16 @@
                     });
                 });
 
-                // Configurar botões de pesquisa
                 document.getElementById('searchButtonMateriais').addEventListener('click', function() {
                     pesquisarMateriais();
                 });
 
-                // Configurar limpar pesquisa
                 document.getElementById('clearSearchMateriais').addEventListener('click', function() {
                     document.getElementById('searchInputMateriais').value = '';
                     this.style.display = 'none';
                     pesquisarMateriais();
                 });
 
-                // Configurar selecionar todos
                 document.getElementById('selectAllMateriais').addEventListener('change', function() {
                     const checkboxes = document.querySelectorAll('#resultsBodyMateriais input[type="checkbox"]');
                     checkboxes.forEach(checkbox => {
@@ -6219,43 +5930,35 @@
                     atualizarInfoSelecaoMateriais();
                 });
 
-                // Configurar copiar selecionados
                 document.getElementById('copySelectedMateriais').addEventListener('click', function() {
                     copiarMateriaisSelecionados();
                 });
 
-                // CORREÇÃO: Configurar botão solicitar materiais
                 document.getElementById('btn-solicitar-materiais').addEventListener('click', function() {
                     solicitarMateriaisSelecionados();
                 });
 
-                // Configurar formulário de material
                 document.getElementById('materialForm').addEventListener('submit', function(e) {
                     e.preventDefault();
                     salvarMaterial();
                 });
 
-                // Configurar botão cancelar
                 document.getElementById('cancelButtonMateriais').addEventListener('click', function() {
                     resetarFormularioMaterial();
                 });
 
-                // Configurar adicionar categoria
                 document.getElementById('addCategoria').addEventListener('click', function() {
                     adicionarCategoria();
                 });
 
-                // Configurar técnico para solicitação
                 document.getElementById('tecnico').addEventListener('change', function() {
                     atualizarPreviewEmail();
                 });
 
-                // Configurar enviar para Outlook
                 document.getElementById('enviarOutlook').addEventListener('click', function() {
                     abrirOutlook();
                 });
 
-                // Configurar campo de busca com debounce
                 document.getElementById('searchInputMateriais').addEventListener('input', function() {
                     const clearBtn = document.getElementById('clearSearchMateriais');
                     clearBtn.style.display = this.value ? 'block' : 'none';
@@ -6267,18 +5970,12 @@
                 });
             }
 
-            // Inicializar sistema de materiais
             async function inicializarSistemaMateriais() {
                 console.log('📦 Inicializando sistema de materiais...');
                 
                 try {
-                    // Carregar categorias
                     await carregarCategorias();
-                    
-                    // Carregar materiais
                     await carregarMateriais();
-                    
-                    // Carregar técnicos
                     carregarTecnicos();
                     
                     console.log('✅ Sistema de materiais inicializado com sucesso');
@@ -6288,12 +5985,10 @@
                 }
             }
 
-            // CORREÇÃO: Carregar materiais do banco de dados usando as colunas específicas
             async function carregarMateriais() {
                 try {
                     console.log('📦 Carregando materiais do banco...');
                     
-                    // Buscar materiais usando as colunas específicas
                     const { data, error } = await supabase
                         .from(TABELA_MATERIAIS)
                         .select('*')
@@ -6307,10 +6002,8 @@
                     materiais = data || [];
                     console.log(`✅ ${materiais.length} materiais carregados`);
                     
-                    // Atualizar estatísticas
                     document.getElementById('total-materiais').textContent = materiais.length;
                     
-                    // Atualizar interface
                     exibirMateriais(materiais);
                     
                     return materiais;
@@ -6321,7 +6014,6 @@
                 }
             }
 
-            // CORREÇÃO: Exibir materiais na tabela usando as colunas específicas
             function exibirMateriais(listaMateriais) {
                 const tbody = document.getElementById('resultsBodyMateriais');
                 
@@ -6362,9 +6054,7 @@
                 `).join('');
             }
 
-            // CORREÇÃO COMPLETA: Função para editar material com modal - VERSÃO CORRIGIDA
             function editarMaterial(codigo) {
-                // Verificar permissão
                 if (!verificarAcesso('EditarMateriais')) {
                     mostrarStatusMateriais('Você não tem permissão para editar materiais.', 'error');
                     return;
@@ -6372,13 +6062,11 @@
                 
                 console.log(`🔧 Editando material: ${codigo}`);
                 
-                // Buscar o material na lista de materiais
                 const material = materiais.find(m => m.Código === codigo);
                 
                 if (material) {
                     console.log('📝 Material encontrado para edição:', material);
                     
-                    // Criar ou mostrar modal de edição
                     let modal = document.getElementById('modal-editar-material');
                     if (!modal) {
                         modal = document.createElement('div');
@@ -6424,17 +6112,14 @@
                         `;
                         document.body.appendChild(modal);
                         
-                        // Configurar event listeners do modal
                         configurarModalEditarMaterial();
                     }
                     
-                    // Preencher o formulário com os dados do material
                     document.getElementById('material-codigo-original').value = material.Código;
                     document.getElementById('material-codigo-editar').value = material.Código || '';
                     document.getElementById('material-descricao-editar').value = material.Descrição || '';
                     document.getElementById('material-observacoes-editar').value = material.Observações || '';
                     
-                    // Preencher categorias no select
                     const categoriaSelect = document.getElementById('material-categoria-editar');
                     categoriaSelect.innerHTML = '<option value="">Selecione uma categoria</option>';
                     categorias.forEach(categoria => {
@@ -6444,12 +6129,10 @@
                         categoriaSelect.appendChild(option);
                     });
                     
-                    // Selecionar a categoria atual do material
                     if (material.Categoria) {
                         categoriaSelect.value = material.Categoria;
                     }
                     
-                    // Mostrar modal
                     modal.style.display = 'flex';
                     
                     console.log('✅ Modal de edição aberto com dados preenchidos');
@@ -6460,14 +6143,12 @@
                 }
             }
 
-            // Configurar modal de edição de material
             function configurarModalEditarMaterial() {
                 const modal = document.getElementById('modal-editar-material');
                 const closeBtn = modal.querySelector('.close-modal');
                 const cancelBtn = modal.querySelector('#btn-cancelar-editar-material');
                 const form = modal.querySelector('#form-editar-material');
                 
-                // Fechar modal
                 closeBtn.addEventListener('click', function() {
                     modal.style.display = 'none';
                 });
@@ -6476,21 +6157,18 @@
                     modal.style.display = 'none';
                 });
                 
-                // Fechar ao clicar fora do modal
                 modal.addEventListener('click', function(e) {
                     if (e.target === modal) {
                         modal.style.display = 'none';
                     }
                 });
                 
-                // Submeter formulário
                 form.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     await salvarEdicaoMaterial();
                 });
             }
 
-            // CORREÇÃO: Salvar edição do material via modal
             async function salvarEdicaoMaterial() {
                 const modal = document.getElementById('modal-editar-material');
                 const codigoOriginal = document.getElementById('material-codigo-original').value;
@@ -6509,7 +6187,6 @@
                 }
                 
                 try {
-                    // Se o código foi alterado, verificar se o novo código já existe
                     if (codigo !== codigoOriginal) {
                         const materialExistente = materiais.find(m => m.Código === codigo);
                         if (materialExistente) {
@@ -6518,7 +6195,6 @@
                         }
                     }
                     
-                    // Atualizar material
                     const { data, error } = await supabase
                         .from(TABELA_MATERIAIS)
                         .update({
@@ -6537,10 +6213,8 @@
                     
                     console.log('✅ Material atualizado com sucesso:', data);
                     
-                    // REGISTRAR LOG DE EDIÇÃO DE MATERIAL
                     await registrarLog(usuarioLogado.nome, 'Material atualizado', 'Materiais', `Código: ${codigoOriginal} -> ${codigo}, Descrição: ${descricao}, Categoria: ${categoria}`);
                     
-                    // Fechar modal e recarregar dados
                     modal.style.display = 'none';
                     await carregarMateriais();
                     mostrarStatusMateriais(`Material ${codigo} atualizado com sucesso!`, 'success');
@@ -6549,14 +6223,11 @@
                     console.error('❌ Erro ao salvar edição do material:', error);
                     mostrarStatusMateriais('Erro ao salvar edição: ' + error.message, 'error');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao editar material', 'Materiais', error.message);
                 }
             }
 
-            // CORREÇÃO: Função para salvar material (criar ou atualizar) - VERSÃO MELHORADA
             async function salvarMaterial() {
-                // Verificar permissão para usuários não administradores
                 if (!verificarAcesso('CadastrarMateriais')) {
                     mostrarStatusMateriais('Você não tem permissão para cadastrar materiais.', 'error');
                     return;
@@ -6575,19 +6246,14 @@
                 }
                 
                 try {
-                    let resultado;
-                    
-                    // Criar novo material
                     console.log(`➕ Criando novo material: ${codigo}`);
                     
-                    // Verificar se o código já existe
                     const materialExistente = materiais.find(m => m.Código === codigo);
                     if (materialExistente) {
                         mostrarStatusMateriais('Já existe um material com este código', 'error');
                         return;
                     }
                     
-                    // Criar novo material
                     const { data, error } = await supabase
                         .from(TABELA_MATERIAIS)
                         .insert([
@@ -6605,15 +6271,12 @@
                         throw error;
                     }
                     
-                    resultado = data;
                     console.log('✅ Material criado com sucesso:', data);
                     
-                    // REGISTRAR LOG DE CRIAÇÃO DE MATERIAL
                     await registrarLog(usuarioLogado.nome, 'Novo material cadastrado', 'Materiais', `Código: ${codigo}, Descrição: ${descricao}, Categoria: ${categoria}`);
                     
                     mostrarStatusMateriais(`Material ${codigo} cadastrado com sucesso!`, 'success');
                     
-                    // Recarregar materiais e atualizar interface
                     await carregarMateriais();
                     resetarFormularioMaterial();
                     
@@ -6621,14 +6284,11 @@
                     console.error('❌ Erro ao salvar material:', error);
                     mostrarStatusMateriais('Erro ao salvar material: ' + error.message, 'error');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao cadastrar material', 'Materiais', error.message);
                 }
             }
 
-            // CORREÇÃO: Função para excluir material
             async function excluirMaterial(codigo) {
-                // Verificar permissão
                 if (!verificarAcesso('EditarMateriais')) {
                     mostrarStatusMateriais('Você não tem permissão para excluir materiais.', 'error');
                     return;
@@ -6643,25 +6303,21 @@
 
                         if (error) throw error;
                         
-                        // REGISTRAR LOG DE EXCLUSÃO DE MATERIAL
                         await registrarLog(usuarioLogado.nome, 'Material excluído', 'Materiais', `Código: ${codigo}`);
                         
                         mostrarStatusMateriais(`Material ${codigo} excluído com sucesso!`, 'success');
                         
-                        // Recarregar materiais
                         await carregarMateriais();
                         
                     } catch (error) {
                         console.error('Erro ao excluir material:', error);
                         mostrarStatusMateriais('Erro ao excluir material: ' + error.message, 'error');
                         
-                        // REGISTRAR LOG DE ERRO
                         await registrarLog(usuarioLogado.nome, 'Erro ao excluir material', 'Materiais', error.message);
                     }
                 }
             }
 
-            // Alternar seleção de material
             function alternarSelecaoMaterial(codigo, checkbox) {
                 if (checkbox.checked) {
                     selectedItemsMateriais.add(codigo);
@@ -6671,7 +6327,6 @@
                 atualizarInfoSelecaoMateriais();
             }
 
-            // Atualizar informações de seleção
             function atualizarInfoSelecaoMateriais() {
                 const selectionInfo = document.getElementById('selectionInfoMateriais');
                 const copyButton = document.getElementById('copySelectedMateriais');
@@ -6688,13 +6343,11 @@
                     solicitacaoButton.disabled = true;
                 }
                 
-                // Atualizar checkbox "Selecionar todos"
                 const totalCheckboxes = document.querySelectorAll('#resultsBodyMateriais input[type="checkbox"]').length;
                 selectAll.checked = selectedItemsMateriais.size === totalCheckboxes && totalCheckboxes > 0;
                 selectAll.indeterminate = selectedItemsMateriais.size > 0 && selectedItemsMateriais.size < totalCheckboxes;
             }
 
-            // CORREÇÃO: Copiar materiais selecionados usando as colunas específicas
             function copiarMateriaisSelecionados() {
                 if (selectedItemsMateriais.size === 0) {
                     mostrarStatusMateriais('Nenhum material selecionado para copiar', 'warning');
@@ -6707,7 +6360,6 @@
                 ).join('\n');
                 
                 copiarParaAreaDeTransferencia(texto).then(() => {
-                    // REGISTRAR LOG DE CÓPIA DE MATERIAIS
                     registrarLog(usuarioLogado.nome, 'Materiais copiados para área de transferência', 'Materiais', `${selectedItemsMateriais.size} material(is) copiado(s)`);
                     
                     mostrarStatusMateriais(`${selectedItemsMateriais.size} material(is) copiado(s) para a área de transferência`, 'success');
@@ -6717,14 +6369,12 @@
                 });
             }
 
-            // CORREÇÃO: Solicitar materiais selecionados
             function solicitarMateriaisSelecionados() {
                 if (selectedItemsMateriais.size === 0) {
                     mostrarStatusMateriais('Nenhum material selecionado para solicitar', 'warning');
                     return;
                 }
                 
-                // Adicionar materiais selecionados à solicitação
                 selectedItemsMateriais.forEach(codigo => {
                     const material = materiais.find(m => m.Código === codigo);
                     if (material && !solicitacaoItemsMateriais.has(codigo)) {
@@ -6735,26 +6385,21 @@
                     }
                 });
                 
-                // Navegar para a aba de solicitação
                 alternarTabMateriais('solicitacao-materiais');
                 
-                // Atualizar a lista de solicitação
                 atualizarSolicitacaoMateriais();
                 
-                // REGISTRAR LOG DE SOLICITAÇÃO DE MATERIAIS
                 registrarLog(usuarioLogado.nome, 'Materiais adicionados à solicitação', 'Solicitação de Materiais', `${selectedItemsMateriais.size} material(is) adicionado(s) à solicitação`);
                 
                 mostrarStatusMateriais(`${selectedItemsMateriais.size} material(is) adicionado(s) à solicitação`, 'success');
             }
 
-            // CORREÇÃO: Pesquisar materiais usando as colunas específicas
             function pesquisarMateriais() {
                 const termo = document.getElementById('searchInputMateriais').value.toLowerCase();
                 const categoria = document.getElementById('categoryFilterMateriais').value;
                 
                 let resultados = materiais;
                 
-                // Aplicar filtros
                 if (termo) {
                     resultados = resultados.filter(m => {
                         const codigo = (m.Código || '').toString().toLowerCase();
@@ -6771,15 +6416,12 @@
                     resultados = resultados.filter(m => (m.Categoria || '') === categoria);
                 }
                 
-                // Exibir resultados
                 exibirMateriais(resultados);
                 
-                // Atualizar informações de seleção
                 selectedItemsMateriais.clear();
                 atualizarInfoSelecaoMateriais();
             }
 
-            // CORREÇÃO: Carregar categorias do banco de dados
             async function carregarCategorias() {
                 try {
                     console.log('🏷️ Carregando categorias...');
@@ -6797,10 +6439,7 @@
                     categorias = data || [];
                     console.log(`✅ ${categorias.length} categorias carregadas`);
                     
-                    // Atualizar selects de categoria
                     atualizarSelectsCategoria();
-                    
-                    // Atualizar lista de categorias
                     carregarListaCategorias();
                     
                     return categorias;
@@ -6811,16 +6450,13 @@
                 }
             }
 
-            // Atualizar selects de categoria
             function atualizarSelectsCategoria() {
                 const selectCadastro = document.getElementById('categoria');
                 const selectFiltro = document.getElementById('categoryFilterMateriais');
                 
-                // Limpar selects
                 selectCadastro.innerHTML = '<option value="">Selecione uma categoria</option>';
                 selectFiltro.innerHTML = '<option value="">Todas as categorias</option>';
                 
-                // Adicionar categorias
                 categorias.forEach(categoria => {
                     const optionCadastro = document.createElement('option');
                     optionCadastro.value = categoria.nome;
@@ -6834,7 +6470,6 @@
                 });
             }
 
-            // CORREÇÃO: Carregar lista de categorias na interface
             function carregarListaCategorias() {
                 const categoriasList = document.getElementById('categoriasList');
                 
@@ -6848,7 +6483,6 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                             <span>${categoria.nome}</span>
                             <div class="categoria-actions">
-                                <!-- CORREÇÃO: Botão Editar adicionado -->
                                 ${verificarAcesso('GerenciarCategorias') ? `
                                     <button class="btn btn-edit-materiais" onclick="editarCategoria(${categoria.id}, '${categoria.nome}')">
                                         <i class="fas fa-edit"></i> Editar
@@ -6865,9 +6499,7 @@
                 `).join('');
             }
 
-            // CORREÇÃO: Adicionar nova categoria
             async function adicionarCategoria() {
-                // Verificar permissão
                 if (!verificarAcesso('GerenciarCategorias')) {
                     mostrarStatusMateriais('Você não tem permissão para gerenciar categorias.', 'error');
                     return;
@@ -6881,7 +6513,6 @@
                     return;
                 }
                 
-                // Verificar se a categoria já existe
                 const categoriaExistente = categorias.find(c => c.nome.toLowerCase() === nomeCategoria.toLowerCase());
                 if (categoriaExistente) {
                     mostrarStatusMateriais('Já existe uma categoria com este nome', 'error');
@@ -6896,12 +6527,10 @@
 
                     if (error) throw error;
                     
-                    // REGISTRAR LOG DE CRIAÇÃO DE CATEGORIA
                     await registrarLog(usuarioLogado.nome, 'Nova categoria criada', 'Categorias', `Categoria: ${nomeCategoria}`);
                     
                     mostrarStatusMateriais(`Categoria "${nomeCategoria}" adicionada com sucesso!`, 'success');
                     
-                    // Limpar campo e recarregar categorias
                     novaCategoriaInput.value = '';
                     await carregarCategorias();
                     
@@ -6909,14 +6538,11 @@
                     console.error('Erro ao adicionar categoria:', error);
                     mostrarStatusMateriais('Erro ao adicionar categoria: ' + error.message, 'error');
                     
-                    // REGISTRAR LOG DE ERRO
                     await registrarLog(usuarioLogado.nome, 'Erro ao adicionar categoria', 'Categorias', error.message);
                 }
             }
 
-            // CORREÇÃO: Função para editar categoria
             async function editarCategoria(id, nomeAtual) {
-                // Verificar permissão
                 if (!verificarAcesso('GerenciarCategorias')) {
                     mostrarStatusMateriais('Você não tem permissão para editar categorias.', 'error');
                     return;
@@ -6926,14 +6552,12 @@
                 
                 if (novoNome && novoNome.trim() !== '' && novoNome !== nomeAtual) {
                     try {
-                        // Verificar se já existe uma categoria com o novo nome
                         const categoriaExistente = categorias.find(c => c.nome.toLowerCase() === novoNome.toLowerCase() && c.id !== id);
                         if (categoriaExistente) {
                             mostrarStatusMateriais('Já existe uma categoria com este nome', 'error');
                             return;
                         }
                         
-                        // Atualizar a categoria
                         const { error } = await supabase
                             .from(TABELA_CATEGORIAS)
                             .update({ nome: novoNome })
@@ -6941,7 +6565,6 @@
 
                         if (error) throw error;
                         
-                        // Atualizar também os materiais que usam esta categoria
                         const { error: erroMateriais } = await supabase
                             .from(TABELA_MATERIAIS)
                             .update({ Categoria: novoNome })
@@ -6951,12 +6574,10 @@
                             console.error('Erro ao atualizar materiais:', erroMateriais);
                         }
                         
-                        // REGISTRAR LOG DE EDIÇÃO DE CATEGORIA
                         await registrarLog(usuarioLogado.nome, 'Categoria atualizada', 'Categorias', `Categoria: ${nomeAtual} -> ${novoNome}`);
                         
                         mostrarStatusMateriais(`Categoria "${nomeAtual}" atualizada para "${novoNome}" com sucesso!`, 'success');
                         
-                        // Recarregar categorias e materiais
                         await carregarCategorias();
                         await carregarMateriais();
                         
@@ -6964,15 +6585,12 @@
                         console.error('Erro ao editar categoria:', error);
                         mostrarStatusMateriais('Erro ao editar categoria: ' + error.message, 'error');
                         
-                        // REGISTRAR LOG DE ERRO
                         await registrarLog(usuarioLogado.nome, 'Erro ao editar categoria', 'Categorias', error.message);
                     }
                 }
             }
 
-            // CORREÇÃO: Excluir categoria
             async function excluirCategoria(id, nome) {
-                // Verificar permissão
                 if (!verificarAcesso('GerenciarCategorias')) {
                     mostrarStatusMateriais('Você não tem permissão para excluir categorias.', 'error');
                     return;
@@ -6980,7 +6598,6 @@
                 
                 if (confirm(`Tem certeza que deseja excluir a categoria "${nome}"?`)) {
                     try {
-                        // Verificar se existem materiais usando esta categoria
                         const { data: materiaisNaCategoria, error: erroMateriais } = await supabase
                             .from(TABELA_MATERIAIS)
                             .select('Código')
@@ -6994,7 +6611,6 @@
                             return;
                         }
                         
-                        // Excluir a categoria
                         const { error } = await supabase
                             .from(TABELA_CATEGORIAS)
                             .delete()
@@ -7002,27 +6618,22 @@
 
                         if (error) throw error;
                         
-                        // REGISTRAR LOG DE EXCLUSÃO DE CATEGORIA
                         await registrarLog(usuarioLogado.nome, 'Categoria excluída', 'Categorias', `Categoria: ${nome}`);
                         
                         mostrarStatusMateriais(`Categoria "${nome}" excluída com sucesso!`, 'success');
                         
-                        // Recarregar categorias
                         await carregarCategorias();
                         
                     } catch (error) {
                         console.error('Erro ao excluir categoria:', error);
                         mostrarStatusMateriais('Erro ao excluir categoria: ' + error.message, 'error');
                         
-                        // REGISTRAR LOG DE ERRO
                         await registrarLog(usuarioLogado.nome, 'Erro ao excluir categoria', 'Categorias', error.message);
                     }
                 }
             }
 
-            // Alternar tab de materiais
             function alternarTabMateriais(tabId) {
-                // Atualizar tabs
                 document.querySelectorAll('.tab-materiais').forEach(tab => {
                     tab.classList.remove('active');
                 });
@@ -7030,11 +6641,9 @@
                     content.classList.remove('active');
                 });
                 
-                // Ativar tab selecionada
                 document.querySelector(`.tab-materiais[data-tab="${tabId}"]`).classList.add('active');
                 document.getElementById(tabId).classList.add('active');
                 
-                // Ações específicas por tab
                 if (tabId === 'consultar-materiais') {
                     pesquisarMateriais();
                 } else if (tabId === 'cadastrar-materiais') {
@@ -7046,7 +6655,6 @@
                 }
             }
 
-            // Mostrar status no sistema de materiais
             function mostrarStatusMateriais(mensagem, tipo) {
                 const statusElement = document.getElementById('statusMessageMateriais');
                 statusElement.textContent = mensagem;
@@ -7058,7 +6666,6 @@
                 }, 5000);
             }
 
-            // Carregar técnicos - COM A LISTA ATUALIZADA
             function carregarTecnicos() {
                 const selectTecnico = document.getElementById('tecnico');
                 selectTecnico.innerHTML = '<option value="">Selecione o técnico</option>';
@@ -7071,7 +6678,6 @@
                 });
             }
 
-            // CORREÇÃO: Resetar formulário de material - VERSÃO MELHORADA
             function resetarFormularioMaterial() {
                 console.log('🔄 Resetando formulário de material');
                 
@@ -7079,15 +6685,13 @@
                 document.getElementById('formTitleMateriais').innerHTML = '<i class="fas fa-plus-circle"></i> Cadastrar Novo Material';
                 document.getElementById('submitButtonMateriais').innerHTML = '<i class="fas fa-save"></i> Cadastrar Material';
                 
-                // Reabilitar campo código
                 const codigoInput = document.getElementById('codigo');
                 codigoInput.disabled = false;
-                codigoInput.focus(); // Dar foco ao campo código
+                codigoInput.focus();
                 
                 console.log('✅ Formulário resetado com sucesso');
             }
 
-            // CORREÇÃO: Atualizar solicitação de materiais
             function atualizarSolicitacaoMateriais() {
                 const tbody = document.getElementById('solicitacaoResultsBody');
                 const selectionInfo = document.getElementById('solicitacaoSelectionInfo');
@@ -7125,22 +6729,18 @@
                 selectionInfo.textContent = `${solicitacaoItemsMateriais.size} item(s) na solicitação`;
                 document.getElementById('enviarOutlook').disabled = false;
                 
-                // Atualizar preview do email
                 atualizarPreviewEmail();
             }
 
-            // CORREÇÃO: Remover item da solicitação
             function removerDaSolicitacao(codigo) {
                 solicitacaoItemsMateriais.delete(codigo);
                 atualizarSolicitacaoMateriais();
                 
-                // REGISTRAR LOG DE REMOÇÃO DE SOLICITAÇÃO
                 registrarLog(usuarioLogado.nome, 'Item removido da solicitação', 'Solicitação de Materiais', `Código: ${codigo}`);
                 
                 mostrarStatusMateriais('Item removido da solicitação', 'info');
             }
 
-            // CORREÇÃO: Atualizar quantidade na solicitação
             function atualizarQuantidadeSolicitacao(codigo, quantidade) {
                 const material = solicitacaoItemsMateriais.get(codigo);
                 if (material) {
@@ -7150,7 +6750,6 @@
                 }
             }
 
-            // CORREÇÃO: Atualizar preview do email - FORMATO SOLICITADO
             function atualizarPreviewEmail() {
                 const tecnico = document.getElementById('tecnico').value;
                 const emailPreview = document.getElementById('emailPreview');
@@ -7170,7 +6769,6 @@
                 emailContent += `Solicito os seguintes materiais para ${tecnico}:\n\n`;
                 
                 Array.from(solicitacaoItemsMateriais.values()).forEach(material => {
-                    // CORREÇÃO: Alterar formato de "• 1x" para "1 -"
                     emailContent += `${material.quantidade} - ${material.Código} - ${material.Descrição || ''}`;
                     if (material.Observações) {
                         emailContent += ` (${material.Observações})`;
@@ -7182,7 +6780,6 @@
                 emailAssunto.textContent = `Solicitação de material - ${tecnico}`;
             }
 
-            // CORREÇÃO: Abrir Outlook com a solicitação - FORMATO SOLICITADO
             function abrirOutlook() {
                 const tecnico = document.getElementById('tecnico').value;
                 
@@ -7202,7 +6799,6 @@
                 corpoEmail += `Solicito os seguintes materiais para ${tecnico}:%0D%0A%0D%0A`;
                 
                 Array.from(solicitacaoItemsMateriais.values()).forEach(material => {
-                    // CORREÇÃO: Alterar formato de "• 1x" para "1 -"
                     corpoEmail += `${material.quantidade} - ${material.Código} - ${material.Descrição || ''}`;
                     if (material.Observações) {
                         corpoEmail += ` (${material.Observações})`;
@@ -7210,13 +6806,11 @@
                     corpoEmail += `%0D%0A`;
                 });
                 
-                // CORREÇÃO: Preencher automaticamente os emails
                 const paraEmail = 'almoxarifado@sodobrasil.net.br';
                 const ccEmail = 'construcao@sodobrasil.net.br';
                 
                 const outlookUrl = `mailto:${paraEmail}?cc=${ccEmail}&subject=${encodeURIComponent(assunto)}&body=${corpoEmail}`;
                 
-                // REGISTRAR LOG OF SOLICITAÇÃO VIA EMAIL
                 registrarLog(usuarioLogado.nome, 'Solicitação de materiais enviada por email', 'Solicitação de Materiais', `Técnico: ${tecnico}, Itens: ${solicitacaoItemsMateriais.size}`);
                 
                 window.open(outlookUrl, '_blank');
