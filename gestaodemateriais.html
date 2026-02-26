@@ -48,7 +48,7 @@
         hr { margin: 15px 0 10px; border: 1px solid #d8e2ed; }
         
         /* Dashboard */
-        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         .dashboard-header h2 { font-size: 1.3rem; color: #0a2a44; margin: 0; }
         .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .filter-group { display: flex; align-items: center; gap: 5px; }
@@ -59,15 +59,6 @@
         .btn-filter.secondary { background: #0a66c2; }
         .btn-filter.secondary:hover { background: #084d8c; }
         
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        .card { background: #0a2a44; border-radius: 12px; padding: 15px; color: white; box-shadow: 0 5px 15px rgba(10,42,68,0.15); }
-        .card:nth-child(2) { background: #0a66c2; }
-        .card:nth-child(3) { background: #12457a; }
-        .card:nth-child(4) { background: #1e3a5f; }
-        .card-title { font-size: 0.75rem; opacity: 0.9; margin-bottom: 5px; }
-        .card-value { font-size: 1.5rem; font-weight: 700; margin-bottom: 3px; }
-        .card-sub { font-size: 0.65rem; opacity: 0.8; }
-        
         /* Gráficos em coluna única */
         .charts-column { display: flex; flex-direction: column; gap: 30px; margin-bottom: 20px; }
         .chart-row { display: flex; gap: 20px; flex-wrap: wrap; }
@@ -76,7 +67,18 @@
         .chart-title { font-size: 0.95rem; font-weight: 600; color: #0a2a44; margin-bottom: 10px; border-left: 3px solid #0a66c2; padding-left: 10px; }
         .chart-wrapper { position: relative; height: calc(100% - 40px); width: 100%; }
         
-        .recent-table { background: #f8fafc; border-radius: 16px; padding: 15px; overflow-x: auto; }
+        /* Tabelas de Resumo */
+        .summary-section { margin-top: 30px; background: #f8fafc; border-radius: 16px; padding: 20px; }
+        .summary-section h3 { font-size: 1.1rem; font-weight: 600; color: #0a2a44; margin-bottom: 15px; border-left: 3px solid #0a66c2; padding-left: 10px; }
+        .summary-tables { display: flex; flex-direction: column; gap: 20px; }
+        .summary-table-container { overflow-x: auto; }
+        .summary-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .summary-table th { background: #0a2a44; color: white; padding: 10px; text-align: left; font-weight: 600; }
+        .summary-table td { padding: 8px 10px; border-bottom: 1px solid #dde7f0; }
+        .summary-table tr:hover { background: #e9eef3; }
+        .summary-table .total-row { background: #e9eef3; font-weight: 600; }
+        
+        .recent-table { background: #f8fafc; border-radius: 16px; padding: 15px; overflow-x: auto; margin-top: 20px; }
         .recent-table h3 { font-size: 0.95rem; font-weight: 600; color: #0a2a44; margin-bottom: 10px; border-left: 3px solid #0a66c2; padding-left: 10px; }
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         th { text-align: left; padding: 8px 6px; background: #e9eef3; color: #0a2a44; font-weight: 600; font-size: 0.75rem; }
@@ -232,7 +234,7 @@
                     </select>
                 </div>
                 <button class="btn-filter" onclick="carregarDashboard()">Aplicar</button>
-                <button class="btn-filter secondary" onclick="exportarDados()">📥</button>
+                <button class="btn-filter secondary" onclick="exportarDados()">📥 Exportar CSV</button>
             </div>
         </div>
 
@@ -240,30 +242,6 @@
         <div id="dashboardLoading" style="display: none;" class="loading">
             <div class="loading-spinner"></div>
             <div>Carregando...</div>
-        </div>
-
-        <!-- Cards de Resumo -->
-        <div class="cards-grid" id="cardsResumo">
-            <div class="card">
-                <div class="card-title">Total Registros</div>
-                <div class="card-value" id="totalRegistros">-</div>
-                <div class="card-sub">no período</div>
-            </div>
-            <div class="card">
-                <div class="card-title">Manutenções</div>
-                <div class="card-value" id="totalManutencoes">-</div>
-                <div class="card-sub">registros</div>
-            </div>
-            <div class="card">
-                <div class="card-title">Requisições</div>
-                <div class="card-value" id="totalRequisicoes">-</div>
-                <div class="card-sub">registros</div>
-            </div>
-            <div class="card">
-                <div class="card-title">Total Itens</div>
-                <div class="card-value" id="totalItens">-</div>
-                <div class="card-sub">materiais</div>
-            </div>
         </div>
 
         <!-- Gráficos em pares (Total e Média) -->
@@ -352,6 +330,12 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Seção de Planilha Resumo -->
+        <div class="summary-section">
+            <h3>📊 Planilha Resumo de Materiais</h3>
+            <div class="summary-tables" id="summaryTables"></div>
         </div>
 
         <!-- Tabela de Registros Recentes -->
@@ -633,6 +617,222 @@
             return total;
         }
 
+        // FUNÇÃO PARA CRIAR PLANILHA RESUMO
+        function criarPlanilhaResumo(dados, totalRegistros) {
+            const summaryContainer = document.getElementById('summaryTables');
+            if (!summaryContainer) return;
+            
+            let html = '';
+            
+            // 1. Materiais Usados
+            if (Object.keys(dados.materiaisUsados).length > 0) {
+                html += `
+                    <div class="summary-table-container">
+                        <h4>📦 Materiais Usados (Alças, Caixas e Itens Avulsos)</h4>
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantidade Total</th>
+                                    <th>Média por Registro</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                const materiaisArray = Object.entries(dados.materiaisUsados)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                let totalMateriais = 0;
+                materiaisArray.forEach(([item, quantidade]) => {
+                    const nomeExibicao = item.includes('MP') ? extrairNomeItem(item) : item;
+                    const media = Math.round(quantidade / totalRegistros);
+                    totalMateriais += quantidade;
+                    html += `
+                        <tr>
+                            <td>${nomeExibicao}</td>
+                            <td>${quantidade}</td>
+                            <td>${media}</td>
+                        </tr>
+                    `;
+                });
+                
+                const mediaTotal = Math.round(totalMateriais / totalRegistros);
+                html += `
+                            <tr class="total-row">
+                                <td><strong>TOTAL</strong></td>
+                                <td><strong>${totalMateriais}</strong></td>
+                                <td><strong>${mediaTotal}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                `;
+            }
+            
+            // 2. Cabos
+            if (Object.keys(dados.cabos).length > 0) {
+                html += `
+                    <div class="summary-table-container">
+                        <h4>🔌 Cabos</h4>
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantidade Total</th>
+                                    <th>Média por Registro</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                const cabosArray = Object.entries(dados.cabos)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                let totalCabos = 0;
+                cabosArray.forEach(([item, quantidade]) => {
+                    const nomeExibicao = extrairNomeItem(item);
+                    const media = Math.round(quantidade / totalRegistros);
+                    totalCabos += quantidade;
+                    html += `
+                        <tr>
+                            <td>${nomeExibicao}</td>
+                            <td>${quantidade}</td>
+                            <td>${media}</td>
+                        </tr>
+                    `;
+                });
+                
+                const mediaTotal = Math.round(totalCabos / totalRegistros);
+                html += `
+                            <tr class="total-row">
+                                <td><strong>TOTAL</strong></td>
+                                <td><strong>${totalCabos}</strong></td>
+                                <td><strong>${mediaTotal}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                `;
+            }
+            
+            // 3. Registros por Equipe
+            if (Object.keys(dados.equipes).length > 0) {
+                html += `
+                    <div class="summary-table-container">
+                        <h4>🚩 Registros por Equipe</h4>
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Equipe</th>
+                                    <th>Quantidade de Registros</th>
+                                    <th>Percentual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                const equipesArray = Object.entries(dados.equipes)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                equipesArray.forEach(([equipe, quantidade]) => {
+                    const percentual = ((quantidade / totalRegistros) * 100).toFixed(1);
+                    html += `
+                        <tr>
+                            <td>${equipe}</td>
+                            <td>${quantidade}</td>
+                            <td>${percentual}%</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+            }
+            
+            // 4. Registros por Analista
+            if (Object.keys(dados.analistas).length > 0) {
+                html += `
+                    <div class="summary-table-container">
+                        <h4>👥 Registros por Analista</h4>
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Analista</th>
+                                    <th>Quantidade de Registros</th>
+                                    <th>Percentual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                const analistasArray = Object.entries(dados.analistas)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                analistasArray.forEach(([analista, quantidade]) => {
+                    const percentual = ((quantidade / totalRegistros) * 100).toFixed(1);
+                    html += `
+                        <tr>
+                            <td>${analista}</td>
+                            <td>${quantidade}</td>
+                            <td>${percentual}%</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+            }
+            
+            // 5. Tipos de Registro
+            if (dados.tipos.Manutenção > 0 || dados.tipos.Requisição > 0) {
+                html += `
+                    <div class="summary-table-container">
+                        <h4>📊 Tipos de Registro</h4>
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Quantidade</th>
+                                    <th>Percentual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                const totalTipos = dados.tipos.Manutenção + dados.tipos.Requisição;
+                const percManutencao = ((dados.tipos.Manutenção / totalTipos) * 100).toFixed(1);
+                const percRequisicao = ((dados.tipos.Requisição / totalTipos) * 100).toFixed(1);
+                
+                html += `
+                    <tr>
+                        <td>Manutenção</td>
+                        <td>${dados.tipos.Manutenção}</td>
+                        <td>${percManutencao}%</td>
+                    </tr>
+                    <tr>
+                        <td>Requisição</td>
+                        <td>${dados.tipos.Requisição}</td>
+                        <td>${percRequisicao}%</td>
+                    </tr>
+                `;
+                
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+            }
+            
+            summaryContainer.innerHTML = html || '<p>Nenhum dado disponível para o período selecionado.</p>';
+        }
+
         // SALVAR REGISTRO
         document.getElementById('salvarBtn').addEventListener('click', async function() {
             const msgDiv = document.getElementById('msgRetorno');
@@ -763,14 +963,21 @@
                 
                 if (error) throw error;
                 
-                // Atualizar cards
-                atualizarCards(registros);
-                
                 // Atualizar tabela
                 atualizarTabelaRecentes(registros);
                 
-                // Criar gráficos
-                criarGraficos(registros);
+                if (registros.length > 0) {
+                    // Processar dados
+                    const dados = processarDadosGraficos(registros);
+                    
+                    // Criar planilha resumo
+                    criarPlanilhaResumo(dados, registros.length);
+                    
+                    // Criar gráficos
+                    criarGraficos(registros, dados);
+                } else {
+                    document.getElementById('summaryTables').innerHTML = '<p>Nenhum dado disponível para o período selecionado.</p>';
+                }
                 
             } catch (error) {
                 console.error('Erro:', error);
@@ -780,22 +987,6 @@
                 loadingEl.style.display = 'none';
             }
         };
-
-        function atualizarCards(registros) {
-            const totalRegistros = registros.length;
-            const manutencoes = registros.filter(r => r.registro === 'Manutenção').length;
-            const requisicoes = registros.filter(r => r.registro === 'Requisição').length;
-            
-            let totalItens = 0;
-            registros.forEach(reg => {
-                totalItens += calcularTotalItens(reg);
-            });
-            
-            document.getElementById('totalRegistros').textContent = totalRegistros;
-            document.getElementById('totalManutencoes').textContent = manutencoes;
-            document.getElementById('totalRequisicoes').textContent = requisicoes;
-            document.getElementById('totalItens').textContent = totalItens;
-        }
 
         function atualizarTabelaRecentes(registros) {
             const tbody = document.getElementById('recentesBody');
@@ -824,8 +1015,7 @@
             }).join('');
         }
 
-        function criarGraficos(registros) {
-            const dados = processarDadosGraficos(registros);
+        function criarGraficos(registros, dados) {
             const totalRegistros = registros.length;
             
             // Verificar se há registros
@@ -1203,27 +1393,70 @@
                 const { data: registros, error } = await query;
                 if (error) throw error;
                 
-                const csvRows = [];
-                csvRows.push(['Data','Registro','Evento','Analista','Equipe','Técnico','Itens'].join(','));
+                // Processar dados para o CSV
+                const dados = processarDadosGraficos(registros);
+                const totalReg = registros.length;
                 
-                registros.forEach(reg => {
-                    const totalItens = calcularTotalItens(reg);
-                    csvRows.push([
-                        reg.data,
-                        reg.registro || '',
-                        reg.evento || '',
-                        reg.analista || '',
-                        reg.equipe || '',
-                        reg.tecnico || '',
-                        totalItens
-                    ].join(','));
-                });
+                // Criar CSV com múltiplas seções
+                let csvContent = 'RELATÓRIO DE MATERIAIS\n';
+                csvContent += `Período: ${periodo} dias\n`;
+                csvContent += `Equipe: ${equipe || 'Todas'}\n`;
+                csvContent += `Total de Registros: ${totalReg}\n\n`;
                 
-                const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+                // Seção: Materiais Usados
+                csvContent += 'MATERIAIS USADOS (Alças, Caixas e Itens Avulsos)\n';
+                csvContent += 'Item,Quantidade Total,Média por Registro\n';
+                Object.entries(dados.materiaisUsados)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([item, qtd]) => {
+                        const nome = item.includes('MP') ? extrairNomeItem(item) : item;
+                        const media = Math.round(qtd / totalReg);
+                        csvContent += `"${nome}",${qtd},${media}\n`;
+                    });
+                
+                // Seção: Cabos
+                csvContent += '\nCABOS\n';
+                csvContent += 'Item,Quantidade Total,Média por Registro\n';
+                Object.entries(dados.cabos)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([item, qtd]) => {
+                        const nome = extrairNomeItem(item);
+                        const media = Math.round(qtd / totalReg);
+                        csvContent += `"${nome}",${qtd},${media}\n`;
+                    });
+                
+                // Seção: Equipes
+                csvContent += '\nREGISTROS POR EQUIPE\n';
+                csvContent += 'Equipe,Quantidade,Percentual\n';
+                Object.entries(dados.equipes)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([equipe, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1);
+                        csvContent += `${equipe},${qtd},${perc}%\n`;
+                    });
+                
+                // Seção: Analistas
+                csvContent += '\nREGISTROS POR ANALISTA\n';
+                csvContent += 'Analista,Quantidade,Percentual\n';
+                Object.entries(dados.analistas)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([analista, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1);
+                        csvContent += `${analista},${qtd},${perc}%\n`;
+                    });
+                
+                // Seção: Tipos
+                csvContent += '\nTIPOS DE REGISTRO\n';
+                csvContent += 'Tipo,Quantidade,Percentual\n';
+                const totalTipos = dados.tipos.Manutenção + dados.tipos.Requisição;
+                csvContent += `Manutenção,${dados.tipos.Manutenção || 0},${((dados.tipos.Manutenção / totalTipos) * 100).toFixed(1)}%\n`;
+                csvContent += `Requisição,${dados.tipos.Requisição || 0},${((dados.tipos.Requisição / totalTipos) * 100).toFixed(1)}%\n`;
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `materiais_${new Date().toISOString().split('T')[0]}.csv`;
+                a.download = `relatorio_materiais_${new Date().toISOString().split('T')[0]}.csv`;
                 a.click();
                 
             } catch (error) {
