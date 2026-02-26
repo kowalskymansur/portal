@@ -59,6 +59,15 @@
         .btn-filter.secondary { background: #0a66c2; }
         .btn-filter.secondary:hover { background: #084d8c; }
         
+        /* Botões de exportação */
+        .export-buttons { display: flex; gap: 8px; }
+        .btn-export { background: #28a745; color: white; border: none; border-radius: 20px; padding: 6px 15px; cursor: pointer; font-weight: 600; font-size: 0.8rem; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-export:hover { background: #218838; }
+        .btn-export.pdf { background: #dc3545; }
+        .btn-export.pdf:hover { background: #c82333; }
+        .btn-export.excel { background: #007bff; }
+        .btn-export.excel:hover { background: #0069d9; }
+        
         /* Gráficos em coluna única */
         .charts-column { display: flex; flex-direction: column; gap: 30px; margin-bottom: 20px; }
         .chart-row { display: flex; gap: 20px; flex-wrap: wrap; }
@@ -234,7 +243,10 @@
                     </select>
                 </div>
                 <button class="btn-filter" onclick="carregarDashboard()">Aplicar</button>
-                <button class="btn-filter secondary" onclick="exportarDados()">📥 Exportar CSV</button>
+                <div class="export-buttons">
+                    <button class="btn-export excel" onclick="exportarRelatorioExcel()">📊 Excel</button>
+                    <button class="btn-export pdf" onclick="exportarRelatorioPDF()">📑 PDF</button>
+                </div>
             </div>
         </div>
 
@@ -245,7 +257,7 @@
         </div>
 
         <!-- Gráficos em pares (Total e Média) -->
-        <div class="charts-column">
+        <div class="charts-column" id="relatorioContainer">
             <!-- Linha 1: Materiais Usados (Total e Média) -->
             <div class="chart-row">
                 <div class="chart-container">
@@ -297,7 +309,7 @@
                 </div>
             </div>
             
-            <!-- Linha 4: Registros por Tipo (Total e Média) -->
+            <!-- Linha 4: Registros por Tipo - Total (apenas total, sem média) -->
             <div class="chart-row">
                 <div class="chart-container">
                     <div class="chart-title">📊 Registros por Tipo - Total</div>
@@ -306,15 +318,11 @@
                     </div>
                 </div>
                 
-                <div class="chart-container">
-                    <div class="chart-title">📊 Registros por Tipo - Média por Registro</div>
-                    <div class="chart-wrapper">
-                        <canvas id="graficoTipoMedia"></canvas>
-                    </div>
-                </div>
+                <!-- Espaço vazio para manter o layout -->
+                <div class="chart-container" style="visibility: hidden;"></div>
             </div>
             
-            <!-- Linha 5: Registros por Analista (Total e Média) -->
+            <!-- Linha 5: Registros por Analista - Total (apenas total, sem média) -->
             <div class="chart-row">
                 <div class="chart-container">
                     <div class="chart-title">👥 Registros por Analista - Total</div>
@@ -323,12 +331,8 @@
                     </div>
                 </div>
                 
-                <div class="chart-container">
-                    <div class="chart-title">👥 Registros por Analista - Média por Registro</div>
-                    <div class="chart-wrapper">
-                        <canvas id="graficoAnalistasMedia"></canvas>
-                    </div>
-                </div>
+                <!-- Espaço vazio para manter o layout -->
+                <div class="chart-container" style="visibility: hidden;"></div>
             </div>
         </div>
 
@@ -365,6 +369,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 <script>
     (function() {
         // SUPABASE
@@ -384,8 +392,8 @@
                 'graficoMateriaisUsadosTotal', 'graficoMateriaisUsadosMedia',
                 'graficoCabosTotal', 'graficoCabosMedia',
                 'graficoEquipesTotal', 'graficoEquipesMedia',
-                'graficoTipoTotal', 'graficoTipoMedia',
-                'graficoAnalistasTotal', 'graficoAnalistasMedia'
+                'graficoTipoTotal',
+                'graficoAnalistasTotal'
             ];
             chartIds.forEach(id => {
                 if (chartInstances[id]) {
@@ -1245,13 +1253,12 @@
                 }
             }
             
-            // 4. Tipos
+            // 4. Tipos - apenas total
             const tiposArray = [
                 { label: 'Manutenção', valor: dados.tipos.Manutenção || 0 },
                 { label: 'Requisição', valor: dados.tipos.Requisição || 0 }
             ];
             
-            // Gráfico de Total de Tipos
             const ctxTipoTotal = document.getElementById('graficoTipoTotal')?.getContext('2d');
             if (ctxTipoTotal) {
                 chartInstances.graficoTipoTotal = new Chart(ctxTipoTotal, 
@@ -1259,15 +1266,7 @@
                 );
             }
             
-            // Gráfico de Média de Tipos
-            const ctxTipoMedia = document.getElementById('graficoTipoMedia')?.getContext('2d');
-            if (ctxTipoMedia) {
-                chartInstances.graficoTipoMedia = new Chart(ctxTipoMedia, 
-                    criarConfiguracaoBarra(tiposArray.map(t => t.label), tiposArray.map(t => t.valor / totalRegistros), ['#0a2a44', '#0a66c2'], true)
-                );
-            }
-            
-            // 5. Analistas
+            // 5. Analistas - apenas total
             const analistasArray = Object.entries(dados.analistas)
                 .sort((a, b) => b[1] - a[1]);
             
@@ -1282,19 +1281,10 @@
                     }
                 });
                 
-                // Gráfico de Total de Analistas
                 const ctxAnalistasTotal = document.getElementById('graficoAnalistasTotal')?.getContext('2d');
                 if (ctxAnalistasTotal) {
                     chartInstances.graficoAnalistasTotal = new Chart(ctxAnalistasTotal, 
                         criarConfiguracaoBarra(analistasArray.map(a => a[0]), analistasArray.map(a => a[1]), coresAnalistas, false)
-                    );
-                }
-                
-                // Gráfico de Média de Analistas
-                const ctxAnalistasMedia = document.getElementById('graficoAnalistasMedia')?.getContext('2d');
-                if (ctxAnalistasMedia) {
-                    chartInstances.graficoAnalistasMedia = new Chart(ctxAnalistasMedia, 
-                        criarConfiguracaoBarra(analistasArray.map(a => a[0]), analistasArray.map(a => a[1] / totalRegistros), coresAnalistas, true)
                     );
                 }
             }
@@ -1372,8 +1362,8 @@
             return dados;
         }
 
-        // FUNÇÃO PARA EXPORTAR DADOS
-        window.exportarDados = async function() {
+        // FUNÇÃO PARA EXPORTAR RELATÓRIO EXCEL
+        window.exportarRelatorioExcel = async function() {
             const periodo = document.getElementById('periodoFilter').value;
             const equipe = document.getElementById('equipeFilter').value;
             
@@ -1393,76 +1383,417 @@
                 const { data: registros, error } = await query;
                 if (error) throw error;
                 
-                // Processar dados para o CSV
+                // Processar dados
                 const dados = processarDadosGraficos(registros);
                 const totalReg = registros.length;
                 
-                // Criar CSV com múltiplas seções
-                let csvContent = 'RELATÓRIO DE MATERIAIS\n';
-                csvContent += `Período: ${periodo} dias\n`;
-                csvContent += `Equipe: ${equipe || 'Todas'}\n`;
-                csvContent += `Total de Registros: ${totalReg}\n\n`;
+                // Criar workbook
+                const wb = XLSX.utils.book_new();
                 
-                // Seção: Materiais Usados
-                csvContent += 'MATERIAIS USADOS (Alças, Caixas e Itens Avulsos)\n';
-                csvContent += 'Item,Quantidade Total,Média por Registro\n';
+                // 1. Planilha de Resumo
+                const resumoData = [
+                    ['RELATÓRIO DE MATERIAIS'],
+                    [`Período: ${periodo} dias`],
+                    [`Equipe: ${equipe || 'Todas'}`],
+                    [`Total de Registros: ${totalReg}`],
+                    [],
+                    ['MATERIAIS USADOS (Alças, Caixas e Itens Avulsos)'],
+                    ['Item', 'Quantidade Total', 'Média por Registro']
+                ];
+                
                 Object.entries(dados.materiaisUsados)
                     .sort((a, b) => b[1] - a[1])
                     .forEach(([item, qtd]) => {
                         const nome = item.includes('MP') ? extrairNomeItem(item) : item;
                         const media = Math.round(qtd / totalReg);
-                        csvContent += `"${nome}",${qtd},${media}\n`;
+                        resumoData.push([nome, qtd, media]);
                     });
                 
-                // Seção: Cabos
-                csvContent += '\nCABOS\n';
-                csvContent += 'Item,Quantidade Total,Média por Registro\n';
+                resumoData.push([]);
+                resumoData.push(['CABOS'], ['Item', 'Quantidade Total', 'Média por Registro']);
+                
                 Object.entries(dados.cabos)
                     .sort((a, b) => b[1] - a[1])
                     .forEach(([item, qtd]) => {
                         const nome = extrairNomeItem(item);
                         const media = Math.round(qtd / totalReg);
-                        csvContent += `"${nome}",${qtd},${media}\n`;
+                        resumoData.push([nome, qtd, media]);
                     });
                 
-                // Seção: Equipes
-                csvContent += '\nREGISTROS POR EQUIPE\n';
-                csvContent += 'Equipe,Quantidade,Percentual\n';
+                resumoData.push([]);
+                resumoData.push(['REGISTROS POR EQUIPE'], ['Equipe', 'Quantidade', 'Percentual']);
+                
                 Object.entries(dados.equipes)
                     .sort((a, b) => b[1] - a[1])
                     .forEach(([equipe, qtd]) => {
-                        const perc = ((qtd / totalReg) * 100).toFixed(1);
-                        csvContent += `${equipe},${qtd},${perc}%\n`;
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        resumoData.push([equipe, qtd, perc]);
                     });
                 
-                // Seção: Analistas
-                csvContent += '\nREGISTROS POR ANALISTA\n';
-                csvContent += 'Analista,Quantidade,Percentual\n';
+                resumoData.push([]);
+                resumoData.push(['REGISTROS POR ANALISTA'], ['Analista', 'Quantidade', 'Percentual']);
+                
                 Object.entries(dados.analistas)
                     .sort((a, b) => b[1] - a[1])
                     .forEach(([analista, qtd]) => {
-                        const perc = ((qtd / totalReg) * 100).toFixed(1);
-                        csvContent += `${analista},${qtd},${perc}%\n`;
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        resumoData.push([analista, qtd, perc]);
                     });
                 
-                // Seção: Tipos
-                csvContent += '\nTIPOS DE REGISTRO\n';
-                csvContent += 'Tipo,Quantidade,Percentual\n';
+                resumoData.push([]);
+                resumoData.push(['TIPOS DE REGISTRO'], ['Tipo', 'Quantidade', 'Percentual']);
                 const totalTipos = dados.tipos.Manutenção + dados.tipos.Requisição;
-                csvContent += `Manutenção,${dados.tipos.Manutenção || 0},${((dados.tipos.Manutenção / totalTipos) * 100).toFixed(1)}%\n`;
-                csvContent += `Requisição,${dados.tipos.Requisição || 0},${((dados.tipos.Requisição / totalTipos) * 100).toFixed(1)}%\n`;
+                resumoData.push(['Manutenção', dados.tipos.Manutenção || 0, ((dados.tipos.Manutenção / totalTipos) * 100).toFixed(1) + '%']);
+                resumoData.push(['Requisição', dados.tipos.Requisição || 0, ((dados.tipos.Requisição / totalTipos) * 100).toFixed(1) + '%']);
                 
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `relatorio_materiais_${new Date().toISOString().split('T')[0]}.csv`;
-                a.click();
+                const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
+                XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
+                
+                // 2. Planilha de Registros Detalhados
+                const detalhesData = [
+                    ['Data', 'Registro', 'Evento', 'Analista', 'Equipe', 'Técnico', 'Total Itens']
+                ];
+                
+                registros.forEach(reg => {
+                    const totalItens = calcularTotalItens(reg);
+                    detalhesData.push([
+                        reg.data,
+                        reg.registro || '',
+                        reg.evento || '',
+                        reg.analista || '',
+                        reg.equipe || '',
+                        reg.tecnico || '',
+                        totalItens
+                    ]);
+                });
+                
+                const wsDetalhes = XLSX.utils.aoa_to_sheet(detalhesData);
+                XLSX.utils.book_append_sheet(wb, wsDetalhes, 'Registros Detalhados');
+                
+                // Salvar arquivo
+                XLSX.writeFile(wb, `relatorio_materiais_${new Date().toISOString().split('T')[0]}.xlsx`);
                 
             } catch (error) {
-                alert('Erro ao exportar: ' + error.message);
+                alert('Erro ao exportar Excel: ' + error.message);
             }
         };
+
+        // FUNÇÃO PARA EXPORTAR RELATÓRIO PDF PROFISSIONAL
+        window.exportarRelatorioPDF = async function() {
+            const { jsPDF } = window.jspdf;
+            
+            // Mostrar loading
+            const loadingEl = document.getElementById('dashboardLoading');
+            loadingEl.style.display = 'block';
+            loadingEl.innerHTML = '<div class="loading-spinner"></div><div>Gerando PDF profissional...</div>';
+            
+            try {
+                // Obter dados atuais
+                const periodo = document.getElementById('periodoFilter').value;
+                const equipe = document.getElementById('equipeFilter').value;
+                const dataAtual = new Date().toLocaleDateString('pt-BR');
+                
+                const dataInicial = new Date();
+                dataInicial.setDate(dataInicial.getDate() - parseInt(periodo));
+                const dataInicialStr = dataInicial.toLocaleDateString('pt-BR');
+                const dataFinalStr = new Date().toLocaleDateString('pt-BR');
+                
+                let query = supabase
+                    .from('materiais_manutencao')
+                    .select('*')
+                    .gte('data', dataInicial.toISOString().split('T')[0])
+                    .order('data', { ascending: false });
+                
+                if (equipe) query = query.eq('equipe', equipe);
+                
+                const { data: registros, error } = await query;
+                if (error) throw error;
+                
+                if (registros.length === 0) {
+                    alert('Não há dados para o período selecionado');
+                    loadingEl.style.display = 'none';
+                    return;
+                }
+                
+                const dados = processarDadosGraficos(registros);
+                const totalReg = registros.length;
+                
+                // Criar PDF em formato A4 paisagem
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 15;
+                let yPos = margin;
+                
+                // Função para adicionar cabeçalho de página
+                function adicionarCabecalho() {
+                    pdf.setFillColor(10, 42, 68); // #0a2a44
+                    pdf.rect(0, 0, pageWidth, 20, 'F');
+                    
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(14);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text('RELATÓRIO DE GESTÃO DE MATERIAIS', margin, 13);
+                    
+                    pdf.setFontSize(8);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.text(`Gerado em: ${dataAtual}`, pageWidth - margin - 40, 13);
+                    
+                    pdf.setTextColor(0, 0, 0);
+                    return 25;
+                }
+                
+                // Função para adicionar rodapé
+                function adicionarRodape() {
+                    const pageCount = pdf.internal.getNumberOfPages();
+                    for (let i = 1; i <= pageCount; i++) {
+                        pdf.setPage(i);
+                        pdf.setFillColor(240, 242, 245);
+                        pdf.rect(0, pageHeight - 8, pageWidth, 8, 'F');
+                        
+                        pdf.setTextColor(100, 100, 100);
+                        pdf.setFontSize(7);
+                        pdf.text(`Página ${i} de ${pageCount}`, pageWidth - margin - 20, pageHeight - 3);
+                        pdf.text('Sistema de Gestão de Materiais', margin, pageHeight - 3);
+                    }
+                }
+                
+                // Adicionar primeira página com cabeçalho
+                yPos = adicionarCabecalho();
+                
+                // Informações do relatório
+                pdf.setFillColor(245, 247, 250);
+                pdf.roundedRect(margin, yPos - 3, pageWidth - (margin * 2), 30, 3, 3, 'F');
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('Informações do Relatório', margin + 5, yPos + 4);
+                
+                pdf.setFontSize(9);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(`Período: ${dataInicialStr} a ${dataFinalStr} (${periodo} dias)`, margin + 5, yPos + 12);
+                pdf.text(`Equipe: ${equipe || 'Todas as equipes'}`, margin + 5, yPos + 20);
+                
+                yPos += 35;
+                
+                // Totais em cards
+                const cardWidth = (pageWidth - (margin * 2) - 20) / 4;
+                
+                // Calcular totais
+                let totalItens = 0;
+                Object.values(dados.materiaisUsados).forEach(v => totalItens += v);
+                Object.values(dados.cabos).forEach(v => totalItens += v);
+                
+                pdf.setFillColor(10, 42, 68);
+                pdf.roundedRect(margin, yPos, cardWidth, 20, 3, 3, 'F');
+                pdf.setTextColor(255, 255, 255);
+                pdf.setFontSize(8);
+                pdf.text('Total Itens', margin + 5, yPos + 6);
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(totalItens.toString(), margin + 5, yPos + 16);
+                
+                pdf.setFillColor(10, 102, 194);
+                pdf.roundedRect(margin + cardWidth + 5, yPos, cardWidth, 20, 3, 3, 'F');
+                pdf.setFontSize(8);
+                pdf.text('Manutenções', margin + cardWidth + 10, yPos + 6);
+                pdf.setFontSize(12);
+                pdf.text((dados.tipos.Manutenção || 0).toString(), margin + cardWidth + 10, yPos + 16);
+                
+                pdf.setFillColor(18, 69, 106);
+                pdf.roundedRect(margin + (cardWidth + 5) * 2, yPos, cardWidth, 20, 3, 3, 'F');
+                pdf.setFontSize(8);
+                pdf.text('Requisições', margin + (cardWidth + 5) * 2 + 5, yPos + 6);
+                pdf.setFontSize(12);
+                pdf.text((dados.tipos.Requisição || 0).toString(), margin + (cardWidth + 5) * 2 + 5, yPos + 16);
+                
+                pdf.setFillColor(30, 58, 95);
+                pdf.roundedRect(margin + (cardWidth + 5) * 3, yPos, cardWidth, 20, 3, 3, 'F');
+                pdf.setFontSize(8);
+                pdf.text('Média Itens/Reg', margin + (cardWidth + 5) * 3 + 5, yPos + 6);
+                pdf.setFontSize(12);
+                const mediaGeral = Math.round(totalItens / totalReg) || 0;
+                pdf.text(mediaGeral.toString(), margin + (cardWidth + 5) * 3 + 5, yPos + 16);
+                
+                pdf.setTextColor(0, 0, 0);
+                yPos += 30;
+                
+                // Função para criar tabela no PDF
+                function criarTabela(titulo, cabecalho, dados, inicioY) {
+                    if (dados.length === 0) return inicioY;
+                    
+                    // Verificar se precisa de nova página
+                    if (inicioY > pageHeight - 60) {
+                        pdf.addPage();
+                        inicioY = adicionarCabecalho();
+                    }
+                    
+                    // Título da seção
+                    pdf.setFillColor(10, 42, 68);
+                    pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 8, 'F');
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(9);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(titulo, margin + 5, inicioY + 2);
+                    
+                    inicioY += 10;
+                    
+                    // Cabeçalho da tabela
+                    pdf.setFillColor(230, 235, 240);
+                    pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 7, 'F');
+                    pdf.setTextColor(10, 42, 68);
+                    pdf.setFontSize(8);
+                    pdf.setFont('helvetica', 'bold');
+                    
+                    let xPos = margin + 5;
+                    cabecalho.forEach((col, index) => {
+                        pdf.text(col, xPos, inicioY);
+                        xPos += index === 0 ? 120 : 50;
+                    });
+                    
+                    inicioY += 7;
+                    
+                    // Dados da tabela
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(7);
+                    
+                    dados.forEach((linha, idx) => {
+                        // Verificar se precisa de nova página
+                        if (inicioY > pageHeight - 20) {
+                            pdf.addPage();
+                            inicioY = adicionarCabecalho() + 5;
+                            
+                            // Recriar cabeçalho na nova página
+                            pdf.setFillColor(230, 235, 240);
+                            pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 7, 'F');
+                            pdf.setTextColor(10, 42, 68);
+                            pdf.setFont('helvetica', 'bold');
+                            
+                            xPos = margin + 5;
+                            cabecalho.forEach((col, index) => {
+                                pdf.text(col, xPos, inicioY);
+                                xPos += index === 0 ? 120 : 50;
+                            });
+                            
+                            inicioY += 7;
+                            pdf.setFont('helvetica', 'normal');
+                        }
+                        
+                        // Linha de dados
+                        pdf.setTextColor(0, 0, 0);
+                        xPos = margin + 5;
+                        
+                        linha.forEach((valor, index) => {
+                            pdf.text(valor.toString(), xPos, inicioY);
+                            xPos += index === 0 ? 120 : 50;
+                        });
+                        
+                        inicioY += 6;
+                    });
+                    
+                    return inicioY + 5;
+                }
+                
+                // Preparar dados para as tabelas
+                
+                // Materiais Usados
+                const materiaisData = Object.entries(dados.materiaisUsados)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10)
+                    .map(([item, qtd]) => {
+                        const nome = item.includes('MP') ? extrairNomeItem(item) : item;
+                        const media = Math.round(qtd / totalReg);
+                        return [nome.substring(0, 35), qtd.toString(), media.toString()];
+                    });
+                
+                yPos = criarTabela(
+                    'MATERIAIS USADOS (Alças, Caixas e Itens Avulsos)',
+                    ['Item', 'Quantidade', 'Média'],
+                    materiaisData,
+                    yPos
+                );
+                
+                // Cabos
+                const cabosData = Object.entries(dados.cabos)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10)
+                    .map(([item, qtd]) => {
+                        const nome = extrairNomeItem(item);
+                        const media = Math.round(qtd / totalReg);
+                        return [nome.substring(0, 35), qtd.toString(), media.toString()];
+                    });
+                
+                yPos = criarTabela(
+                    'CABOS',
+                    ['Item', 'Quantidade', 'Média'],
+                    cabosData,
+                    yPos
+                );
+                
+                // Equipes
+                const equipesData = Object.entries(dados.equipes)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([equipe, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        return [equipe, qtd.toString(), perc];
+                    });
+                
+                yPos = criarTabela(
+                    'REGISTROS POR EQUIPE',
+                    ['Equipe', 'Quantidade', '%'],
+                    equipesData,
+                    yPos
+                );
+                
+                // Analistas
+                const analistasData = Object.entries(dados.analistas)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([analista, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        return [analista, qtd.toString(), perc];
+                    });
+                
+                yPos = criarTabela(
+                    'REGISTROS POR ANALISTA',
+                    ['Analista', 'Quantidade', '%'],
+                    analistasData,
+                    yPos
+                );
+                
+                // Tipos de Registro
+                const tiposData = [
+                    ['Manutenção', dados.tipos.Manutenção.toString(), ((dados.tipos.Manutenção / totalReg) * 100).toFixed(1) + '%'],
+                    ['Requisição', dados.tipos.Requisição.toString(), ((dados.tipos.Requisição / totalReg) * 100).toFixed(1) + '%']
+                ];
+                
+                yPos = criarTabela(
+                    'TIPOS DE REGISTRO',
+                    ['Tipo', 'Quantidade', '%'],
+                    tiposData,
+                    yPos
+                );
+                
+                // Adicionar rodapé
+                adicionarRodape();
+                
+                // Salvar PDF
+                pdf.save(`relatorio_materiais_${new Date().toISOString().split('T')[0]}.pdf`);
+                
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                alert('Erro ao gerar PDF: ' + error.message);
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        };
+
+        // FUNÇÃO PARA EXPORTAR DADOS (CSV) - Mantida para compatibilidade
+        window.exportarDados = window.exportarRelatorioExcel;
 
         // Carregar dashboard se a aba estiver ativa
         if (document.getElementById('dashboard-tab').classList.contains('active')) {
