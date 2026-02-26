@@ -38,7 +38,49 @@
         .multiselect-item:last-child { border: none; }
         .multiselect-item input[type="checkbox"] { width: 16px; height: 16px; margin-right: 3px; accent-color: #0a66c2; flex-shrink: 0; }
         .item-desc { flex: 1; font-size: 0.8rem; color: #1e3a5f; }
-        .qtd-input { width: 50px !important; padding: 4px 4px !important; text-align: center; flex-shrink: 0; font-size: 0.8rem !important; }
+        
+        /* Estilo para o select de quantidade */
+        .qtd-select { 
+            width: 70px !important; 
+            padding: 4px 4px !important; 
+            text-align: center; 
+            flex-shrink: 0; 
+            font-size: 0.8rem !important;
+            background: #f9fbfd;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            -webkit-appearance: menulist;
+            -moz-appearance: menulist;
+            appearance: menulist;
+        }
+        
+        .qtd-select:focus {
+            outline: none;
+            border-color: #0a66c2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(10,102,194,0.1);
+        }
+        
+        /* Estilo para o input de quantidade (Alça e Caixa) */
+        .qtd-input { 
+            width: 70px !important; 
+            padding: 4px 4px !important; 
+            text-align: center; 
+            flex-shrink: 0; 
+            font-size: 0.8rem !important;
+            background: #f9fbfd;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+        }
+        
+        .qtd-input:focus {
+            outline: none;
+            border-color: #0a66c2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(10,102,194,0.1);
+        }
+        
         .btn-salvar { background: #0a2a44; color: white; border: none; border-radius: 30px; padding: 12px 20px; font-size: 1rem; font-weight: 700; letter-spacing: 0.3px; cursor: pointer; transition: 0.2s; margin-top: 10px; box-shadow: 0 5px 15px -3px #0a2a4450; width: 100%; }
         .btn-salvar:hover { background: #12457a; }
         .btn-salvar:disabled { background: #95a5a6; cursor: not-allowed; }
@@ -179,9 +221,9 @@
                 </div>
             </div>
 
-            <!-- CABO COM QUANTIDADE -->
+            <!-- CABO COM QUANTIDADE - COM SELECT 200/300 E EDIÇÃO MANUAL -->
             <div class="field-group">
-                <label>🔌 Cabo</label>
+                <label>🔌 Cabo (selecione 200 ou 300, ou digite outro valor)</label>
                 <div class="multiselect-container" id="caboContainer"></div>
             </div>
 
@@ -256,7 +298,7 @@
             <div>Carregando...</div>
         </div>
 
-        <!-- Gráficos em pares (Total e Média) -->
+        <!-- Gráficos em coluna única -->
         <div class="charts-column" id="relatorioContainer">
             <!-- Linha 1: Materiais Usados (Total e Média) -->
             <div class="chart-row">
@@ -309,7 +351,7 @@
                 </div>
             </div>
             
-            <!-- Linha 4: Registros por Tipo - Total (apenas total, sem média) -->
+            <!-- Linha 4: Registros por Tipo e Registros por Analista lado a lado -->
             <div class="chart-row">
                 <div class="chart-container">
                     <div class="chart-title">📊 Registros por Tipo - Total</div>
@@ -318,21 +360,12 @@
                     </div>
                 </div>
                 
-                <!-- Espaço vazio para manter o layout -->
-                <div class="chart-container" style="visibility: hidden;"></div>
-            </div>
-            
-            <!-- Linha 5: Registros por Analista - Total (apenas total, sem média) -->
-            <div class="chart-row">
                 <div class="chart-container">
                     <div class="chart-title">👥 Registros por Analista - Total</div>
                     <div class="chart-wrapper">
                         <canvas id="graficoAnalistasTotal"></canvas>
                     </div>
                 </div>
-                
-                <!-- Espaço vazio para manter o layout -->
-                <div class="chart-container" style="visibility: hidden;"></div>
             </div>
         </div>
 
@@ -412,7 +445,7 @@
             return descricaoCompleta;
         }
 
-        // FUNÇÃO PARA CRIAR ITEM COM CHECKBOX + DESCRIÇÃO + INPUT DE QUANTIDADE
+        // FUNÇÃO PARA CRIAR ITEM COM CHECKBOX + INPUT DE QUANTIDADE
         function criarItemMaterial(descricao) {
             const div = document.createElement('div');
             div.className = 'multiselect-item';
@@ -444,6 +477,115 @@
             return div;
         }
 
+        // FUNÇÃO PARA CRIAR ITEM DE CABO COM SELECT + EDIÇÃO MANUAL
+        function criarItemCabo(descricao) {
+            const div = document.createElement('div');
+            div.className = 'multiselect-item';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = descricao;
+            
+            const spanDesc = document.createElement('span');
+            spanDesc.className = 'item-desc';
+            spanDesc.textContent = descricao;
+            
+            // Criar um container para o select e input de edição
+            const container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.alignItems = 'center';
+            container.style.gap = '2px';
+            
+            // Select com opções
+            const select = document.createElement('select');
+            select.className = 'qtd-select';
+            select.style.width = '60px';
+            
+            const option0 = document.createElement('option');
+            option0.value = '0';
+            option0.textContent = '0';
+            select.appendChild(option0);
+            
+            const option200 = document.createElement('option');
+            option200.value = '200';
+            option200.textContent = '200';
+            select.appendChild(option200);
+            
+            const option300 = document.createElement('option');
+            option300.value = '300';
+            option300.textContent = '300';
+            select.appendChild(option300);
+            
+            // Input para edição manual (inicialmente oculto)
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'qtd-input';
+            input.placeholder = '0';
+            input.maxLength = 4;
+            input.inputMode = 'numeric';
+            input.pattern = '\\d*';
+            input.style.width = '60px';
+            input.style.display = 'none';
+            
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 4);
+            });
+            
+            // Botão para alternar entre select e input
+            const toggleBtn = document.createElement('button');
+            toggleBtn.type = 'button';
+            toggleBtn.textContent = '✏️';
+            toggleBtn.style.padding = '2px 5px';
+            toggleBtn.style.fontSize = '12px';
+            toggleBtn.style.cursor = 'pointer';
+            toggleBtn.style.border = '1px solid #ccc';
+            toggleBtn.style.borderRadius = '4px';
+            toggleBtn.style.background = '#f0f0f0';
+            
+            toggleBtn.addEventListener('click', function() {
+                if (select.style.display !== 'none') {
+                    // Mudar para modo de edição
+                    select.style.display = 'none';
+                    input.style.display = 'block';
+                    input.value = select.value;
+                    input.focus();
+                    toggleBtn.textContent = '✓';
+                } else {
+                    // Mudar para modo select
+                    select.style.display = 'block';
+                    input.style.display = 'none';
+                    // Se o input tiver um valor válido, atualizar o select
+                    if (input.value && !isNaN(parseInt(input.value))) {
+                        const val = parseInt(input.value);
+                        if (val === 200 || val === 300) {
+                            select.value = val.toString();
+                        } else {
+                            // Adicionar opção personalizada se necessário
+                            const existingOption = Array.from(select.options).find(opt => opt.value === input.value);
+                            if (!existingOption && input.value !== '0') {
+                                const newOption = document.createElement('option');
+                                newOption.value = input.value;
+                                newOption.textContent = input.value;
+                                select.appendChild(newOption);
+                                select.value = input.value;
+                            }
+                        }
+                    }
+                    toggleBtn.textContent = '✏️';
+                }
+            });
+            
+            container.appendChild(select);
+            container.appendChild(input);
+            container.appendChild(toggleBtn);
+            
+            div.appendChild(checkbox);
+            div.appendChild(spanDesc);
+            div.appendChild(container);
+            
+            return div;
+        }
+
         // LISTA CABOS - TODOS OS ITENS (17 itens)
         const cabos = [
             "MP040016 - Cabo Drop 02F - Furukawa",
@@ -467,7 +609,7 @@
         
         const containerCabo = document.getElementById('caboContainer');
         cabos.forEach(cabo => {
-            containerCabo.appendChild(criarItemMaterial(cabo));
+            containerCabo.appendChild(criarItemCabo(cabo));
         });
 
         // LISTA ALÇAS - TODOS OS ITENS (11 itens)
@@ -566,10 +708,28 @@
             
             items.forEach(item => {
                 const checkbox = item.querySelector('input[type="checkbox"]');
-                const inputQtd = item.querySelector('.qtd-input');
                 
                 if (checkbox.checked) {
-                    const quantidade = inputQtd.value ? parseInt(inputQtd.value) : 1;
+                    let quantidade = 1;
+                    
+                    // Verificar se é um item de cabo (com select e input)
+                    const select = item.querySelector('select.qtd-select');
+                    const input = item.querySelector('input.qtd-input');
+                    const container = item.querySelector('div[style*="display: flex"]');
+                    
+                    if (container) {
+                        // É um item de cabo
+                        const selectVisible = select.style.display !== 'none';
+                        if (selectVisible) {
+                            quantidade = select.value ? parseInt(select.value) : 1;
+                        } else {
+                            quantidade = input.value ? parseInt(input.value) : 1;
+                        }
+                    } else if (input) {
+                        // É um item normal (alça ou caixa)
+                        quantidade = input.value ? parseInt(input.value) : 1;
+                    }
+                    
                     resultado.push({
                         item: checkbox.value,
                         quantidade: quantidade
@@ -625,7 +785,7 @@
             return total;
         }
 
-        // FUNÇÃO PARA CRIAR PLANILHA RESUMO
+        // FUNÇÃO PARA CRIAR PLANILHA RESUMO (SEM PERCENTUAL)
         function criarPlanilhaResumo(dados, totalRegistros) {
             const summaryContainer = document.getElementById('summaryTables');
             if (!summaryContainer) return;
@@ -724,7 +884,7 @@
                 `;
             }
             
-            // 3. Registros por Equipe
+            // 3. Registros por Equipe (mantém percentual)
             if (Object.keys(dados.equipes).length > 0) {
                 html += `
                     <div class="summary-table-container">
@@ -761,7 +921,7 @@
                 `;
             }
             
-            // 4. Registros por Analista
+            // 4. Registros por Analista (SEM PERCENTUAL)
             if (Object.keys(dados.analistas).length > 0) {
                 html += `
                     <div class="summary-table-container">
@@ -771,7 +931,6 @@
                                 <tr>
                                     <th>Analista</th>
                                     <th>Quantidade de Registros</th>
-                                    <th>Percentual</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -781,12 +940,10 @@
                     .sort((a, b) => b[1] - a[1]);
                 
                 analistasArray.forEach(([analista, quantidade]) => {
-                    const percentual = ((quantidade / totalRegistros) * 100).toFixed(1);
                     html += `
                         <tr>
                             <td>${analista}</td>
                             <td>${quantidade}</td>
-                            <td>${percentual}%</td>
                         </tr>
                     `;
                 });
@@ -798,7 +955,7 @@
                 `;
             }
             
-            // 5. Tipos de Registro
+            // 5. Tipos de Registro (SEM PERCENTUAL)
             if (dados.tipos.Manutenção > 0 || dados.tipos.Requisição > 0) {
                 html += `
                     <div class="summary-table-container">
@@ -808,26 +965,19 @@
                                 <tr>
                                     <th>Tipo</th>
                                     <th>Quantidade</th>
-                                    <th>Percentual</th>
                                 </tr>
                             </thead>
                             <tbody>
                 `;
                 
-                const totalTipos = dados.tipos.Manutenção + dados.tipos.Requisição;
-                const percManutencao = ((dados.tipos.Manutenção / totalTipos) * 100).toFixed(1);
-                const percRequisicao = ((dados.tipos.Requisição / totalTipos) * 100).toFixed(1);
-                
                 html += `
                     <tr>
                         <td>Manutenção</td>
                         <td>${dados.tipos.Manutenção}</td>
-                        <td>${percManutencao}%</td>
                     </tr>
                     <tr>
                         <td>Requisição</td>
                         <td>${dados.tipos.Requisição}</td>
-                        <td>${percRequisicao}%</td>
                     </tr>
                 `;
                 
@@ -905,6 +1055,9 @@
                     // Limpar checkboxes e quantidades
                     document.querySelectorAll('.multiselect-item input[type="checkbox"]').forEach(cb => cb.checked = false);
                     document.querySelectorAll('.qtd-input').forEach(input => input.value = '');
+                    
+                    // Limpar selects de cabo
+                    document.querySelectorAll('.qtd-select').forEach(select => select.value = '0');
                     
                     // Se a dashboard estiver ativa, recarregar
                     if (document.getElementById('dashboard-tab').classList.contains('active')) {
@@ -1431,20 +1584,18 @@
                     });
                 
                 resumoData.push([]);
-                resumoData.push(['REGISTROS POR ANALISTA'], ['Analista', 'Quantidade', 'Percentual']);
+                resumoData.push(['REGISTROS POR ANALISTA'], ['Analista', 'Quantidade']);
                 
                 Object.entries(dados.analistas)
                     .sort((a, b) => b[1] - a[1])
                     .forEach(([analista, qtd]) => {
-                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
-                        resumoData.push([analista, qtd, perc]);
+                        resumoData.push([analista, qtd]);
                     });
                 
                 resumoData.push([]);
-                resumoData.push(['TIPOS DE REGISTRO'], ['Tipo', 'Quantidade', 'Percentual']);
-                const totalTipos = dados.tipos.Manutenção + dados.tipos.Requisição;
-                resumoData.push(['Manutenção', dados.tipos.Manutenção || 0, ((dados.tipos.Manutenção / totalTipos) * 100).toFixed(1) + '%']);
-                resumoData.push(['Requisição', dados.tipos.Requisição || 0, ((dados.tipos.Requisição / totalTipos) * 100).toFixed(1) + '%']);
+                resumoData.push(['TIPOS DE REGISTRO'], ['Tipo', 'Quantidade']);
+                resumoData.push(['Manutenção', dados.tipos.Manutenção || 0]);
+                resumoData.push(['Requisição', dados.tipos.Requisição || 0]);
                 
                 const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
                 XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
@@ -1754,26 +1905,25 @@
                 const analistasData = Object.entries(dados.analistas)
                     .sort((a, b) => b[1] - a[1])
                     .map(([analista, qtd]) => {
-                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
-                        return [analista, qtd.toString(), perc];
+                        return [analista, qtd.toString()];
                     });
                 
                 yPos = criarTabela(
                     'REGISTROS POR ANALISTA',
-                    ['Analista', 'Quantidade', '%'],
+                    ['Analista', 'Quantidade'],
                     analistasData,
                     yPos
                 );
                 
                 // Tipos de Registro
                 const tiposData = [
-                    ['Manutenção', dados.tipos.Manutenção.toString(), ((dados.tipos.Manutenção / totalReg) * 100).toFixed(1) + '%'],
-                    ['Requisição', dados.tipos.Requisição.toString(), ((dados.tipos.Requisição / totalReg) * 100).toFixed(1) + '%']
+                    ['Manutenção', dados.tipos.Manutenção.toString()],
+                    ['Requisição', dados.tipos.Requisição.toString()]
                 ];
                 
                 yPos = criarTabela(
                     'TIPOS DE REGISTRO',
-                    ['Tipo', 'Quantidade', '%'],
+                    ['Tipo', 'Quantidade'],
                     tiposData,
                     yPos
                 );
