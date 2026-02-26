@@ -9,8 +9,12 @@
         body { background: #f0f2f5; padding: 15px 10px; display: flex; justify-content: center; }
         .container { max-width: 1400px; width: 100%; background: white; border-radius: 16px; box-shadow: 0 10px 30px -5px rgba(0,20,30,0.15); padding: 20px; }
         
-        /* Tabs */
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+        /* Header com título e tabs na mesma linha */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        h1 { font-size: 1.8rem; font-weight: 600; color: #0a2a44; border-left: 6px solid #0a66c2; padding-left: 15px; margin: 0; }
+        
+        /* Tabs no header */
+        .header-tabs { display: flex; gap: 8px; }
         .tab-btn { padding: 8px 20px; border: none; background: #f1f5f9; border-radius: 30px; font-size: 0.9rem; font-weight: 600; color: #1e3a5f; cursor: pointer; transition: 0.2s; }
         .tab-btn.active { background: #0a2a44; color: white; }
         .tab-btn:hover { background: #12457a; color: white; }
@@ -18,8 +22,6 @@
         /* Conteúdo das tabs */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        
-        h1 { font-size: 1.8rem; font-weight: 600; color: #0a2a44; margin-bottom: 15px; border-left: 6px solid #0a66c2; padding-left: 15px; }
         
         /* Formulário */
         .field-group { margin-bottom: 12px; display: flex; flex-direction: column; }
@@ -47,7 +49,7 @@
         
         /* Dashboard */
         .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        .dashboard-header h2 { font-size: 1.3rem; }
+        .dashboard-header h2 { font-size: 1.3rem; color: #0a2a44; margin: 0; }
         .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .filter-group { display: flex; align-items: center; gap: 5px; }
         .filter-group label { margin-bottom: 0; font-size: 0.75rem; color: #0a2a44; font-weight: 600; }
@@ -87,6 +89,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; }
             .dashboard-header { flex-direction: column; align-items: stretch; }
             .container { padding: 15px; }
             .chart-container { height: 350px; }
@@ -95,12 +98,13 @@
 </head>
 <body>
 <div class="container">
-    <h1>🧰 Gestão de Materiais</h1>
-
-    <!-- Tabs -->
-    <div class="tabs">
-        <button class="tab-btn active" onclick="showTab('form')">📝 Registro</button>
-        <button class="tab-btn" onclick="showTab('dashboard')">📊 Dashboard</button>
+    <!-- Header com título e tabs na mesma linha -->
+    <div class="header">
+        <h1>🧰 Gestão de Materiais</h1>
+        <div class="header-tabs">
+            <button class="tab-btn active" onclick="showTab('form')">📝 Registro</button>
+            <button class="tab-btn" onclick="showTab('dashboard')">📊 Dashboard</button>
+        </div>
     </div>
 
     <!-- Aba de Formulário -->
@@ -200,14 +204,14 @@
     <!-- Aba de Dashboard -->
     <div id="dashboard-tab" class="tab-content">
         <div class="dashboard-header">
-            <h2 style="color: #0a2a44; font-size: 1.2rem;">📊 Dashboard</h2>
+            <h2>📊 Dashboard</h2>
             <div class="filters">
                 <div class="filter-group">
                     <label>Período:</label>
                     <select id="periodoFilter">
                         <option value="7">7 dias</option>
-                        <option value="30" selected>30 dias</option>
-                        <option value="90">90 dias</option>
+                        <option value="30">30 dias</option>
+                        <option value="90" selected>90 dias</option>
                         <option value="365">1 ano</option>
                     </select>
                 </div>
@@ -259,15 +263,9 @@
             </div>
         </div>
 
-        <!-- Gráficos em coluna única -->
+        <!-- Gráficos em coluna única na ordem especificada -->
         <div class="charts-column">
-            <div class="chart-container">
-                <div class="chart-title">📊 Registros por Tipo</div>
-                <div class="chart-wrapper">
-                    <canvas id="graficoTipo"></canvas>
-                </div>
-            </div>
-            
+            <!-- 1. Materiais Mais Usados -->
             <div class="chart-container">
                 <div class="chart-title">📈 Materiais Mais Usados</div>
                 <div class="chart-wrapper">
@@ -275,17 +273,27 @@
                 </div>
             </div>
             
-            <div class="chart-container">
-                <div class="chart-title">👥 Registros por Analista</div>
-                <div class="chart-wrapper">
-                    <canvas id="graficoAnalistas"></canvas>
-                </div>
-            </div>
-            
+            <!-- 2. Registros por Equipe -->
             <div class="chart-container">
                 <div class="chart-title">🚩 Registros por Equipe</div>
                 <div class="chart-wrapper">
                     <canvas id="graficoEquipes"></canvas>
+                </div>
+            </div>
+            
+            <!-- 3. Registros por Tipo -->
+            <div class="chart-container">
+                <div class="chart-title">📊 Registros por Tipo</div>
+                <div class="chart-wrapper">
+                    <canvas id="graficoTipo"></canvas>
+                </div>
+            </div>
+            
+            <!-- 4. Registros por Analista -->
+            <div class="chart-container">
+                <div class="chart-title">👥 Registros por Analista</div>
+                <div class="chart-wrapper">
+                    <canvas id="graficoAnalistas"></canvas>
                 </div>
             </div>
         </div>
@@ -746,7 +754,96 @@
         function criarGraficos(registros) {
             const dados = processarDadosGraficos(registros);
             
-            // Gráfico de Tipos
+            // Paleta de cores variadas para materiais
+            const coresMateriais = [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                '#7B68EE', '#20B2AA', '#F08080', '#9ACD32'
+            ];
+            
+            // 1. Gráfico de Materiais Mais Usados
+            const materiaisArray = Object.entries(dados.materiais)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8);
+            
+            const ctxMateriais = document.getElementById('graficoMateriais').getContext('2d');
+            chartInstances.graficoMateriais = new Chart(ctxMateriais, {
+                type: 'bar',
+                data: {
+                    labels: materiaisArray.map(m => extrairNomeItem(m[0]).substring(0, 25) + '...'),
+                    datasets: [{
+                        data: materiaisArray.map(m => m[1]),
+                        backgroundColor: materiaisArray.map((_, index) => coresMateriais[index % coresMateriais.length]),
+                        borderRadius: 6,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false } // Legenda removida
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { display: true }, 
+                            ticks: { 
+                                font: { size: 9 },
+                                color: '#000000'
+                            } 
+                        },
+                        x: { 
+                            grid: { display: false }, 
+                            ticks: { 
+                                font: { size: 8 },
+                                color: '#000000'
+                            } 
+                        }
+                    }
+                }
+            });
+            
+            // 2. Gráfico de Equipes
+            const ctxEquipes = document.getElementById('graficoEquipes').getContext('2d');
+            chartInstances.graficoEquipes = new Chart(ctxEquipes, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(dados.equipes).map(e => e.split(' ')[0]),
+                    datasets: [{
+                        data: Object.values(dados.equipes),
+                        backgroundColor: '#12457a',
+                        borderRadius: 6,
+                        barPercentage: 0.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { display: true }, 
+                            ticks: { 
+                                font: { size: 9 },
+                                color: '#000000'
+                            } 
+                        },
+                        x: { 
+                            grid: { display: false }, 
+                            ticks: { 
+                                font: { size: 9 },
+                                color: '#000000'
+                            } 
+                        }
+                    }
+                }
+            });
+            
+            // 3. Gráfico de Tipos
             const ctxTipo = document.getElementById('graficoTipo').getContext('2d');
             chartInstances.graficoTipo = new Chart(ctxTipo, {
                 type: 'doughnut',
@@ -775,74 +872,7 @@
                 }
             });
             
-            // Gráfico de Materiais - COM CORES DIFERENTES E LEGENDA VERTICAL
-            const materiaisArray = Object.entries(dados.materiais)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 8);
-            
-            // Paleta de cores variadas para cada item
-            const coresMateriais = [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
-                '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
-                '#7B68EE', '#20B2AA', '#F08080', '#9ACD32'
-            ];
-            
-            const ctxMateriais = document.getElementById('graficoMateriais').getContext('2d');
-            chartInstances.graficoMateriais = new Chart(ctxMateriais, {
-                type: 'bar',
-                data: {
-                    labels: materiaisArray.map(m => extrairNomeItem(m[0]).substring(0, 25) + '...'),
-                    datasets: [{
-                        data: materiaisArray.map(m => m[1]),
-                        backgroundColor: materiaisArray.map((_, index) => coresMateriais[index % coresMateriais.length]),
-                        borderRadius: 6,
-                        barPercentage: 0.6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { 
-                            display: true,
-                            position: 'right',
-                            align: 'center',
-                            labels: {
-                                color: '#000000',
-                                font: { size: 9 },
-                                usePointStyle: true,
-                                pointStyle: 'circle',
-                                boxWidth: 8,
-                                boxHeight: 8
-                            }
-                        }
-                    },
-                    scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            grid: { display: true }, 
-                            ticks: { 
-                                font: { size: 9 },
-                                color: '#000000'
-                            } 
-                        },
-                        x: { 
-                            grid: { display: false }, 
-                            ticks: { 
-                                font: { size: 8 },
-                                color: '#000000'
-                            } 
-                        }
-                    },
-                    layout: {
-                        padding: {
-                            right: 120 // Espaço para a legenda vertical
-                        }
-                    }
-                }
-            });
-            
-            // Gráfico de Analistas
+            // 4. Gráfico de Analistas
             const ctxAnalistas = document.getElementById('graficoAnalistas').getContext('2d');
             chartInstances.graficoAnalistas = new Chart(ctxAnalistas, {
                 type: 'bar',
@@ -859,14 +889,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { 
-                        legend: { 
-                            display: true,
-                            position: 'right',
-                            labels: {
-                                color: '#000000',
-                                font: { size: 9 }
-                            }
-                        } 
+                        legend: { display: false }
                     },
                     scales: {
                         y: { 
@@ -883,62 +906,6 @@
                                 font: { size: 9 },
                                 color: '#000000'
                             } 
-                        }
-                    },
-                    layout: {
-                        padding: {
-                            right: 100
-                        }
-                    }
-                }
-            });
-            
-            // Gráfico de Equipes
-            const ctxEquipes = document.getElementById('graficoEquipes').getContext('2d');
-            chartInstances.graficoEquipes = new Chart(ctxEquipes, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(dados.equipes).map(e => e.split(' ')[0]),
-                    datasets: [{
-                        data: Object.values(dados.equipes),
-                        backgroundColor: '#12457a',
-                        borderRadius: 6,
-                        barPercentage: 0.5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { 
-                            display: true,
-                            position: 'right',
-                            labels: {
-                                color: '#000000',
-                                font: { size: 9 }
-                            }
-                        } 
-                    },
-                    scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            grid: { display: true }, 
-                            ticks: { 
-                                font: { size: 9 },
-                                color: '#000000'
-                            } 
-                        },
-                        x: { 
-                            grid: { display: false }, 
-                            ticks: { 
-                                font: { size: 9 },
-                                color: '#000000'
-                            } 
-                        }
-                    },
-                    layout: {
-                        padding: {
-                            right: 100
                         }
                     }
                 }
