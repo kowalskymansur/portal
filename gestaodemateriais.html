@@ -69,8 +69,10 @@
         .card-sub { font-size: 0.65rem; opacity: 0.8; }
         
         /* Gráficos em coluna única */
-        .charts-column { display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; }
-        .chart-container { background: #f8fafc; border-radius: 16px; padding: 15px; box-shadow: 0 3px 5px rgba(0,0,0,0.03); position: relative; height: 550px; }
+        .charts-column { display: flex; flex-direction: column; gap: 30px; margin-bottom: 20px; }
+        .chart-row { display: flex; gap: 20px; flex-wrap: wrap; }
+        .chart-row .chart-container { flex: 1 1 45%; min-width: 400px; }
+        .chart-container { background: #f8fafc; border-radius: 16px; padding: 15px; box-shadow: 0 3px 5px rgba(0,0,0,0.03); position: relative; height: 500px; }
         .chart-title { font-size: 0.95rem; font-weight: 600; color: #0a2a44; margin-bottom: 10px; border-left: 3px solid #0a66c2; padding-left: 10px; }
         .chart-wrapper { position: relative; height: calc(100% - 40px); width: 100%; }
         
@@ -92,7 +94,8 @@
             .header { flex-direction: column; align-items: flex-start; }
             .dashboard-header { flex-direction: column; align-items: stretch; }
             .container { padding: 15px; }
-            .chart-container { height: 500px; }
+            .chart-container { height: 450px; }
+            .chart-row .chart-container { min-width: 100%; }
         }
     </style>
 </head>
@@ -263,45 +266,90 @@
             </div>
         </div>
 
-        <!-- Gráficos em coluna única -->
+        <!-- Gráficos em pares (Total e Média) -->
         <div class="charts-column">
-            <!-- 1. Materiais Usados (Alça, Caixa e Itens Avulsos) -->
-            <div class="chart-container">
-                <div class="chart-title">📦 Materiais Usados</div>
-                <div class="chart-wrapper">
-                    <canvas id="graficoMateriaisUsados"></canvas>
+            <!-- Linha 1: Materiais Usados (Total e Média) -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <div class="chart-title">📦 Materiais Usados - Total</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoMateriaisUsadosTotal"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">📦 Materiais Usados - Média por Registro</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoMateriaisUsadosMedia"></canvas>
+                    </div>
                 </div>
             </div>
             
-            <!-- 2. Cabos -->
-            <div class="chart-container">
-                <div class="chart-title">🔌 Cabos</div>
-                <div class="chart-wrapper">
-                    <canvas id="graficoCabos"></canvas>
+            <!-- Linha 2: Cabos (Total e Média) -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <div class="chart-title">🔌 Cabos - Total</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoCabosTotal"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">🔌 Cabos - Média por Registro</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoCabosMedia"></canvas>
+                    </div>
                 </div>
             </div>
             
-            <!-- 3. Registros por Equipe -->
-            <div class="chart-container">
-                <div class="chart-title">🚩 Registros por Equipe</div>
-                <div class="chart-wrapper">
-                    <canvas id="graficoEquipes"></canvas>
+            <!-- Linha 3: Registros por Equipe (Total e Média) -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <div class="chart-title">🚩 Registros por Equipe - Total</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoEquipesTotal"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">🚩 Registros por Equipe - Média por Registro</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoEquipesMedia"></canvas>
+                    </div>
                 </div>
             </div>
             
-            <!-- 4. Registros por Tipo -->
-            <div class="chart-container">
-                <div class="chart-title">📊 Registros por Tipo</div>
-                <div class="chart-wrapper">
-                    <canvas id="graficoTipo"></canvas>
+            <!-- Linha 4: Registros por Tipo (Total e Média) -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <div class="chart-title">📊 Registros por Tipo - Total</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoTipoTotal"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">📊 Registros por Tipo - Média por Registro</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoTipoMedia"></canvas>
+                    </div>
                 </div>
             </div>
             
-            <!-- 5. Registros por Analista -->
-            <div class="chart-container">
-                <div class="chart-title">👥 Registros por Analista</div>
-                <div class="chart-wrapper">
-                    <canvas id="graficoAnalistas"></canvas>
+            <!-- Linha 5: Registros por Analista (Total e Média) -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <div class="chart-title">👥 Registros por Analista - Total</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoAnalistasTotal"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">👥 Registros por Analista - Média por Registro</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoAnalistasMedia"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -348,7 +396,13 @@
 
         // FUNÇÃO PARA DESTRUIR GRÁFICOS EXISTENTES
         function destruirGraficos() {
-            const chartIds = ['graficoTipo', 'graficoMateriaisUsados', 'graficoCabos', 'graficoAnalistas', 'graficoEquipes'];
+            const chartIds = [
+                'graficoMateriaisUsadosTotal', 'graficoMateriaisUsadosMedia',
+                'graficoCabosTotal', 'graficoCabosMedia',
+                'graficoEquipesTotal', 'graficoEquipesMedia',
+                'graficoTipoTotal', 'graficoTipoMedia',
+                'graficoAnalistasTotal', 'graficoAnalistasMedia'
+            ];
             chartIds.forEach(id => {
                 if (chartInstances[id]) {
                     chartInstances[id].destroy();
@@ -684,7 +738,11 @@
             const periodo = document.getElementById('periodoFilter').value;
             const equipe = document.getElementById('equipeFilter').value;
             
+            // Mostrar loading
             loadingEl.style.display = 'block';
+            
+            // Limpar gráficos anteriores
+            destruirGraficos();
             
             const dataInicial = new Date();
             dataInicial.setDate(dataInicial.getDate() - parseInt(periodo));
@@ -705,14 +763,20 @@
                 
                 if (error) throw error;
                 
-                destruirGraficos();
+                // Atualizar cards
                 atualizarCards(registros);
+                
+                // Atualizar tabela
                 atualizarTabelaRecentes(registros);
+                
+                // Criar gráficos
                 criarGraficos(registros);
                 
             } catch (error) {
                 console.error('Erro:', error);
+                alert('Erro ao carregar dados: ' + error.message);
             } finally {
+                // Esconder loading
                 loadingEl.style.display = 'none';
             }
         };
@@ -738,7 +802,7 @@
             const recentes = registros.slice(0, 8);
             
             if (recentes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Nenhum registro</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Nenhum registro encontrado</td></tr>';
                 return;
             }
             
@@ -762,6 +826,13 @@
 
         function criarGraficos(registros) {
             const dados = processarDadosGraficos(registros);
+            const totalRegistros = registros.length;
+            
+            // Verificar se há registros
+            if (totalRegistros === 0) {
+                console.log('Nenhum registro encontrado para o período selecionado');
+                return;
+            }
             
             // Paleta de cores expandida para evitar repetições
             const coresVariadas = [
@@ -776,8 +847,9 @@
                 '#483D8B', '#008080', '#9400D3', '#FF00FF'
             ];
             
-            // Função para quebrar texto em linhas (máximo 15 caracteres por linha)
-            function quebrarTexto(texto, maxLength = 20) {
+            // Função para quebrar texto em linhas
+            function quebrarTexto(texto, maxLength = 18) {
+                if (!texto) return '';
                 if (texto.length <= maxLength) return texto;
                 
                 const palavras = texto.split(' ');
@@ -794,22 +866,104 @@
                 }
                 if (linhaAtual) linhas.push(linhaAtual);
                 
-                return linhas;
+                return linhas.length > 1 ? linhas : linhas[0];
             }
             
-            // 1. Gráfico de Materiais Usados (Alça, Caixa, Optloop, Bap, Rack, Protetor, Kit Derivação, Kit Oval)
+            // Função para arredondar para inteiro
+            function arredondarInteiro(valor) {
+                return Math.round(valor);
+            }
+            
+            // Função para criar configuração base de gráfico de barras
+            function criarConfiguracaoBarra(labels, dados, cores, isMedia = false) {
+                // Para médias, arredondar para inteiro
+                const dadosExibicao = isMedia ? dados.map(v => arredondarInteiro(v)) : dados;
+                
+                return {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: dadosExibicao,
+                            backgroundColor: cores,
+                            borderRadius: 6,
+                            barPercentage: 0.7,
+                            categoryPercentage: 0.8
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const valor = context.raw;
+                                        return isMedia ? `Média: ${valor}` : `Total: ${valor}`;
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                display: true,
+                                color: '#000000',
+                                anchor: 'end',
+                                align: 'right',
+                                offset: 4,
+                                font: { weight: 'bold', size: 10 },
+                                formatter: function(value) {
+                                    return value;
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { 
+                                beginAtZero: true, 
+                                grid: { display: true },
+                                ticks: { 
+                                    font: { size: 9 },
+                                    color: '#000000',
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        return value;
+                                    }
+                                } 
+                            },
+                            y: { 
+                                grid: { display: false }, 
+                                ticks: { 
+                                    font: { size: 10 },
+                                    color: '#000000',
+                                    callback: function(value, index, values) {
+                                        const label = this.getLabelForValue(value);
+                                        if (Array.isArray(label)) {
+                                            return label;
+                                        }
+                                        return label;
+                                    }
+                                } 
+                            }
+                        },
+                        layout: {
+                            padding: {
+                                left: 10,
+                                right: 40,
+                                top: 10,
+                                bottom: 10
+                            }
+                        }
+                    }
+                };
+            }
+            
+            // 1. Materiais Usados
             const materiaisUsadosArray = Object.entries(dados.materiaisUsados)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 10); // Reduzido para 10 itens para melhor visualização vertical
+                .slice(0, 8);
             
             if (materiaisUsadosArray.length > 0) {
-                // Cores diferentes para cada item
-                const coresUsadas = [];
-                for (let i = 0; i < materiaisUsadosArray.length; i++) {
-                    coresUsadas.push(coresVariadas[i % coresVariadas.length]);
-                }
-                
-                // Preparar labels com quebra de linha
+                const cores = materiaisUsadosArray.map((_, i) => coresVariadas[i % coresVariadas.length]);
                 const labels = materiaisUsadosArray.map(m => {
                     let nome;
                     if (m[0].includes('MP100')) {
@@ -820,370 +974,140 @@
                     return quebrarTexto(nome, 18);
                 });
                 
-                const ctxMateriaisUsados = document.getElementById('graficoMateriaisUsados').getContext('2d');
-                chartInstances.graficoMateriaisUsados = new Chart(ctxMateriaisUsados, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: materiaisUsadosArray.map(m => m[1]),
-                            backgroundColor: coresUsadas,
-                            borderRadius: 6,
-                            barPercentage: 0.7,
-                            categoryPercentage: 0.8
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y', // Isso faz o gráfico ficar na vertical (barras horizontais)
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `Quantidade: ${context.raw}`;
-                                    }
-                                }
-                            },
-                            datalabels: {
-                                display: true,
-                                color: '#000000',
-                                anchor: 'end',
-                                align: 'right',
-                                offset: 4,
-                                font: { weight: 'bold', size: 10 }
-                            }
-                        },
-                        scales: {
-                            x: { 
-                                beginAtZero: true, 
-                                grid: { display: true },
-                                ticks: { 
-                                    font: { size: 9 },
-                                    color: '#000000',
-                                    stepSize: 1,
-                                    callback: function(value) {
-                                        return value;
-                                    }
-                                } 
-                            },
-                            y: { 
-                                grid: { display: false }, 
-                                ticks: { 
-                                    font: { size: 10 },
-                                    color: '#000000',
-                                    callback: function(value, index, values) {
-                                        const label = this.getLabelForValue(value);
-                                        if (Array.isArray(label)) {
-                                            return label;
-                                        }
-                                        return label;
-                                    }
-                                } 
-                            }
-                        },
-                        layout: {
-                            padding: {
-                                left: 10,
-                                right: 30,
-                                top: 10,
-                                bottom: 10
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // 2. Gráfico de Cabos
-            const cabosArray = Object.entries(dados.cabos)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 10); // Reduzido para 10 itens para melhor visualização vertical
-            
-            if (cabosArray.length > 0) {
-                // Cores diferentes para cada cabo
-                const coresCabos = [];
-                for (let i = 0; i < cabosArray.length; i++) {
-                    coresCabos.push(coresVariadas[(i + 10) % coresVariadas.length]); // Offset diferente
+                // Gráfico de Total
+                const ctxTotal = document.getElementById('graficoMateriaisUsadosTotal')?.getContext('2d');
+                if (ctxTotal) {
+                    chartInstances.graficoMateriaisUsadosTotal = new Chart(ctxTotal, 
+                        criarConfiguracaoBarra(labels, materiaisUsadosArray.map(m => m[1]), cores, false)
+                    );
                 }
                 
-                // Preparar labels com quebra de linha
+                // Gráfico de Média
+                const medias = materiaisUsadosArray.map(m => m[1] / totalRegistros);
+                const ctxMedia = document.getElementById('graficoMateriaisUsadosMedia')?.getContext('2d');
+                if (ctxMedia) {
+                    chartInstances.graficoMateriaisUsadosMedia = new Chart(ctxMedia, 
+                        criarConfiguracaoBarra(labels, medias, cores, true)
+                    );
+                }
+            }
+            
+            // 2. Cabos
+            const cabosArray = Object.entries(dados.cabos)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8);
+            
+            if (cabosArray.length > 0) {
+                const cores = cabosArray.map((_, i) => coresVariadas[(i + 10) % coresVariadas.length]);
                 const labels = cabosArray.map(c => {
                     const nome = extrairNomeItem(c[0]);
                     return quebrarTexto(nome, 18);
                 });
                 
-                const ctxCabos = document.getElementById('graficoCabos').getContext('2d');
-                chartInstances.graficoCabos = new Chart(ctxCabos, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: cabosArray.map(c => c[1]),
-                            backgroundColor: coresCabos,
-                            borderRadius: 6,
-                            barPercentage: 0.7,
-                            categoryPercentage: 0.8
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y', // Isso faz o gráfico ficar na vertical (barras horizontais)
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `Quantidade: ${context.raw}`;
-                                    }
-                                }
-                            },
-                            datalabels: {
-                                display: true,
-                                color: '#000000',
-                                anchor: 'end',
-                                align: 'right',
-                                offset: 4,
-                                font: { weight: 'bold', size: 10 }
-                            }
-                        },
-                        scales: {
-                            x: { 
-                                beginAtZero: true, 
-                                grid: { display: true },
-                                ticks: { 
-                                    font: { size: 9 },
-                                    color: '#000000',
-                                    stepSize: 1,
-                                    callback: function(value) {
-                                        return value;
-                                    }
-                                } 
-                            },
-                            y: { 
-                                grid: { display: false }, 
-                                ticks: { 
-                                    font: { size: 10 },
-                                    color: '#000000',
-                                    callback: function(value, index, values) {
-                                        const label = this.getLabelForValue(value);
-                                        if (Array.isArray(label)) {
-                                            return label;
-                                        }
-                                        return label;
-                                    }
-                                } 
-                            }
-                        },
-                        layout: {
-                            padding: {
-                                left: 10,
-                                right: 30,
-                                top: 10,
-                                bottom: 10
-                            }
-                        }
-                    }
-                });
+                // Gráfico de Total
+                const ctxTotal = document.getElementById('graficoCabosTotal')?.getContext('2d');
+                if (ctxTotal) {
+                    chartInstances.graficoCabosTotal = new Chart(ctxTotal, 
+                        criarConfiguracaoBarra(labels, cabosArray.map(c => c[1]), cores, false)
+                    );
+                }
+                
+                // Gráfico de Média
+                const medias = cabosArray.map(c => c[1] / totalRegistros);
+                const ctxMedia = document.getElementById('graficoCabosMedia')?.getContext('2d');
+                if (ctxMedia) {
+                    chartInstances.graficoCabosMedia = new Chart(ctxMedia, 
+                        criarConfiguracaoBarra(labels, medias, cores, true)
+                    );
+                }
             }
             
-            // 3. Gráfico de Equipes - com cores específicas
+            // 3. Equipes
             const equipesArray = Object.entries(dados.equipes)
                 .sort((a, b) => b[1] - a[1]);
             
-            // Mapeamento de cores específicas para cada equipe
-            const coresEquipes = equipesArray.map(([nome]) => {
-                if (nome === 'Angra dos Reis') {
-                    return '#FFA500'; // Laranja
-                } else if (nome === 'Volta Redonda') {
-                    return '#0a66c2'; // Azul
-                } else if (nome === 'Juiz de Fora') {
-                    return '#FF69B4'; // Rosa
-                } else if (nome === 'Mangaratiba') {
-                    return '#32CD32'; // Verde
-                } else if (nome === 'Resende') {
-                    return '#FF4500'; // Laranja avermelhado
-                } else if (nome === 'Ubatuba') {
-                    return '#9370DB'; // Roxo médio
-                } else if (nome === 'Vassouras') {
-                    return '#20B2AA'; // Verde água
-                } else {
+            if (equipesArray.length > 0) {
+                const coresEquipes = equipesArray.map(([nome]) => {
+                    if (nome === 'Angra dos Reis') return '#FFA500';
+                    if (nome === 'Volta Redonda') return '#0a66c2';
+                    if (nome === 'Juiz de Fora') return '#FF69B4';
+                    if (nome === 'Mangaratiba') return '#32CD32';
+                    if (nome === 'Resende') return '#FF4500';
+                    if (nome === 'Ubatuba') return '#9370DB';
+                    if (nome === 'Vassouras') return '#20B2AA';
                     return coresVariadas[Math.floor(Math.random() * coresVariadas.length)];
+                });
+                
+                // Gráfico de Total de Equipes
+                const ctxEquipesTotal = document.getElementById('graficoEquipesTotal')?.getContext('2d');
+                if (ctxEquipesTotal) {
+                    chartInstances.graficoEquipesTotal = new Chart(ctxEquipesTotal, 
+                        criarConfiguracaoBarra(equipesArray.map(e => e[0]), equipesArray.map(e => e[1]), coresEquipes, false)
+                    );
                 }
-            });
-            
-            const ctxEquipes = document.getElementById('graficoEquipes').getContext('2d');
-            chartInstances.graficoEquipes = new Chart(ctxEquipes, {
-                type: 'bar',
-                data: {
-                    labels: equipesArray.map(e => e[0]),
-                    datasets: [{
-                        data: equipesArray.map(e => e[1]),
-                        backgroundColor: coresEquipes,
-                        borderRadius: 6,
-                        barPercentage: 0.5
-                    }]
-                },
-                options: {
-                    indexAxis: 'y', // Também em barras horizontais para consistência
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Registros: ${context.raw}`;
-                                }
-                            }
-                        },
-                        datalabels: {
-                            display: true,
-                            color: '#000000',
-                            anchor: 'end',
-                            align: 'right',
-                            offset: 4,
-                            font: { weight: 'bold', size: 11 }
-                        }
-                    },
-                    scales: {
-                        x: { 
-                            beginAtZero: true, 
-                            grid: { display: true },
-                            ticks: { 
-                                font: { size: 9 },
-                                color: '#000000',
-                                stepSize: 1
-                            } 
-                        },
-                        y: { 
-                            grid: { display: false }, 
-                            ticks: { 
-                                font: { size: 10 },
-                                color: '#000000'
-                            } 
-                        }
-                    }
+                
+                // Gráfico de Média de Equipes
+                const ctxEquipesMedia = document.getElementById('graficoEquipesMedia')?.getContext('2d');
+                if (ctxEquipesMedia) {
+                    chartInstances.graficoEquipesMedia = new Chart(ctxEquipesMedia, 
+                        criarConfiguracaoBarra(equipesArray.map(e => e[0]), equipesArray.map(e => e[1] / totalRegistros), coresEquipes, true)
+                    );
                 }
-            });
+            }
             
-            // 4. Gráfico de Tipos (mantido como doughnut)
-            const ctxTipo = document.getElementById('graficoTipo').getContext('2d');
-            chartInstances.graficoTipo = new Chart(ctxTipo, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Manutenção', 'Requisição'],
-                    datasets: [{
-                        data: [dados.tipos.Manutenção || 0, dados.tipos.Requisição || 0],
-                        backgroundColor: ['#0a2a44', '#0a66c2'],
-                        borderWidth: 0,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { 
-                            position: 'bottom', 
-                            labels: { 
-                                font: { size: 10 },
-                                color: '#000000'
-                            } 
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.label}: ${context.raw}`;
-                                }
-                            }
-                        },
-                        datalabels: {
-                            display: true,
-                            color: 'white',
-                            font: { weight: 'bold', size: 12 },
-                            formatter: (value) => value
-                        }
-                    },
-                    cutout: '65%'
-                }
-            });
+            // 4. Tipos
+            const tiposArray = [
+                { label: 'Manutenção', valor: dados.tipos.Manutenção || 0 },
+                { label: 'Requisição', valor: dados.tipos.Requisição || 0 }
+            ];
             
-            // 5. Gráfico de Analistas - com cores específicas
+            // Gráfico de Total de Tipos
+            const ctxTipoTotal = document.getElementById('graficoTipoTotal')?.getContext('2d');
+            if (ctxTipoTotal) {
+                chartInstances.graficoTipoTotal = new Chart(ctxTipoTotal, 
+                    criarConfiguracaoBarra(tiposArray.map(t => t.label), tiposArray.map(t => t.valor), ['#0a2a44', '#0a66c2'], false)
+                );
+            }
+            
+            // Gráfico de Média de Tipos
+            const ctxTipoMedia = document.getElementById('graficoTipoMedia')?.getContext('2d');
+            if (ctxTipoMedia) {
+                chartInstances.graficoTipoMedia = new Chart(ctxTipoMedia, 
+                    criarConfiguracaoBarra(tiposArray.map(t => t.label), tiposArray.map(t => t.valor / totalRegistros), ['#0a2a44', '#0a66c2'], true)
+                );
+            }
+            
+            // 5. Analistas
             const analistasArray = Object.entries(dados.analistas)
                 .sort((a, b) => b[1] - a[1]);
             
-            // Mapeamento de cores específicas para cada analista
-            const coresAnalistas = analistasArray.map(([nome]) => {
-                switch(nome) {
-                    case 'Kowalsky':
-                        return '#0a66c2'; // Azul
-                    case 'Naira':
-                        return '#FF69B4'; // Rosa (HotPink)
-                    case 'Pablo':
-                        return '#FFA500'; // Laranja (Orange)
-                    case 'Washington':
-                        return '#32CD32'; // Verde (LimeGreen)
-                    default:
-                        return '#36A2EB'; // Azul padrão
-                }
-            });
-            
-            const ctxAnalistas = document.getElementById('graficoAnalistas').getContext('2d');
-            chartInstances.graficoAnalistas = new Chart(ctxAnalistas, {
-                type: 'bar',
-                data: {
-                    labels: analistasArray.map(a => a[0]),
-                    datasets: [{
-                        data: analistasArray.map(a => a[1]),
-                        backgroundColor: coresAnalistas,
-                        borderRadius: 6,
-                        barPercentage: 0.5
-                    }]
-                },
-                options: {
-                    indexAxis: 'y', // Também em barras horizontais para consistência
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Registros: ${context.raw}`;
-                                }
-                            }
-                        },
-                        datalabels: {
-                            display: true,
-                            color: '#000000',
-                            anchor: 'end',
-                            align: 'right',
-                            offset: 4,
-                            font: { weight: 'bold', size: 11 }
-                        }
-                    },
-                    scales: {
-                        x: { 
-                            beginAtZero: true, 
-                            grid: { display: true },
-                            ticks: { 
-                                font: { size: 9 },
-                                color: '#000000',
-                                stepSize: 1
-                            } 
-                        },
-                        y: { 
-                            grid: { display: false }, 
-                            ticks: { 
-                                font: { size: 10 },
-                                color: '#000000'
-                            } 
-                        }
+            if (analistasArray.length > 0) {
+                const coresAnalistas = analistasArray.map(([nome]) => {
+                    switch(nome) {
+                        case 'Kowalsky': return '#0a66c2';
+                        case 'Naira': return '#FF69B4';
+                        case 'Pablo': return '#FFA500';
+                        case 'Washington': return '#32CD32';
+                        default: return '#36A2EB';
                     }
+                });
+                
+                // Gráfico de Total de Analistas
+                const ctxAnalistasTotal = document.getElementById('graficoAnalistasTotal')?.getContext('2d');
+                if (ctxAnalistasTotal) {
+                    chartInstances.graficoAnalistasTotal = new Chart(ctxAnalistasTotal, 
+                        criarConfiguracaoBarra(analistasArray.map(a => a[0]), analistasArray.map(a => a[1]), coresAnalistas, false)
+                    );
                 }
-            });
+                
+                // Gráfico de Média de Analistas
+                const ctxAnalistasMedia = document.getElementById('graficoAnalistasMedia')?.getContext('2d');
+                if (ctxAnalistasMedia) {
+                    chartInstances.graficoAnalistasMedia = new Chart(ctxAnalistasMedia, 
+                        criarConfiguracaoBarra(analistasArray.map(a => a[0]), analistasArray.map(a => a[1] / totalRegistros), coresAnalistas, true)
+                    );
+                }
+            }
         }
 
         function processarDadosGraficos(registros) {
@@ -1201,7 +1125,7 @@
                 // Processar Cabos (separado)
                 if (reg.cabos) {
                     reg.cabos.forEach(cabo => {
-                        const nome = cabo.item; // Manter nome completo
+                        const nome = cabo.item;
                         dados.cabos[nome] = (dados.cabos[nome] || 0) + cabo.quantidade;
                     });
                 }
@@ -1209,7 +1133,7 @@
                 // Processar Alças
                 if (reg.alcas) {
                     reg.alcas.forEach(alca => {
-                        const nome = alca.item; // Manter nome completo
+                        const nome = alca.item;
                         dados.materiaisUsados[nome] = (dados.materiaisUsados[nome] || 0) + alca.quantidade;
                     });
                 }
@@ -1303,10 +1227,11 @@
                 a.click();
                 
             } catch (error) {
-                alert('Erro ao exportar');
+                alert('Erro ao exportar: ' + error.message);
             }
         };
 
+        // Carregar dashboard se a aba estiver ativa
         if (document.getElementById('dashboard-tab').classList.contains('active')) {
             carregarDashboard();
         }
