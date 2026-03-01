@@ -240,7 +240,7 @@
 
                 <div class="field-group">
                     <label>🔢 Evento</label>
-                    <input type="text" id="evento" name="evento" maxlength="7" pattern="\d*" inputmode="numeric">
+                    <input type="text" id="evento" name="evento" maxlength="50">
                 </div>
             </div>
 
@@ -298,14 +298,14 @@
 
             <!-- CAMPOS NUMÉRICOS -->
             <div class="row-duo">
-                <div class="field-group"><label>🔁 Optloop</label><input type="text" id="optloop" maxlength="7" pattern="\d*" inputmode="numeric"></div>
-                <div class="field-group"><label>⚙️ Bap</label><input type="text" id="bap" maxlength="7" pattern="\d*" inputmode="numeric"></div>
-                <div class="field-group"><label>🗄️ Rack</label><input type="text" id="rack" maxlength="7" pattern="\d*" inputmode="numeric"></div>
+                <div class="field-group"><label>🔁 Optloop</label><input type="text" id="optloop" maxlength="7"></div>
+                <div class="field-group"><label>⚙️ Bap</label><input type="text" id="bap" maxlength="7"></div>
+                <div class="field-group"><label>🗄️ Rack</label><input type="text" id="rack" maxlength="7"></div>
             </div>
             <div class="row-duo">
-                <div class="field-group"><label>🛡️ Protetor</label><input type="text" id="protetor" maxlength="7" pattern="\d*" inputmode="numeric"></div>
-                <div class="field-group"><label>🔀 Kit Derivação</label><input type="text" id="kitDeriv" maxlength="7" pattern="\d*" inputmode="numeric"></div>
-                <div class="field-group"><label>⚪ Kit Oval</label><input type="text" id="kitOval" maxlength="7" pattern="\d*" inputmode="numeric"></div>
+                <div class="field-group"><label>🛡️ Protetor</label><input type="text" id="protetor" maxlength="7"></div>
+                <div class="field-group"><label>🔀 Kit Derivação</label><input type="text" id="kitDeriv" maxlength="7"></div>
+                <div class="field-group"><label>⚪ Kit Oval</label><input type="text" id="kitOval" maxlength="7"></div>
             </div>
 
             <hr>
@@ -542,8 +542,6 @@
             inputQtd.className = 'qtd-input';
             inputQtd.placeholder = '0';
             inputQtd.maxLength = 4;
-            inputQtd.inputMode = 'numeric';
-            inputQtd.pattern = '\\d*';
             
             inputQtd.addEventListener('input', function() {
                 this.value = this.value.replace(/\D/g, '').slice(0, 4);
@@ -601,8 +599,6 @@
             input.className = 'qtd-input';
             input.placeholder = '0';
             input.maxLength = 4;
-            input.inputMode = 'numeric';
-            input.pattern = '\\d*';
             input.style.width = '60px';
             input.style.display = 'none';
             
@@ -765,16 +761,6 @@
         
         registroSelect.addEventListener('change', controlarEvento);
         controlarEvento();
-
-        // VALIDAÇÃO NÚMEROS
-        const numericos = ['evento', 'optloop', 'bap', 'rack', 'protetor', 'kitDeriv', 'kitOval'];
-        numericos.forEach(id => {
-            document.getElementById(id).addEventListener('input', function() {
-                if (!this.disabled) {
-                    this.value = this.value.replace(/\D/g, '').slice(0, 7);
-                }
-            });
-        });
 
         // FUNÇÃO PARA OBTER VALORES MULTISELECT
         function getMultiselectWithQuantity(containerId) {
@@ -1785,7 +1771,7 @@
             }
         };
 
-        // CORREÇÃO: FUNÇÃO DE ATUALIZAR TABELA (corrigida)
+        // FUNÇÃO DE ATUALIZAR TABELA
         function atualizarTabelaRecentes(registros) {
             const tbody = document.getElementById('recentesBody');
             const recentes = registros.slice(0, 10);
@@ -1799,8 +1785,7 @@
                 const totalItens = calcularTotalItens(reg);
                 const statusClass = reg.registro === 'Manutenção' ? 'status-manutencao' : 'status-requisicao';
                 
-                // CORREÇÃO: Converter a data UTC para data local corretamente
-                // Se a data está no formato YYYY-MM-DD no banco, criar a data considerando o fuso local
+                // Converter a data para exibição
                 let dataExibicao = reg.data;
                 if (reg.data) {
                     const partes = reg.data.split('-');
@@ -2241,7 +2226,7 @@
                         return;
                     }
                     
-                    // Criar formulário de edição
+                    // Criar formulário de edição sem validações de padrão
                     let formHtml = `
                         <form id="editForm">
                             <input type="hidden" id="editId" value="${data.id}">
@@ -2263,7 +2248,7 @@
                                 
                                 <div class="field-group">
                                     <label>🔢 Evento</label>
-                                    <input type="text" id="editEvento" value="${data.evento || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                    <input type="text" id="editEvento" value="${data.evento || ''}" maxlength="50">
                                 </div>
                             </div>
                             
@@ -2319,30 +2304,30 @@
                             <div class="row-duo">
                                 <div class="field-group">
                                     <label>🔁 Optloop</label>
-                                    <input type="text" id="editOptloop" value="${data.optloop || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                    <input type="text" id="editOptloop" value="${data.optloop || ''}" maxlength="7">
                                 </div>
                                 <div class="field-group">
                                     <label>⚙️ Bap</label>
-                                    <input type="text" id="editBap" value="${data.bap || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                    <input type="text" id="editBap" value="${data.bap || ''}" maxlength="7">
                                 </div>
                                 <div class="field-group">
                                     <label>🗄️ Rack</label>
-                                    <input type="text" id="editRack" value="${data.rack || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                    <input type="text" id="editRack" value="${data.rack || ''}" maxlength="7">
                                 </div>
                             </div>
                             
                             <div class="row-duo">
                                 <div class="field-group">
                                     <label>🛡️ Protetor</label>
-                                    <input type="text" id="editProtetor" value="${data.protetor_emenda || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                    <input type="text" id="editProtetor" value="${data.protetor_emenda || ''}" maxlength="7">
                                 </div>
                                 <div class="field-group">
                                     <label>🔀 Kit Derivação</label>
-                                    <input type="text" id="editKitDeriv" value="${data.kit_derivacao || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                    <input type="text" id="editKitDeriv" value="${data.kit_derivacao || ''}" maxlength="7">
                                 </div>
                                 <div class="field-group">
                                     <label>⚪ Kit Oval</label>
-                                    <input type="text" id="editKitOval" value="${data.kit_oval || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                    <input type="text" id="editKitOval" value="${data.kit_oval || ''}" maxlength="7">
                                 </div>
                             </div>
                             
@@ -2449,15 +2434,14 @@
             currentEditId = null;
         };
 
-        // CORREÇÃO: FUNÇÃO DE SALVAR EDIÇÃO (corrigida)
+        // FUNÇÃO DE SALVAR EDIÇÃO
         window.salvarEdicao = async function() {
             const id = document.getElementById('editId').value;
             
-            // CORREÇÃO: Manter a data no formato YYYY-MM-DD sem conversão UTC
             const dataInput = document.getElementById('editData').value;
             
             const dadosAtualizados = {
-                data: dataInput, // Usar a data diretamente sem conversão
+                data: dataInput,
                 registro: document.getElementById('editRegistro').value,
                 evento: document.getElementById('editEvento').value || null,
                 analista: document.getElementById('editAnalista').value,
@@ -2517,7 +2501,7 @@
             }
         };
 
-        // CORREÇÃO: FUNÇÃO DE SALVAR REGISTRO (corrigida)
+        // FUNÇÃO DE SALVAR REGISTRO
         document.getElementById('salvarBtn').addEventListener('click', async function() {
             const btn = this;
             
@@ -2532,11 +2516,10 @@
             btn.classList.add('saving');
             btn.textContent = '⏳ SALVANDO...';
             
-            // CORREÇÃO: Usar a data diretamente sem conversão UTC
             const dataInput = document.getElementById('data').value;
             
             const dados = {
-                data: dataInput, // Usar a data exatamente como está no input
+                data: dataInput,
                 registro: document.getElementById('registro').value,
                 evento: document.getElementById('evento').value || null,
                 analista: document.getElementById('analista').value,
