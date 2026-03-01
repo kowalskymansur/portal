@@ -484,8 +484,12 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmZG5pdXdxanF2c2N3aXlwYnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU1OTgsImV4cCI6MjA3NzUwMTU5OH0.ZeIef1hnlE4W10xD8Z23hiNEoOTdseNj_ox13uqchA0';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // DATA ATUAL
-        document.getElementById('data').value = new Date().toISOString().split('T')[0];
+        // DATA ATUAL - Formato YYYY-MM-DD
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        document.getElementById('data').value = `${ano}-${mes}-${dia}`;
 
         // VARIÁVEL PARA ARMAZENAR O ID DO REGISTRO SENDO EDITADO
         let currentEditId = null;
@@ -512,6 +516,7 @@
 
         // FUNÇÃO PARA EXTRAIR NOME DO ITEM (remover código)
         function extrairNomeItem(descricaoCompleta) {
+            if (!descricaoCompleta) return '';
             if (descricaoCompleta.startsWith('MP')) {
                 const partes = descricaoCompleta.split(' - ');
                 return partes.slice(1).join(' - ');
@@ -774,26 +779,27 @@
         // FUNÇÃO PARA OBTER VALORES MULTISELECT
         function getMultiselectWithQuantity(containerId) {
             const container = document.getElementById(containerId);
+            if (!container) return [];
+            
             const items = container.querySelectorAll('.multiselect-item');
             const resultado = [];
             
             items.forEach(item => {
                 const checkbox = item.querySelector('input[type="checkbox"]');
                 
-                if (checkbox.checked) {
+                if (checkbox && checkbox.checked) {
                     let quantidade = 1;
                     
                     // Verificar se é um item de cabo (com select e input)
                     const select = item.querySelector('select.qtd-select');
                     const input = item.querySelector('input.qtd-input');
-                    const container = item.querySelector('div[style*="display: flex"]');
+                    const containerDiv = item.querySelector('div[style*="display: flex"]');
                     
-                    if (container) {
+                    if (containerDiv) {
                         // É um item de cabo
-                        const selectVisible = select.style.display !== 'none';
-                        if (selectVisible) {
+                        if (select && select.style.display !== 'none') {
                             quantidade = select.value ? parseInt(select.value) : 1;
-                        } else {
+                        } else if (input) {
                             quantidade = input.value ? parseInt(input.value) : 1;
                         }
                     } else if (input) {
@@ -803,7 +809,7 @@
                     
                     resultado.push({
                         item: checkbox.value,
-                        quantidade: quantidade
+                        quantidade: quantidade || 1
                     });
                 }
             });
@@ -1179,13 +1185,13 @@
                 
                 const dataInicial = new Date();
                 dataInicial.setDate(dataInicial.getDate() - parseInt(periodo));
-                const dataInicialStr = dataInicial.toLocaleDateString('pt-BR');
-                const dataFinalStr = new Date().toLocaleDateString('pt-BR');
+                const dataInicialStr = dataInicial.toISOString().split('T')[0];
+                const dataFinalStr = new Date().toISOString().split('T')[0];
                 
                 let query = supabase
                     .from('materiais_manutencao')
                     .select('*')
-                    .gte('data', dataInicial.toISOString().split('T')[0])
+                    .gte('data', dataInicialStr)
                     .order('data', { ascending: false });
                 
                 if (equipe) query = query.eq('equipe', equipe);
@@ -1779,6 +1785,7 @@
             }
         };
 
+        // CORREÇÃO: FUNÇÃO DE ATUALIZAR TABELA (corrigida)
         function atualizarTabelaRecentes(registros) {
             const tbody = document.getElementById('recentesBody');
             const recentes = registros.slice(0, 10);
@@ -1792,9 +1799,21 @@
                 const totalItens = calcularTotalItens(reg);
                 const statusClass = reg.registro === 'Manutenção' ? 'status-manutencao' : 'status-requisicao';
                 
+                // CORREÇÃO: Converter a data UTC para data local corretamente
+                // Se a data está no formato YYYY-MM-DD no banco, criar a data considerando o fuso local
+                let dataExibicao = reg.data;
+                if (reg.data) {
+                    const partes = reg.data.split('-');
+                    if (partes.length === 3) {
+                        // Criar data no fuso local mantendo o dia correto
+                        const dataLocal = new Date(partes[0], partes[1] - 1, partes[2]);
+                        dataExibicao = dataLocal.toLocaleDateString('pt-BR');
+                    }
+                }
+                
                 return `
                     <tr>
-                        <td>${new Date(reg.data).toLocaleDateString('pt-BR')}</td>
+                        <td>${dataExibicao}</td>
                         <td><span class="status-badge ${statusClass}">${reg.registro || '-'}</span></td>
                         <td>${reg.evento || '-'}</td>
                         <td>${reg.analista || '-'}</td>
@@ -2093,7 +2112,7 @@
                 if (reg.cabos) {
                     reg.cabos.forEach(cabo => {
                         const nome = cabo.item;
-                        dados.cabos[nome] = (dados.cabos[nome] || 0) + cabo.quantidade;
+                        dados.cabos[nome] = (dados.cabos[nome] || 0) + (cabo.quantidade || 1);
                     });
                 }
                 
@@ -2101,14 +2120,14 @@
                 if (reg.alcas) {
                     reg.alcas.forEach(alca => {
                         const nome = alca.item;
-                        dados.materiaisUsados[nome] = (dados.materiaisUsados[nome] || 0) + alca.quantidade;
+                        dados.materiaisUsados[nome] = (dados.materiaisUsados[nome] || 0) + (alca.quantidade || 1);
                     });
                 }
                 
                 // Processar Caixas
                 if (reg.caixas) {
                     reg.caixas.forEach(caixa => {
-                        dados.materiaisUsados[caixa.item] = (dados.materiaisUsados[caixa.item] || 0) + caixa.quantidade;
+                        dados.materiaisUsados[caixa.item] = (dados.materiaisUsados[caixa.item] || 0) + (caixa.quantidade || 1);
                     });
                 }
                 
@@ -2147,6 +2166,61 @@
             });
             
             return dados;
+        }
+
+        // FUNÇÃO PARA PREENCHER MULTISELECT
+        function preencherMultiselect(containerId, itens) {
+            if (!itens || !Array.isArray(itens)) return;
+            
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            // Para cada item no container
+            container.querySelectorAll('.multiselect-item').forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                const descricao = item.querySelector('.item-desc').textContent;
+                
+                // Procurar se este item está nos dados
+                const itemEncontrado = itens.find(i => i.item === descricao);
+                
+                if (itemEncontrado) {
+                    checkbox.checked = true;
+                    
+                    // Verificar se é um item de cabo (com select e input)
+                    const select = item.querySelector('select.qtd-select');
+                    const input = item.querySelector('input.qtd-input');
+                    
+                    if (select && input) {
+                        // É um item de cabo
+                        const qtd = itemEncontrado.quantidade || 1;
+                        if (qtd === 200 || qtd === 300) {
+                            select.value = qtd.toString();
+                            select.style.display = 'block';
+                            input.style.display = 'none';
+                        } else {
+                            input.value = qtd.toString();
+                            select.style.display = 'none';
+                            input.style.display = 'block';
+                        }
+                    } else if (input) {
+                        // É um item normal (alça ou caixa)
+                        input.value = itemEncontrado.quantidade || 1;
+                    }
+                } else {
+                    checkbox.checked = false;
+                    // Resetar quantidade
+                    const select = item.querySelector('select.qtd-select');
+                    const input = item.querySelector('input.qtd-input');
+                    if (select) {
+                        select.value = '0';
+                        select.style.display = 'block';
+                    }
+                    if (input) {
+                        input.value = '';
+                        if (select) input.style.display = 'none';
+                    }
+                }
+            });
         }
 
         // FUNÇÃO PARA ABRIR MODAL DE EDIÇÃO
@@ -2227,9 +2301,19 @@
                                 </div>
                             </div>
                             
-                            <!-- Campos de materiais serão preenchidos via JavaScript após carregar os dados -->
-                            <div id="editMultiselects">
-                                <!-- Os multiselects serão inseridos aqui dinamicamente -->
+                            <div class="field-group">
+                                <label>🔌 Cabo</label>
+                                <div class="multiselect-container" id="editCaboContainer"></div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <label>⛓️ Alça</label>
+                                <div class="multiselect-container" id="editAlcaContainer"></div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <label>📦 Caixa</label>
+                                <div class="multiselect-container caixa-container" id="editCaixaContainer"></div>
                             </div>
                             
                             <div class="row-duo">
@@ -2272,9 +2356,6 @@
                     
                     formContainer.innerHTML = formHtml;
                     
-                    // Adicionar os containers de multiselect ao formulário
-                    const editMultiselects = document.getElementById('editMultiselects');
-                    
                     // Clonar os containers de multiselect do formulário original
                     const caboContainer = document.getElementById('caboContainer').cloneNode(true);
                     caboContainer.id = 'editCaboContainer';
@@ -2285,21 +2366,7 @@
                     const caixaContainer = document.getElementById('caixaContainer').cloneNode(true);
                     caixaContainer.id = 'editCaixaContainer';
                     
-                    editMultiselects.innerHTML = `
-                        <div class="field-group">
-                            <label>🔌 Cabo</label>
-                            <div id="editCaboContainer"></div>
-                        </div>
-                        <div class="field-group">
-                            <label>⛓️ Alça</label>
-                            <div id="editAlcaContainer"></div>
-                        </div>
-                        <div class="field-group">
-                            <label>📦 Caixa</label>
-                            <div id="editCaixaContainer" class="caixa-container"></div>
-                        </div>
-                    `;
-                    
+                    // Substituir os containers vazios pelos clonados
                     document.getElementById('editCaboContainer').replaceWith(caboContainer);
                     document.getElementById('editAlcaContainer').replaceWith(alcaContainer);
                     document.getElementById('editCaixaContainer').replaceWith(caixaContainer);
@@ -2307,24 +2374,23 @@
                     // Reconfigurar os botões de toggle para os cabos no modal
                     const cabosEdit = document.getElementById('editCaboContainer');
                     if (cabosEdit) {
-                        const toggleBtns = cabosEdit.querySelectorAll('.multiselect-item button');
-                        toggleBtns.forEach(btn => {
-                            btn.replaceWith(btn.cloneNode(true));
-                        });
-                        
                         cabosEdit.querySelectorAll('.multiselect-item').forEach(item => {
                             const select = item.querySelector('select.qtd-select');
                             const input = item.querySelector('input.qtd-input');
                             const toggleBtn = item.querySelector('button');
                             
                             if (select && input && toggleBtn) {
-                                toggleBtn.addEventListener('click', function() {
+                                // Remover eventos antigos clonando e substituindo
+                                const newToggleBtn = toggleBtn.cloneNode(true);
+                                toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+                                
+                                newToggleBtn.addEventListener('click', function() {
                                     if (select.style.display !== 'none') {
                                         select.style.display = 'none';
                                         input.style.display = 'block';
                                         input.value = select.value;
                                         input.focus();
-                                        toggleBtn.textContent = '✓';
+                                        newToggleBtn.textContent = '✓';
                                     } else {
                                         select.style.display = 'block';
                                         input.style.display = 'none';
@@ -2343,7 +2409,7 @@
                                                 }
                                             }
                                         }
-                                        toggleBtn.textContent = '✏️';
+                                        newToggleBtn.textContent = '✏️';
                                     }
                                 });
                             }
@@ -2361,9 +2427,11 @@
                     });
                     
                     // Preencher multiselects com os dados existentes
-                    preencherMultiselect('editCaboContainer', data.cabos);
-                    preencherMultiselect('editAlcaContainer', data.alcas);
-                    preencherMultiselect('editCaixaContainer', data.caixas);
+                    setTimeout(() => {
+                        preencherMultiselect('editCaboContainer', data.cabos);
+                        preencherMultiselect('editAlcaContainer', data.alcas);
+                        preencherMultiselect('editCaixaContainer', data.caixas);
+                    }, 100);
                     
                     // Adicionar evento de submit
                     document.getElementById('editForm').addEventListener('submit', function(e) {
@@ -2381,12 +2449,15 @@
             currentEditId = null;
         };
 
-        // FUNÇÃO PARA SALVAR EDIÇÃO
+        // CORREÇÃO: FUNÇÃO DE SALVAR EDIÇÃO (corrigida)
         window.salvarEdicao = async function() {
             const id = document.getElementById('editId').value;
             
+            // CORREÇÃO: Manter a data no formato YYYY-MM-DD sem conversão UTC
+            const dataInput = document.getElementById('editData').value;
+            
             const dadosAtualizados = {
-                data: document.getElementById('editData').value,
+                data: dataInput, // Usar a data diretamente sem conversão
                 registro: document.getElementById('editRegistro').value,
                 evento: document.getElementById('editEvento').value || null,
                 analista: document.getElementById('editAnalista').value,
@@ -2402,6 +2473,12 @@
                 kit_derivacao: document.getElementById('editKitDeriv').value || null,
                 kit_oval: document.getElementById('editKitOval').value || null
             };
+            
+            // Validar campos obrigatórios
+            if (!dadosAtualizados.registro || !dadosAtualizados.analista || !dadosAtualizados.equipe || !dadosAtualizados.tecnico) {
+                alert('Preencha todos os campos obrigatórios');
+                return;
+            }
             
             try {
                 const { error } = await supabase
@@ -2440,10 +2517,100 @@
             }
         };
 
+        // CORREÇÃO: FUNÇÃO DE SALVAR REGISTRO (corrigida)
+        document.getElementById('salvarBtn').addEventListener('click', async function() {
+            const btn = this;
+            
+            // Validar campos obrigatórios
+            const erro = validarFormulario();
+            if (erro) {
+                document.getElementById('msgRetorno').innerHTML = `<span style="color: #dc3545;">❌ ${erro}</span>`;
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.classList.add('saving');
+            btn.textContent = '⏳ SALVANDO...';
+            
+            // CORREÇÃO: Usar a data diretamente sem conversão UTC
+            const dataInput = document.getElementById('data').value;
+            
+            const dados = {
+                data: dataInput, // Usar a data exatamente como está no input
+                registro: document.getElementById('registro').value,
+                evento: document.getElementById('evento').value || null,
+                analista: document.getElementById('analista').value,
+                equipe: document.getElementById('equipe').value,
+                tecnico: document.getElementById('tecnico').value,
+                cabos: getMultiselectWithQuantity('caboContainer'),
+                alcas: getMultiselectWithQuantity('alcaContainer'),
+                caixas: getMultiselectWithQuantity('caixaContainer'),
+                optloop: document.getElementById('optloop').value || null,
+                bap: document.getElementById('bap').value || null,
+                rack: document.getElementById('rack').value || null,
+                protetor_emenda: document.getElementById('protetor').value || null,
+                kit_derivacao: document.getElementById('kitDeriv').value || null,
+                kit_oval: document.getElementById('kitOval').value || null
+            };
+            
+            try {
+                const { data, error } = await supabase
+                    .from('materiais_manutencao')
+                    .insert([dados]);
+                
+                if (error) throw error;
+                
+                document.getElementById('msgRetorno').innerHTML = '<span style="color: #28a745;">✅ Registro salvo com sucesso!</span>';
+                
+                // Limpar formulário (exceto data)
+                document.getElementById('registro').value = '';
+                document.getElementById('evento').value = '';
+                document.getElementById('analista').value = '';
+                document.getElementById('equipe').value = '';
+                document.getElementById('tecnico').innerHTML = '<option value="" selected></option>';
+                
+                // Desmarcar todos os checkboxes e zerar quantidades
+                document.querySelectorAll('#caboContainer input[type="checkbox"], #alcaContainer input[type="checkbox"], #caixaContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('#caboContainer .qtd-select, #alcaContainer .qtd-input, #caixaContainer .qtd-input').forEach(input => {
+                    if (input.tagName === 'SELECT') {
+                        input.value = '0';
+                    } else {
+                        input.value = '';
+                    }
+                });
+                
+                document.getElementById('optloop').value = '';
+                document.getElementById('bap').value = '';
+                document.getElementById('rack').value = '';
+                document.getElementById('protetor').value = '';
+                document.getElementById('kitDeriv').value = '';
+                document.getElementById('kitOval').value = '';
+                
+                setTimeout(() => {
+                    document.getElementById('msgRetorno').innerHTML = '';
+                }, 3000);
+                
+            } catch (error) {
+                document.getElementById('msgRetorno').innerHTML = `<span style="color: #dc3545;">❌ Erro: ${error.message}</span>`;
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('saving');
+                btn.textContent = '💾 SALVAR REGISTRO';
+            }
+        });
+
         // Carregar dashboard se a aba estiver ativa
         if (document.getElementById('dashboard-tab').classList.contains('active')) {
             carregarDashboard();
         }
+
+        // Fechar modal ao clicar fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                fecharModal();
+            }
+        };
     })();
 </script>
 </body>
