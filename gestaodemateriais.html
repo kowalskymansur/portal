@@ -245,6 +245,34 @@
         .loading-spinner { display: inline-block; width: 25px; height: 25px; border: 2px solid #f3f3f3; border-top: 2px solid #0a66c2; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 5px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        /* Mensagem de retorno */
+        #msgRetorno {
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.9rem;
+            min-height: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        #msgRetorno span {
+            animation: fadeIn 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+        
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: flex-start; }
             .dashboard-header { flex-direction: column; align-items: stretch; }
@@ -607,6 +635,14 @@
                 return partes.slice(1).join(' - ');
             }
             return descricaoCompleta;
+        }
+
+        function extrairCodigoItem(descricaoCompleta) {
+            if (!descricaoCompleta) return '';
+            if (descricaoCompleta.startsWith('MP')) {
+                return descricaoCompleta.split(' - ')[0];
+            }
+            return '';
         }
 
         function criarItemMaterial(descricao) {
@@ -1014,34 +1050,65 @@
             summaryContainer.innerHTML = html || '<p>Nenhum dado disponível para o período selecionado.</p>';
         }
 
-        function gerarAnaliseDados(dados, totalRegistros, periodo, equipe) {
+        function gerarAnaliseDados(dados, totalRegistros, periodo, equipe, registros) {
             let analise = [];
             
             const totalMateriais = Object.values(dados.materiaisUsados).reduce((a, b) => a + b, 0);
             const totalCabos = Object.values(dados.cabos).reduce((a, b) => a + b, 0);
             const totalGeral = totalMateriais + totalCabos;
             
+            const diasUnicos = new Set(registros.map(r => r.data)).size;
+            
             analise.push({
                 titulo: '📊 ANÁLISE GERAL',
                 itens: [
-                    `Período: ${periodo} dias`,
-                    equipe ? `Equipe: ${equipe}` : 'Todas as equipes',
-                    `Registros: ${totalRegistros}`,
-                    `Total itens: ${totalGeral}`,
-                    `Média itens/reg: ${Math.round(totalGeral / totalRegistros)}`
+                    `Período analisado: ${periodo} dias (${new Date(new Date().setDate(new Date().getDate() - periodo)).toLocaleDateString('pt-BR')} a ${new Date().toLocaleDateString('pt-BR')})`,
+                    equipe ? `Equipe filtrada: ${equipe}` : 'Todas as equipes',
+                    `Total de registros: ${totalRegistros}`,
+                    `Dias com registros: ${diasUnicos}`,
+                    `Média de registros por dia: ${(totalRegistros / diasUnicos).toFixed(1)}`,
+                    `Total de itens utilizados: ${totalGeral}`,
+                    `Média de itens por registro: ${Math.round(totalGeral / totalRegistros)}`,
+                    `Média de itens por dia: ${Math.round(totalGeral / diasUnicos)}`,
+                    `Materiais diversos: ${totalMateriais} itens`,
+                    `Cabos: ${totalCabos} itens`
+                ]
+            });
+            
+            analise.push({
+                titulo: '📋 ANÁLISE POR TIPO',
+                itens: [
+                    `Manutenções: ${dados.tipos.Manutenção || 0} (${Math.round((dados.tipos.Manutenção || 0) / totalRegistros * 100)}%)`,
+                    `Requisições: ${dados.tipos.Requisição || 0} (${Math.round((dados.tipos.Requisição || 0) / totalRegistros * 100)}%)`
                 ]
             });
             
             const topMateriais = Object.entries(dados.materiaisUsados)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 3);
+                .slice(0, 5);
             
             if (topMateriais.length > 0) {
                 analise.push({
-                    titulo: '🏆 TOP 3 MATERIAIS',
-                    itens: topMateriais.map(([item, qtd]) => {
+                    titulo: '🏆 TOP 5 MATERIAIS',
+                    itens: topMateriais.map(([item, qtd], index) => {
                         const nome = item.includes('MP') ? extrairNomeItem(item) : item;
-                        return `${nome.substring(0, 30)}: ${qtd} uni (${Math.round(qtd / totalRegistros)}/reg)`;
+                        const codigo = extrairCodigoItem(item);
+                        return `${index + 1}. ${codigo} - ${nome.substring(0, 40)}: ${qtd} uni (${Math.round(qtd / totalRegistros)}/reg)`;
+                    })
+                });
+            }
+            
+            const topCabos = Object.entries(dados.cabos)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            if (topCabos.length > 0) {
+                analise.push({
+                    titulo: '🏆 TOP 5 CABOS',
+                    itens: topCabos.map(([item, qtd], index) => {
+                        const nome = extrairNomeItem(item);
+                        const codigo = extrairCodigoItem(item);
+                        return `${index + 1}. ${codigo} - ${nome.substring(0, 40)}: ${qtd} metros`;
                     })
                 });
             }
@@ -1049,20 +1116,125 @@
             return analise;
         }
 
+        // FUNÇÃO PARA MOSTRAR MENSAGEM TEMPORÁRIA
+        function mostrarMensagemTemporaria(texto, tipo) {
+            const msgDiv = document.getElementById('msgRetorno');
+            const cor = tipo === 'sucesso' ? '#28a745' : '#dc3545';
+            
+            msgDiv.innerHTML = `<span style="color: ${cor};">${texto}</span>`;
+            
+            // Limpar mensagem após 5 segundos
+            setTimeout(() => {
+                const span = msgDiv.querySelector('span');
+                if (span) {
+                    span.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => {
+                        msgDiv.innerHTML = '';
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        // FUNÇÃO DE SALVAR REGISTRO COM MENSAGEM TEMPORÁRIA
+        document.getElementById('salvarBtn').addEventListener('click', async function() {
+            const btn = this;
+            
+            const erro = validarFormulario();
+            if (erro) {
+                mostrarMensagemTemporaria(`❌ ${erro}`, 'erro');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.classList.add('saving');
+            btn.textContent = '⏳ SALVANDO...';
+            
+            const dataInput = document.getElementById('data').value;
+            
+            const dados = {
+                data: dataInput,
+                registro: document.getElementById('registro').value,
+                evento: document.getElementById('evento').value || null,
+                analista: document.getElementById('analista').value,
+                equipe: document.getElementById('equipe').value,
+                tecnico: document.getElementById('tecnico').value,
+                cabos: getMultiselectWithQuantity('caboContainer'),
+                alcas: getMultiselectWithQuantity('alcaContainer'),
+                caixas: getMultiselectWithQuantity('caixaContainer'),
+                optloop: document.getElementById('optloop').value || null,
+                bap: document.getElementById('bap').value || null,
+                rack: document.getElementById('rack').value || null,
+                protetor_emenda: document.getElementById('protetor').value || null,
+                kit_derivacao: document.getElementById('kitDeriv').value || null,
+                kit_oval: document.getElementById('kitOval').value || null
+            };
+            
+            try {
+                const { data, error } = await supabase
+                    .from('materiais_manutencao')
+                    .insert([dados]);
+                
+                if (error) {
+                    console.error('Erro Supabase:', error);
+                    throw error;
+                }
+                
+                // Mostrar mensagem de sucesso por 5 segundos
+                mostrarMensagemTemporaria('✅ Registro salvo com sucesso!', 'sucesso');
+                
+                // Limpar formulário (exceto data)
+                document.getElementById('registro').value = '';
+                document.getElementById('evento').value = '';
+                document.getElementById('analista').value = '';
+                document.getElementById('equipe').value = '';
+                document.getElementById('tecnico').innerHTML = '<option value="" selected></option>';
+                
+                // Desmarcar todos os checkboxes e zerar quantidades
+                document.querySelectorAll('#caboContainer input[type="checkbox"], #alcaContainer input[type="checkbox"], #caixaContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('#caboContainer .qtd-select, #alcaContainer .qtd-input, #caixaContainer .qtd-input').forEach(input => {
+                    if (input.tagName === 'SELECT') {
+                        input.value = '0';
+                    } else {
+                        input.value = '';
+                    }
+                });
+                
+                document.getElementById('optloop').value = '';
+                document.getElementById('bap').value = '';
+                document.getElementById('rack').value = '';
+                document.getElementById('protetor').value = '';
+                document.getElementById('kitDeriv').value = '';
+                document.getElementById('kitOval').value = '';
+                
+            } catch (error) {
+                console.error('Erro detalhado:', error);
+                mostrarMensagemTemporaria(`❌ Erro: ${error.message}`, 'erro');
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('saving');
+                btn.textContent = '💾 SALVAR REGISTRO';
+            }
+        });
+
+        // FUNÇÃO PARA EXPORTAR RELATÓRIO PDF PROFISSIONAL
         window.exportarRelatorioPDF = async function() {
             const { jsPDF } = window.jspdf;
+            
             const loadingEl = document.getElementById('dashboardLoading');
             loadingEl.style.display = 'block';
-            loadingEl.innerHTML = '<div class="loading-spinner"></div><div>Gerando PDF...</div>';
+            loadingEl.innerHTML = '<div class="loading-spinner"></div><div>Gerando relatório PDF profissional...</div>';
             
             try {
                 const periodo = document.getElementById('periodoFilter').value;
                 const equipe = document.getElementById('equipeFilter').value;
                 const dataAtual = new Date().toLocaleDateString('pt-BR');
+                const horaAtual = new Date().toLocaleTimeString('pt-BR');
                 
                 const dataInicial = new Date();
                 dataInicial.setDate(dataInicial.getDate() - parseInt(periodo));
                 const dataInicialStr = dataInicial.toISOString().split('T')[0];
+                const dataInicialFormatada = dataInicial.toLocaleDateString('pt-BR');
+                const dataFinalFormatada = new Date().toLocaleDateString('pt-BR');
                 
                 let query = supabase
                     .from('materiais_manutencao')
@@ -1081,24 +1253,352 @@
                     return;
                 }
                 
-                const pdf = new jsPDF();
-                pdf.setFontSize(16);
-                pdf.text('Relatório de Materiais', 20, 20);
-                pdf.setFontSize(12);
-                pdf.text(`Período: ${periodo} dias`, 20, 30);
-                pdf.text(`Equipe: ${equipe || 'Todas'}`, 20, 37);
-                pdf.text(`Total registros: ${registros.length}`, 20, 44);
-                pdf.text(`Gerado em: ${dataAtual}`, 20, 51);
+                const dados = processarDadosGraficos(registros);
+                const totalReg = registros.length;
                 
-                pdf.save(`relatorio_${new Date().toISOString().split('T')[0]}.pdf`);
+                const analise = gerarAnaliseDados(dados, totalReg, periodo, equipe, registros);
+                
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 20;
+                let yPos = margin;
+                
+                function adicionarCabecalho(titulo = '') {
+                    pdf.setFillColor(10, 42, 68);
+                    pdf.rect(0, 0, pageWidth, 25, 'F');
+                    
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(16);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text('GESTÃO DE MATERIAIS', margin, 15);
+                    
+                    pdf.setFontSize(9);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.text(`Gerado em: ${dataAtual} às ${horaAtual}`, pageWidth - margin - 60, 15);
+                    
+                    if (titulo) {
+                        pdf.setFontSize(11);
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.text(titulo, margin, 35);
+                        return 45;
+                    }
+                    
+                    pdf.setTextColor(0, 0, 0);
+                    return 30;
+                }
+                
+                function adicionarRodape() {
+                    const pageCount = pdf.internal.getNumberOfPages();
+                    for (let i = 1; i <= pageCount; i++) {
+                        pdf.setPage(i);
+                        pdf.setFillColor(240, 242, 245);
+                        pdf.rect(0, pageHeight - 10, pageWidth, 10, 'F');
+                        
+                        pdf.setTextColor(100, 100, 100);
+                        pdf.setFontSize(8);
+                        pdf.text(`Página ${i} de ${pageCount}`, pageWidth - margin - 20, pageHeight - 4);
+                        pdf.text('Sistema de Gestão de Materiais', margin, pageHeight - 4);
+                    }
+                }
+                
+                // Página 1 - CAPA
+                pdf.setFillColor(10, 42, 68);
+                pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+                
+                pdf.setTextColor(255, 255, 255);
+                pdf.setFontSize(28);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('RELATÓRIO DE', pageWidth/2 - 40, 80);
+                pdf.text('GESTÃO DE MATERIAIS', pageWidth/2 - 55, 110);
+                
+                pdf.setFontSize(14);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(`Período: ${dataInicialFormatada} a ${dataFinalFormatada}`, pageWidth/2 - 55, 160);
+                pdf.text(`Equipe: ${equipe || 'Todas as equipes'}`, pageWidth/2 - 40, 180);
+                pdf.text(`Total de Registros: ${totalReg}`, pageWidth/2 - 40, 200);
+                
+                pdf.setFontSize(10);
+                pdf.text(`Documento gerado em ${dataAtual} às ${horaAtual}`, pageWidth/2 - 50, pageHeight - 40);
+                
+                // Página 2 - SUMÁRIO EXECUTIVO
+                pdf.addPage();
+                yPos = adicionarCabecalho('SUMÁRIO EXECUTIVO');
+                
+                const cardWidth = (pageWidth - (margin * 2) - 20) / 3;
+                const totalItens = Object.values(dados.materiaisUsados).reduce((a, b) => a + b, 0) + 
+                                  Object.values(dados.cabos).reduce((a, b) => a + b, 0);
+                
+                const cards = [
+                    { cor: [10, 42, 68], valor: totalReg, label: 'Total Registros', icone: '📋' },
+                    { cor: [10, 102, 194], valor: totalItens, label: 'Total Itens', icone: '📦' },
+                    { cor: [40, 167, 69], valor: Math.round(totalItens / totalReg), label: 'Média Itens/Reg', icone: '📊' }
+                ];
+                
+                cards.forEach((card, index) => {
+                    pdf.setFillColor(card.cor[0], card.cor[1], card.cor[2]);
+                    pdf.roundedRect(margin + (cardWidth + 10) * index, yPos, cardWidth, 35, 3, 3, 'F');
+                    
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(20);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(card.icone, margin + (cardWidth + 10) * index + 8, yPos + 12);
+                    
+                    pdf.setFontSize(18);
+                    pdf.text(card.valor.toString(), margin + (cardWidth + 10) * index + 30, yPos + 22);
+                    
+                    pdf.setFontSize(8);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.text(card.label, margin + (cardWidth + 10) * index + 8, yPos + 30);
+                });
+                
+                yPos += 50;
+                
+                analise.forEach((secao) => {
+                    if (yPos > pageHeight - 60) {
+                        pdf.addPage();
+                        yPos = adicionarCabecalho('ANÁLISE (continuação)');
+                    }
+                    
+                    pdf.setFillColor(10, 42, 68);
+                    pdf.rect(margin, yPos - 3, pageWidth - (margin * 2), 8, 'F');
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(10);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(secao.titulo, margin + 5, yPos + 2);
+                    
+                    yPos += 12;
+                    
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.setFontSize(9);
+                    pdf.setFont('helvetica', 'normal');
+                    
+                    secao.itens.forEach(item => {
+                        if (yPos > pageHeight - 30) {
+                            pdf.addPage();
+                            yPos = adicionarCabecalho('ANÁLISE (continuação)');
+                        }
+                        pdf.text(`• ${item}`, margin + 5, yPos);
+                        yPos += 7;
+                    });
+                    
+                    yPos += 8;
+                });
+                
+                // Página 3 - TABELAS DE MATERIAIS
+                pdf.addPage();
+                yPos = adicionarCabecalho('DETALHAMENTO DE MATERIAIS');
+                
+                function criarTabela(titulo, cabecalho, dados, inicioY, larguras = [80, 30, 30]) {
+                    if (dados.length === 0) return inicioY;
+                    
+                    if (inicioY > pageHeight - 60) {
+                        pdf.addPage();
+                        inicioY = adicionarCabecalho('TABELAS (continuação)');
+                    }
+                    
+                    pdf.setFillColor(10, 42, 68);
+                    pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 8, 'F');
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(10);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(titulo, margin + 5, inicioY + 2);
+                    
+                    inicioY += 12;
+                    
+                    pdf.setFillColor(230, 235, 240);
+                    pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 7, 'F');
+                    pdf.setTextColor(10, 42, 68);
+                    pdf.setFontSize(9);
+                    pdf.setFont('helvetica', 'bold');
+                    
+                    let xPos = margin + 5;
+                    cabecalho.forEach((col, index) => {
+                        pdf.text(col, xPos, inicioY);
+                        xPos += larguras[index];
+                    });
+                    
+                    inicioY += 8;
+                    
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(8);
+                    
+                    dados.forEach((linha) => {
+                        if (inicioY > pageHeight - 30) {
+                            pdf.addPage();
+                            inicioY = adicionarCabecalho('TABELAS (continuação)');
+                            
+                            pdf.setFillColor(230, 235, 240);
+                            pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 7, 'F');
+                            pdf.setTextColor(10, 42, 68);
+                            pdf.setFont('helvetica', 'bold');
+                            
+                            xPos = margin + 5;
+                            cabecalho.forEach((col, index) => {
+                                pdf.text(col, xPos, inicioY);
+                                xPos += larguras[index];
+                            });
+                            
+                            inicioY += 8;
+                            pdf.setFont('helvetica', 'normal');
+                        }
+                        
+                        pdf.setTextColor(0, 0, 0);
+                        xPos = margin + 5;
+                        
+                        linha.forEach((valor, idx) => {
+                            let texto = valor.toString();
+                            if (texto.length > 35) texto = texto.substring(0, 32) + '...';
+                            pdf.text(texto, xPos, inicioY);
+                            xPos += larguras[idx];
+                        });
+                        
+                        inicioY += 6;
+                    });
+                    
+                    return inicioY + 5;
+                }
+                
+                const materiaisData = Object.entries(dados.materiaisUsados)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([item, qtd]) => {
+                        const nome = item.includes('MP') ? extrairNomeItem(item) : item;
+                        const codigo = extrairCodigoItem(item);
+                        const media = Math.round(qtd / totalReg);
+                        return [`${codigo} - ${nome.substring(0, 30)}`, qtd.toString(), media.toString()];
+                    });
+                
+                yPos = criarTabela(
+                    'MATERIAIS USADOS',
+                    ['Item', 'Total', 'Média'],
+                    materiaisData,
+                    yPos,
+                    [100, 25, 25]
+                );
+                
+                const cabosData = Object.entries(dados.cabos)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([item, qtd]) => {
+                        const nome = extrairNomeItem(item);
+                        const codigo = extrairCodigoItem(item);
+                        const media = Math.round(qtd / totalReg);
+                        return [`${codigo} - ${nome.substring(0, 30)}`, qtd.toString(), media.toString()];
+                    });
+                
+                yPos = criarTabela(
+                    'CABOS',
+                    ['Item', 'Metros', 'Média'],
+                    cabosData,
+                    yPos,
+                    [100, 25, 25]
+                );
+                
+                // Página 4 - ANÁLISE POR CATEGORIA
+                pdf.addPage();
+                yPos = adicionarCabecalho('ANÁLISE POR CATEGORIA');
+                
+                const equipesData = Object.entries(dados.equipes)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([equipe, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        return [equipe, qtd.toString(), perc];
+                    });
+                
+                yPos = criarTabela(
+                    'REGISTROS POR EQUIPE',
+                    ['Equipe', 'Qtd', '%'],
+                    equipesData,
+                    yPos,
+                    [80, 25, 25]
+                );
+                
+                const tecnicosData = Object.entries(dados.tecnicos)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([tecnico, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        return [tecnico.substring(0, 25), qtd.toString(), perc];
+                    });
+                
+                yPos = criarTabela(
+                    'REGISTROS POR TÉCNICO',
+                    ['Técnico', 'Qtd', '%'],
+                    tecnicosData,
+                    yPos,
+                    [80, 25, 25]
+                );
+                
+                const analistasData = Object.entries(dados.analistas)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([analista, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        return [analista, qtd.toString(), perc];
+                    });
+                
+                yPos = criarTabela(
+                    'REGISTROS POR ANALISTA',
+                    ['Analista', 'Qtd', '%'],
+                    analistasData,
+                    yPos,
+                    [80, 25, 25]
+                );
+                
+                const tiposData = [
+                    ['Manutenção', dados.tipos.Manutenção.toString(), ((dados.tipos.Manutenção / totalReg) * 100).toFixed(1) + '%'],
+                    ['Requisição', dados.tipos.Requisição.toString(), ((dados.tipos.Requisição / totalReg) * 100).toFixed(1) + '%']
+                ];
+                
+                yPos = criarTabela(
+                    'TIPOS DE REGISTRO',
+                    ['Tipo', 'Qtd', '%'],
+                    tiposData,
+                    yPos,
+                    [80, 25, 25]
+                );
+                
+                // Página 5 - REGISTROS DETALHADOS
+                pdf.addPage();
+                yPos = adicionarCabecalho('REGISTROS DETALHADOS');
+                
+                const registrosData = registros.slice(0, 20).map(reg => {
+                    const data = new Date(reg.data).toLocaleDateString('pt-BR');
+                    const totalItens = calcularTotalItens(reg);
+                    return [
+                        data,
+                        reg.registro || '-',
+                        reg.evento || '-',
+                        reg.analista || '-',
+                        reg.equipe || '-',
+                        reg.tecnico || '-',
+                        totalItens.toString()
+                    ];
+                });
+                
+                yPos = criarTabela(
+                    'ÚLTIMOS 20 REGISTROS',
+                    ['Data', 'Tipo', 'Evento', 'Analista', 'Equipe', 'Técnico', 'Itens'],
+                    registrosData,
+                    yPos,
+                    [20, 18, 20, 22, 22, 28, 15]
+                );
+                
+                adicionarRodape();
+                
+                pdf.save(`relatorio_completo_materiais_${new Date().toISOString().split('T')[0]}.pdf`);
                 
             } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
                 alert('Erro ao gerar PDF: ' + error.message);
             } finally {
                 loadingEl.style.display = 'none';
             }
         };
 
+        // FUNÇÃO PARA EXPORTAR RELATÓRIO EXCEL COMPLETO
         window.exportarRelatorioExcel = async function() {
             const periodo = document.getElementById('periodoFilter').value;
             const equipe = document.getElementById('equipeFilter').value;
@@ -1120,41 +1620,239 @@
                 if (error) throw error;
                 
                 const dados = processarDadosGraficos(registros);
-                const wb = XLSX.utils.book_new();
+                const totalReg = registros.length;
                 
+                const wb = XLSX.utils.book_new();
+                const dataAtual = new Date().toISOString().split('T')[0];
+                
+                // Planilha 1: RESUMO EXECUTIVO
                 const resumoData = [
-                    ['RELATÓRIO DE MATERIAIS'],
-                    [`Período: ${periodo} dias`],
-                    [`Equipe: ${equipe || 'Todas'}`],
-                    [`Total de Registros: ${registros.length}`],
+                    ['RELATÓRIO COMPLETO DE GESTÃO DE MATERIAIS'],
                     [],
-                    ['MATERIAIS USADOS'],
-                    ['Item', 'Quantidade Total', 'Média por Registro']
+                    ['INFORMAÇÕES GERAIS'],
+                    ['Período analisado:', `${periodo} dias`],
+                    ['Data inicial:', dataInicial.toLocaleDateString('pt-BR')],
+                    ['Data final:', new Date().toLocaleDateString('pt-BR')],
+                    ['Equipe filtrada:', equipe || 'Todas as equipes'],
+                    ['Total de registros:', totalReg],
+                    ['Data de geração:', new Date().toLocaleString('pt-BR')],
+                    [],
+                    ['MÉTRICAS GERAIS'],
+                    ['Total de itens utilizados:', Object.values(dados.materiaisUsados).reduce((a, b) => a + b, 0) + Object.values(dados.cabos).reduce((a, b) => a + b, 0)],
+                    ['Média de itens por registro:', Math.round((Object.values(dados.materiaisUsados).reduce((a, b) => a + b, 0) + Object.values(dados.cabos).reduce((a, b) => a + b, 0)) / totalReg)],
+                    ['Total de materiais diversos:', Object.values(dados.materiaisUsados).reduce((a, b) => a + b, 0)],
+                    ['Total de cabos (metros):', Object.values(dados.cabos).reduce((a, b) => a + b, 0)],
+                    [],
+                    ['ANÁLISE POR TIPO'],
+                    ['Tipo', 'Quantidade', 'Percentual'],
+                    ['Manutenção', dados.tipos.Manutenção || 0, `${((dados.tipos.Manutenção || 0) / totalReg * 100).toFixed(1)}%`],
+                    ['Requisição', dados.tipos.Requisição || 0, `${((dados.tipos.Requisição || 0) / totalReg * 100).toFixed(1)}%`]
                 ];
+                
+                const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
+                wsResumo['!cols'] = [{ wch: 25 }, { wch: 15 }];
+                XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo Executivo');
+                
+                // Planilha 2: MATERIAIS
+                const materiaisData = [
+                    ['MATERIAIS USADOS'],
+                    ['Código', 'Item', 'Quantidade Total', 'Média por Registro', 'Percentual do Total']
+                ];
+                
+                const totalMateriais = Object.values(dados.materiaisUsados).reduce((a, b) => a + b, 0);
                 
                 Object.entries(dados.materiaisUsados)
                     .sort((a, b) => b[1] - a[1])
                     .forEach(([item, qtd]) => {
+                        const codigo = extrairCodigoItem(item);
                         const nome = item.includes('MP') ? extrairNomeItem(item) : item;
-                        const media = Math.round(qtd / registros.length);
-                        resumoData.push([nome, qtd, media]);
+                        const media = (qtd / totalReg).toFixed(1);
+                        const percentual = ((qtd / totalMateriais) * 100).toFixed(1) + '%';
+                        materiaisData.push([codigo, nome, qtd, media, percentual]);
                     });
                 
-                resumoData.push([]);
-                resumoData.push(['CABOS'], ['Item', 'Quantidade Total', 'Média por Registro']);
+                materiaisData.push([]);
+                materiaisData.push(['TOTAL', '', totalMateriais, (totalMateriais / totalReg).toFixed(1), '100%']);
+                
+                const wsMateriais = XLSX.utils.aoa_to_sheet(materiaisData);
+                wsMateriais['!cols'] = [{ wch: 15 }, { wch: 50 }, { wch: 15 }, { wch: 20 }, { wch: 15 }];
+                XLSX.utils.book_append_sheet(wb, wsMateriais, 'Materiais');
+                
+                // Planilha 3: CABOS
+                const cabosData = [
+                    ['CABOS UTILIZADOS'],
+                    ['Código', 'Item', 'Metros', 'Média por Registro', 'Percentual do Total']
+                ];
+                
+                const totalCabos = Object.values(dados.cabos).reduce((a, b) => a + b, 0);
                 
                 Object.entries(dados.cabos)
                     .sort((a, b) => b[1] - a[1])
                     .forEach(([item, qtd]) => {
+                        const codigo = extrairCodigoItem(item);
                         const nome = extrairNomeItem(item);
-                        const media = Math.round(qtd / registros.length);
-                        resumoData.push([nome, qtd, media]);
+                        const media = (qtd / totalReg).toFixed(1);
+                        const percentual = ((qtd / totalCabos) * 100).toFixed(1) + '%';
+                        cabosData.push([codigo, nome, qtd, media, percentual]);
                     });
                 
-                const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
-                XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
+                cabosData.push([]);
+                cabosData.push(['TOTAL', '', totalCabos, (totalCabos / totalReg).toFixed(1), '100%']);
                 
-                XLSX.writeFile(wb, `relatorio_materiais_${new Date().toISOString().split('T')[0]}.xlsx`);
+                const wsCabos = XLSX.utils.aoa_to_sheet(cabosData);
+                wsCabos['!cols'] = [{ wch: 15 }, { wch: 50 }, { wch: 15 }, { wch: 20 }, { wch: 15 }];
+                XLSX.utils.book_append_sheet(wb, wsCabos, 'Cabos');
+                
+                // Planilha 4: EQUIPES
+                const equipesData = [
+                    ['REGISTROS POR EQUIPE'],
+                    ['Equipe', 'Quantidade', 'Percentual', 'Total de Itens', 'Média Itens/Registro']
+                ];
+                
+                Object.entries(dados.equipes)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([equipe, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        const registrosEquipe = registros.filter(r => r.equipe === equipe);
+                        let totalItensEquipe = 0;
+                        registrosEquipe.forEach(r => totalItensEquipe += calcularTotalItens(r));
+                        const mediaItens = (totalItensEquipe / qtd).toFixed(1);
+                        equipesData.push([equipe, qtd, perc, totalItensEquipe, mediaItens]);
+                    });
+                
+                const wsEquipes = XLSX.utils.aoa_to_sheet(equipesData);
+                wsEquipes['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
+                XLSX.utils.book_append_sheet(wb, wsEquipes, 'Equipes');
+                
+                // Planilha 5: TÉCNICOS
+                const tecnicosDetalhados = [];
+                registros.forEach(reg => {
+                    if (reg.tecnico) {
+                        const existente = tecnicosDetalhados.find(t => t.nome === reg.tecnico);
+                        if (existente) {
+                            existente.qtd++;
+                            existente.totalItens += calcularTotalItens(reg);
+                        } else {
+                            tecnicosDetalhados.push({
+                                nome: reg.tecnico,
+                                equipe: reg.equipe || 'N/A',
+                                qtd: 1,
+                                totalItens: calcularTotalItens(reg)
+                            });
+                        }
+                    }
+                });
+                
+                const tecnicosData = [
+                    ['REGISTROS POR TÉCNICO'],
+                    ['Técnico', 'Equipe', 'Quantidade', 'Percentual', 'Total de Itens', 'Média Itens/Registro']
+                ];
+                
+                tecnicosDetalhados.sort((a, b) => b.qtd - a.qtd).forEach(t => {
+                    const perc = ((t.qtd / totalReg) * 100).toFixed(1) + '%';
+                    const mediaItens = (t.totalItens / t.qtd).toFixed(1);
+                    tecnicosData.push([t.nome, t.equipe, t.qtd, perc, t.totalItens, mediaItens]);
+                });
+                
+                const wsTecnicos = XLSX.utils.aoa_to_sheet(tecnicosData);
+                wsTecnicos['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }];
+                XLSX.utils.book_append_sheet(wb, wsTecnicos, 'Técnicos');
+                
+                // Planilha 6: ANALISTAS
+                const analistasData = [
+                    ['REGISTROS POR ANALISTA'],
+                    ['Analista', 'Quantidade', 'Percentual', 'Total de Itens', 'Média Itens/Registro']
+                ];
+                
+                Object.entries(dados.analistas)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([analista, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        const registrosAnalista = registros.filter(r => r.analista === analista);
+                        let totalItensAnalista = 0;
+                        registrosAnalista.forEach(r => totalItensAnalista += calcularTotalItens(r));
+                        const mediaItens = (totalItensAnalista / qtd).toFixed(1);
+                        analistasData.push([analista, qtd, perc, totalItensAnalista, mediaItens]);
+                    });
+                
+                const wsAnalistas = XLSX.utils.aoa_to_sheet(analistasData);
+                wsAnalistas['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
+                XLSX.utils.book_append_sheet(wb, wsAnalistas, 'Analistas');
+                
+                // Planilha 7: REGISTROS DETALHADOS
+                const detalhesData = [
+                    ['REGISTROS DETALHADOS'],
+                    ['Data', 'Tipo', 'Evento', 'Analista', 'Equipe', 'Técnico', 'Cabos', 'Alças', 'Caixas', 'Optloop', 'Bap', 'Rack', 'Protetor', 'Kit Derivação', 'Kit Oval', 'Total Itens']
+                ];
+                
+                registros.forEach(reg => {
+                    const cabosStr = reg.cabos ? reg.cabos.map(c => `${extrairCodigoItem(c.item)}:${c.quantidade}m`).join('; ') : '';
+                    const alcasStr = reg.alcas ? reg.alcas.map(a => `${extrairCodigoItem(a.item)}:${a.quantidade}`).join('; ') : '';
+                    const caixasStr = reg.caixas ? reg.caixas.map(c => `${c.item}:${c.quantidade}`).join('; ') : '';
+                    
+                    const dataFormatada = new Date(reg.data).toLocaleDateString('pt-BR');
+                    
+                    detalhesData.push([
+                        dataFormatada,
+                        reg.registro || '',
+                        reg.evento || '',
+                        reg.analista || '',
+                        reg.equipe || '',
+                        reg.tecnico || '',
+                        cabosStr,
+                        alcasStr,
+                        caixasStr,
+                        reg.optloop || '0',
+                        reg.bap || '0',
+                        reg.rack || '0',
+                        reg.protetor_emenda || '0',
+                        reg.kit_derivacao || '0',
+                        reg.kit_oval || '0',
+                        calcularTotalItens(reg)
+                    ]);
+                });
+                
+                const wsDetalhes = XLSX.utils.aoa_to_sheet(detalhesData);
+                wsDetalhes['!cols'] = [
+                    { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 15 }, { wch: 20 },
+                    { wch: 30 }, { wch: 30 }, { wch: 20 }, { wch: 8 }, { wch: 8 }, { wch: 8 },
+                    { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 10 }
+                ];
+                XLSX.utils.book_append_sheet(wb, wsDetalhes, 'Registros Detalhados');
+                
+                // Planilha 8: ANÁLISE
+                const analiseData = [
+                    ['ANÁLISE COMPLETA DOS DADOS'],
+                    [],
+                    ['TOP 10 MATERIAIS'],
+                    ['Item', 'Quantidade']
+                ];
+                
+                Object.entries(dados.materiaisUsados)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10)
+                    .forEach(([item, qtd]) => {
+                        const nome = item.includes('MP') ? extrairNomeItem(item) : item;
+                        analiseData.push([nome, qtd]);
+                    });
+                
+                analiseData.push([]);
+                analiseData.push(['TOP 10 CABOS']);
+                analiseData.push(['Item', 'Metros']);
+                
+                Object.entries(dados.cabos)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10)
+                    .forEach(([item, qtd]) => {
+                        const nome = extrairNomeItem(item);
+                        analiseData.push([nome, qtd]);
+                    });
+                
+                const wsAnalise = XLSX.utils.aoa_to_sheet(analiseData);
+                wsAnalise['!cols'] = [{ wch: 50 }, { wch: 15 }];
+                XLSX.utils.book_append_sheet(wb, wsAnalise, 'Análise');
+                
+                XLSX.writeFile(wb, `relatorio_completo_materiais_${dataAtual}.xlsx`);
                 
             } catch (error) {
                 alert('Erro ao exportar Excel: ' + error.message);
@@ -1265,21 +1963,32 @@
             }).join('');
         }
 
+        // FUNÇÃO CORRIGIDA PARA CRIAR GRÁFICOS - SEM ROSA/ROXO/LILÁS
         function criarGraficos(registros, dados) {
             const totalRegistros = registros.length;
             
             if (totalRegistros === 0) return;
             
-            // CORES SEM ROSA, ROXO OU LILÁS
-            const coresVariadas = [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
-                '#FF9F40', '#FF6384', '#C9CBCF',
-                '#20B2AA', '#F08080', '#9ACD32',
-                '#FF4500', '#2E8B57', '#DAA520',
-                '#DC143C', '#00CED1', '#228B22',
-                '#FF8C00', '#8B4513', '#2F4F4F',
-                '#B22222', '#D2691E', '#4169E1',
-                '#006400', '#8B0000', '#008080'
+            // CORES PROFISSIONAIS - SEM ROSA, ROXO OU LILÁS
+            const coresProfissionais = [
+                '#36A2EB', // Azul claro
+                '#FFCE56', // Amarelo
+                '#4BC0C0', // Verde água
+                '#FF9F40', // Laranja
+                '#20B2AA', // Verde mar
+                '#F08080', // Coral (vermelho claro)
+                '#9ACD32', // Verde amarelado
+                '#FF4500', // Laranja avermelhado
+                '#2E8B57', // Verde escuro
+                '#DAA520', // Dourado
+                '#DC143C', // Carmim
+                '#00CED1', // Ciano escuro
+                '#228B22', // Verde floresta
+                '#FF8C00', // Laranja escuro
+                '#4169E1', // Azul royal
+                '#006400', // Verde muito escuro
+                '#8B0000', // Vermelho escuro
+                '#008080'  // Verde azulado
             ];
             
             function quebrarTexto(texto, maxLength = 15) {
@@ -1350,13 +2059,13 @@
                 };
             }
             
-            // Materiais Usados
+            // MATERIAIS USADOS - Total (SEM ROSA/ROXO/LILÁS)
             const materiaisUsadosArray = Object.entries(dados.materiaisUsados)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 6);
             
             if (materiaisUsadosArray.length > 0) {
-                const cores = materiaisUsadosArray.map((_, i) => coresVariadas[i % coresVariadas.length]);
+                const cores = materiaisUsadosArray.map((_, i) => coresProfissionais[i % coresProfissionais.length]);
                 const labels = materiaisUsadosArray.map(m => {
                     let nome = m[0].includes('MP') ? extrairNomeItem(m[0]) : m[0];
                     return quebrarTexto(nome, 15);
@@ -1378,13 +2087,13 @@
                 }
             }
             
-            // Cabos
+            // CABOS - Total e Média (SEM ROSA/ROXO/LILÁS)
             const cabosArray = Object.entries(dados.cabos)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 6);
             
             if (cabosArray.length > 0) {
-                const cores = cabosArray.map((_, i) => coresVariadas[(i + 6) % coresVariadas.length]);
+                const cores = cabosArray.map((_, i) => coresProfissionais[(i + 6) % coresProfissionais.length]);
                 const labels = cabosArray.map(c => quebrarTexto(extrairNomeItem(c[0]), 15));
                 
                 const ctxTotal = document.getElementById('graficoCabosTotal')?.getContext('2d');
@@ -1403,7 +2112,7 @@
                 }
             }
             
-            // Equipes - cores específicas mantidas
+            // EQUIPES - cores específicas
             const equipesArray = Object.entries(dados.equipes)
                 .sort((a, b) => b[1] - a[1]);
             
@@ -1411,9 +2120,12 @@
                 const coresEquipes = equipesArray.map(([nome]) => {
                     if (nome.includes('Angra')) return '#FFA500'; // Laranja
                     if (nome.includes('Volta')) return '#0a66c2'; // Azul
-                    if (nome.includes('Juiz')) return '#32CD32'; // Verde (substitui rosa)
+                    if (nome.includes('Juiz')) return '#32CD32'; // Verde
                     if (nome.includes('Manga')) return '#32CD32'; // Verde
-                    return coresVariadas[Math.floor(Math.random() * coresVariadas.length)];
+                    if (nome.includes('Resende')) return '#FF4500'; // Laranja avermelhado
+                    if (nome.includes('Ubatuba')) return '#9370DB'; // Roxo claro (já existia)
+                    if (nome.includes('Vassouras')) return '#20B2AA'; // Verde mar
+                    return coresProfissionais[Math.floor(Math.random() * coresProfissionais.length)];
                 });
                 
                 const labels = equipesArray.map(e => quebrarTexto(e[0], 12));
@@ -1433,13 +2145,13 @@
                 }
             }
             
-            // Técnicos
+            // TÉCNICOS - SEM ROSA/ROXO/LILÁS
             const tecnicosArray = Object.entries(dados.tecnicos)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 6);
             
             if (tecnicosArray.length > 0) {
-                const coresTecnicos = tecnicosArray.map((_, i) => coresVariadas[(i + 12) % coresVariadas.length]);
+                const coresTecnicos = tecnicosArray.map((_, i) => coresProfissionais[(i + 12) % coresProfissionais.length]);
                 const labelsTecnicos = tecnicosArray.map(t => quebrarTexto(t[0], 15));
                 
                 const ctxTecnicosTotal = document.getElementById('graficoTecnicosTotal')?.getContext('2d');
@@ -1458,7 +2170,7 @@
                 }
             }
             
-            // Tipos - mantido
+            // TIPOS - mantido
             const tiposArray = [
                 { label: 'Manutenção', valor: dados.tipos.Manutenção || 0 },
                 { label: 'Requisição', valor: dados.tipos.Requisição || 0 }
@@ -1471,7 +2183,7 @@
                 );
             }
             
-            // Analistas - SEM ALTERAÇÃO, mantidas as cores originais
+            // ANALISTAS - SEM ALTERAÇÃO (mantidas as cores originais)
             const analistasArray = Object.entries(dados.analistas)
                 .sort((a, b) => b[1] - a[1]);
             
@@ -1479,7 +2191,7 @@
                 const coresAnalistas = analistasArray.map(([nome]) => {
                     switch(nome) {
                         case 'Kowalsky': return '#0a66c2'; // Azul
-                        case 'Naira': return '#FF69B4'; // Rosa (mantido)
+                        case 'Naira': return '#FF69B4'; // Rosa (MANTIDO)
                         case 'Pablo': return '#FFA500'; // Laranja
                         case 'Washington': return '#32CD32'; // Verde
                         default: return '#36A2EB';
@@ -1887,93 +2599,6 @@
                 alert('Erro ao excluir: ' + error.message);
             }
         };
-
-        // CORREÇÃO DO PROBLEMA DE SALVAMENTO
-        document.getElementById('salvarBtn').addEventListener('click', async function() {
-            const btn = this;
-            
-            // Validar campos obrigatórios
-            const erro = validarFormulario();
-            if (erro) {
-                document.getElementById('msgRetorno').innerHTML = `<span style="color: #dc3545;">❌ ${erro}</span>`;
-                return;
-            }
-            
-            btn.disabled = true;
-            btn.classList.add('saving');
-            btn.textContent = '⏳ SALVANDO...';
-            
-            // Usar a data diretamente do input (YYYY-MM-DD)
-            const dataInput = document.getElementById('data').value;
-            
-            // CORREÇÃO: Converter valores vazios para null
-            const dados = {
-                data: dataInput,
-                registro: document.getElementById('registro').value,
-                evento: document.getElementById('evento').value || null,
-                analista: document.getElementById('analista').value,
-                equipe: document.getElementById('equipe').value,
-                tecnico: document.getElementById('tecnico').value,
-                cabos: getMultiselectWithQuantity('caboContainer'),
-                alcas: getMultiselectWithQuantity('alcaContainer'),
-                caixas: getMultiselectWithQuantity('caixaContainer'),
-                optloop: document.getElementById('optloop').value || null,
-                bap: document.getElementById('bap').value || null,
-                rack: document.getElementById('rack').value || null,
-                protetor_emenda: document.getElementById('protetor').value || null,
-                kit_derivacao: document.getElementById('kitDeriv').value || null,
-                kit_oval: document.getElementById('kitOval').value || null
-            };
-            
-            try {
-                const { data, error } = await supabase
-                    .from('materiais_manutencao')
-                    .insert([dados]);
-                
-                if (error) {
-                    console.error('Erro Supabase:', error);
-                    throw error;
-                }
-                
-                document.getElementById('msgRetorno').innerHTML = '<span style="color: #28a745;">✅ Registro salvo com sucesso!</span>';
-                
-                // Limpar formulário (exceto data)
-                document.getElementById('registro').value = '';
-                document.getElementById('evento').value = '';
-                document.getElementById('analista').value = '';
-                document.getElementById('equipe').value = '';
-                document.getElementById('tecnico').innerHTML = '<option value="" selected></option>';
-                
-                // Desmarcar todos os checkboxes e zerar quantidades
-                document.querySelectorAll('#caboContainer input[type="checkbox"], #alcaContainer input[type="checkbox"], #caixaContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
-                document.querySelectorAll('#caboContainer .qtd-select, #alcaContainer .qtd-input, #caixaContainer .qtd-input').forEach(input => {
-                    if (input.tagName === 'SELECT') {
-                        input.value = '0';
-                    } else {
-                        input.value = '';
-                    }
-                });
-                
-                document.getElementById('optloop').value = '';
-                document.getElementById('bap').value = '';
-                document.getElementById('rack').value = '';
-                document.getElementById('protetor').value = '';
-                document.getElementById('kitDeriv').value = '';
-                document.getElementById('kitOval').value = '';
-                
-                setTimeout(() => {
-                    document.getElementById('msgRetorno').innerHTML = '';
-                }, 3000);
-                
-            } catch (error) {
-                console.error('Erro detalhado:', error);
-                document.getElementById('msgRetorno').innerHTML = `<span style="color: #dc3545;">❌ Erro: ${error.message}</span>`;
-            } finally {
-                btn.disabled = false;
-                btn.classList.remove('saving');
-                btn.textContent = '💾 SALVAR REGISTRO';
-            }
-        });
 
         // ADICIONAR EVENTOS PARA CARREGAMENTO AUTOMÁTICO
         document.getElementById('periodoFilter').addEventListener('change', carregarDashboardComDebounce);
