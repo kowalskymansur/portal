@@ -408,24 +408,7 @@
                 </div>
             </div>
             
-            <!-- Linha 4: Registros por Técnico (Total e Média) -->
-            <div class="chart-row">
-                <div class="chart-container">
-                    <div class="chart-title">👨‍🔧 Registros por Técnico - Total</div>
-                    <div class="chart-wrapper">
-                        <canvas id="graficoTecnicosTotal"></canvas>
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <div class="chart-title">👨‍🔧 Registros por Técnico - Média por Registro</div>
-                    <div class="chart-wrapper">
-                        <canvas id="graficoTecnicosMedia"></canvas>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Linha 5: Registros por Tipo e Registros por Analista lado a lado -->
+            <!-- Linha 4: Registros por Tipo e Registros por Analista lado a lado -->
             <div class="chart-row">
                 <div class="chart-container">
                     <div class="chart-title">📊 Registros por Tipo - Total</div>
@@ -516,7 +499,6 @@
                 'graficoMateriaisUsadosTotal', 'graficoMateriaisUsadosMedia',
                 'graficoCabosTotal', 'graficoCabosMedia',
                 'graficoEquipesTotal', 'graficoEquipesMedia',
-                'graficoTecnicosTotal', 'graficoTecnicosMedia',
                 'graficoTipoTotal',
                 'graficoAnalistasTotal'
             ];
@@ -1010,44 +992,7 @@
                 `;
             }
             
-            // 4. Registros por Técnico
-            if (Object.keys(dados.tecnicos).length > 0) {
-                html += `
-                    <div class="summary-table-container">
-                        <h4>👨‍🔧 Registros por Técnico</h4>
-                        <table class="summary-table">
-                            <thead>
-                                <tr>
-                                    <th>Técnico</th>
-                                    <th>Quantidade de Registros</th>
-                                    <th>Percentual</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-                
-                const tecnicosArray = Object.entries(dados.tecnicos)
-                    .sort((a, b) => b[1] - a[1]);
-                
-                tecnicosArray.forEach(([tecnico, quantidade]) => {
-                    const percentual = ((quantidade / totalRegistros) * 100).toFixed(1);
-                    html += `
-                        <tr>
-                            <td>${tecnico}</td>
-                            <td>${quantidade}</td>
-                            <td>${percentual}%</td>
-                        </tr>
-                    `;
-                });
-                
-                html += `
-                        </tbody>
-                    </table>
-                </div>
-                `;
-            }
-            
-            // 5. Registros por Analista
+            // 4. Registros por Analista
             if (Object.keys(dados.analistas).length > 0) {
                 html += `
                     <div class="summary-table-container">
@@ -1081,7 +1026,7 @@
                 `;
             }
             
-            // 6. Tipos de Registro
+            // 5. Tipos de Registro
             if (dados.tipos.Manutenção > 0 || dados.tipos.Requisição > 0) {
                 html += `
                     <div class="summary-table-container">
@@ -1186,28 +1131,13 @@
                 });
             }
             
-            // Análise por técnico
-            if (Object.keys(dados.tecnicos).length > 0) {
-                const tecnicoMaisAtivo = Object.entries(dados.tecnicos)
-                    .sort((a, b) => b[1] - a[1])[0];
-                
-                analise.push({
-                    titulo: '👨‍🔧 ANÁLISE POR TÉCNICO',
-                    itens: [
-                        `Técnico com mais registros: ${tecnicoMaisAtivo[0]} (${tecnicoMaisAtivo[1]} registros)`,
-                        `Total de técnicos ativos: ${Object.keys(dados.tecnicos).length}`,
-                        `Média de registros por técnico: ${Math.round(totalRegistros / Object.keys(dados.tecnicos).length)}`
-                    ]
-                });
-            }
-            
             // Análise por analista
             if (Object.keys(dados.analistas).length > 0) {
                 const analistaMaisAtivo = Object.entries(dados.analistas)
                     .sort((a, b) => b[1] - a[1])[0];
                 
                 analise.push({
-                    titulo: '👤 ANÁLISE POR ANALISTA',
+                    titulo: '👤 DESTAQUE INDIVIDUAL',
                     itens: [
                         `Analista com mais registros: ${analistaMaisAtivo[0]} (${analistaMaisAtivo[1]} registros)`
                     ]
@@ -1451,8 +1381,6 @@
                     { id: 'graficoCabosMedia', titulo: '🔌 Cabos - Média por Registro' },
                     { id: 'graficoEquipesTotal', titulo: '🚩 Registros por Equipe - Total' },
                     { id: 'graficoEquipesMedia', titulo: '🚩 Registros por Equipe - Média por Registro' },
-                    { id: 'graficoTecnicosTotal', titulo: '👨‍🔧 Registros por Técnico - Total' },
-                    { id: 'graficoTecnicosMedia', titulo: '👨‍🔧 Registros por Técnico - Média por Registro' },
                     { id: 'graficoTipoTotal', titulo: '📊 Registros por Tipo - Total' },
                     { id: 'graficoAnalistasTotal', titulo: '👥 Registros por Analista - Total' }
                 ];
@@ -1605,22 +1533,6 @@
                     yPos
                 );
                 
-                // Técnicos
-                const tecnicosData = Object.entries(dados.tecnicos)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 10)
-                    .map(([tecnico, qtd]) => {
-                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
-                        return [tecnico, qtd.toString(), perc];
-                    });
-                
-                yPos = criarTabela(
-                    'REGISTROS POR TÉCNICO',
-                    ['Técnico', 'Quantidade', '%'],
-                    tecnicosData,
-                    yPos
-                );
-                
                 // Analistas
                 const analistasData = Object.entries(dados.analistas)
                     .sort((a, b) => b[1] - a[1])
@@ -1728,16 +1640,6 @@
                     .forEach(([equipe, qtd]) => {
                         const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
                         resumoData.push([equipe, qtd, perc]);
-                    });
-                
-                resumoData.push([]);
-                resumoData.push(['REGISTROS POR TÉCNICO'], ['Técnico', 'Quantidade', 'Percentual']);
-                
-                Object.entries(dados.tecnicos)
-                    .sort((a, b) => b[1] - a[1])
-                    .forEach(([tecnico, qtd]) => {
-                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
-                        resumoData.push([tecnico, qtd, perc]);
                     });
                 
                 resumoData.push([]);
@@ -2138,32 +2040,7 @@
                 }
             }
             
-            // 4. Técnicos
-            const tecnicosArray = Object.entries(dados.tecnicos)
-                .sort((a, b) => b[1] - a[1]);
-            
-            if (tecnicosArray.length > 0) {
-                const coresTecnicos = tecnicosArray.map((_, i) => coresVariadas[(i + 20) % coresVariadas.length]);
-                
-                // Gráfico de Total de Técnicos
-                const ctxTecnicosTotal = document.getElementById('graficoTecnicosTotal')?.getContext('2d');
-                if (ctxTecnicosTotal) {
-                    chartInstances.graficoTecnicosTotal = new Chart(ctxTecnicosTotal, 
-                        criarConfiguracaoBarra(tecnicosArray.map(t => t[0]), tecnicosArray.map(t => t[1]), coresTecnicos, false)
-                    );
-                }
-                
-                // Gráfico de Média de Técnicos
-                const mediasTecnicos = tecnicosArray.map(t => t[1] / totalRegistros);
-                const ctxTecnicosMedia = document.getElementById('graficoTecnicosMedia')?.getContext('2d');
-                if (ctxTecnicosMedia) {
-                    chartInstances.graficoTecnicosMedia = new Chart(ctxTecnicosMedia, 
-                        criarConfiguracaoBarra(tecnicosArray.map(t => t[0]), mediasTecnicos, coresTecnicos, true)
-                    );
-                }
-            }
-            
-            // 5. Tipos - apenas total
+            // 4. Tipos - apenas total
             const tiposArray = [
                 { label: 'Manutenção', valor: dados.tipos.Manutenção || 0 },
                 { label: 'Requisição', valor: dados.tipos.Requisição || 0 }
@@ -2176,7 +2053,7 @@
                 );
             }
             
-            // 6. Analistas - apenas total
+            // 5. Analistas - apenas total
             const analistasArray = Object.entries(dados.analistas)
                 .sort((a, b) => b[1] - a[1]);
             
@@ -2205,7 +2082,6 @@
                 tipos: { Manutenção: 0, Requisição: 0 },
                 materiaisUsados: {},
                 cabos: {},
-                tecnicos: {},
                 analistas: {},
                 equipes: {}
             };
@@ -2266,7 +2142,6 @@
                     dados.materiaisUsados['Kit Oval'] = (dados.materiaisUsados['Kit Oval'] || 0) + parseInt(reg.kit_oval);
                 }
                 
-                if (reg.tecnico) dados.tecnicos[reg.tecnico] = (dados.tecnicos[reg.tecnico] || 0) + 1;
                 if (reg.analista) dados.analistas[reg.analista] = (dados.analistas[reg.analista] || 0) + 1;
                 if (reg.equipe) dados.equipes[reg.equipe] = (dados.equipes[reg.equipe] || 0) + 1;
             });
@@ -2564,71 +2439,6 @@
                 alert('Erro ao excluir: ' + error.message);
             }
         };
-
-        // FUNÇÃO PARA PREENCHER MULTISELECT COM DADOS EXISTENTES
-        function preencherMultiselect(containerId, dados) {
-            const container = document.getElementById(containerId);
-            if (!container || !dados) return;
-            
-            const items = container.querySelectorAll('.multiselect-item');
-            
-            // Primeiro, desmarcar todos
-            items.forEach(item => {
-                const checkbox = item.querySelector('input[type="checkbox"]');
-                if (checkbox) checkbox.checked = false;
-                
-                const select = item.querySelector('select.qtd-select');
-                const input = item.querySelector('input.qtd-input');
-                const container = item.querySelector('div[style*="display: flex"]');
-                
-                if (select) {
-                    select.value = '0';
-                    select.style.display = 'block';
-                }
-                if (input) {
-                    input.value = '';
-                    input.style.display = 'none';
-                }
-            });
-            
-            // Marcar os itens que estão nos dados
-            if (dados && Array.isArray(dados)) {
-                dados.forEach(item => {
-                    const itemElement = Array.from(items).find(el => {
-                        const cb = el.querySelector('input[type="checkbox"]');
-                        return cb && cb.value === item.item;
-                    });
-                    
-                    if (itemElement) {
-                        const checkbox = itemElement.querySelector('input[type="checkbox"]');
-                        if (checkbox) checkbox.checked = true;
-                        
-                        const select = itemElement.querySelector('select.qtd-select');
-                        const input = itemElement.querySelector('input.qtd-input');
-                        const container = itemElement.querySelector('div[style*="display: flex"]');
-                        
-                        if (container && select) {
-                            // Verificar se o valor está nas opções
-                            const optionExists = Array.from(select.options).some(opt => opt.value === item.quantidade.toString());
-                            if (optionExists) {
-                                select.value = item.quantidade.toString();
-                                select.style.display = 'block';
-                                if (input) input.style.display = 'none';
-                            } else {
-                                // Valor personalizado, usar modo input
-                                select.style.display = 'none';
-                                if (input) {
-                                    input.style.display = 'block';
-                                    input.value = item.quantidade.toString();
-                                }
-                            }
-                        } else if (input) {
-                            input.value = item.quantidade.toString();
-                        }
-                    }
-                });
-            }
-        }
 
         // Carregar dashboard se a aba estiver ativa
         if (document.getElementById('dashboard-tab').classList.contains('active')) {
