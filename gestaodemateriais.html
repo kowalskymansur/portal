@@ -298,14 +298,14 @@
 
             <!-- CAMPOS NUMÉRICOS -->
             <div class="row-duo">
-                <div class="field-group"><label>🔁 Optloop</label><input type="text" id="optloop" maxlength="7" inputmode="numeric"></div>
-                <div class="field-group"><label>⚙️ Bap</label><input type="text" id="bap" maxlength="7" inputmode="numeric"></div>
-                <div class="field-group"><label>🗄️ Rack</label><input type="text" id="rack" maxlength="7" inputmode="numeric"></div>
+                <div class="field-group"><label>🔁 Optloop</label><input type="text" id="optloop" maxlength="7" pattern="\d*" inputmode="numeric"></div>
+                <div class="field-group"><label>⚙️ Bap</label><input type="text" id="bap" maxlength="7" pattern="\d*" inputmode="numeric"></div>
+                <div class="field-group"><label>🗄️ Rack</label><input type="text" id="rack" maxlength="7" pattern="\d*" inputmode="numeric"></div>
             </div>
             <div class="row-duo">
-                <div class="field-group"><label>🛡️ Protetor</label><input type="text" id="protetor" maxlength="7" inputmode="numeric"></div>
-                <div class="field-group"><label>🔀 Kit Derivação</label><input type="text" id="kitDeriv" maxlength="7" inputmode="numeric"></div>
-                <div class="field-group"><label>⚪ Kit Oval</label><input type="text" id="kitOval" maxlength="7" inputmode="numeric"></div>
+                <div class="field-group"><label>🛡️ Protetor</label><input type="text" id="protetor" maxlength="7" pattern="\d*" inputmode="numeric"></div>
+                <div class="field-group"><label>🔀 Kit Derivação</label><input type="text" id="kitDeriv" maxlength="7" pattern="\d*" inputmode="numeric"></div>
+                <div class="field-group"><label>⚪ Kit Oval</label><input type="text" id="kitOval" maxlength="7" pattern="\d*" inputmode="numeric"></div>
             </div>
 
             <hr>
@@ -344,7 +344,7 @@
                 <button class="btn-filter" onclick="carregarDashboard()">Aplicar</button>
                 <div class="export-buttons">
                     <button class="btn-export excel" onclick="exportarRelatorioExcel()">📊 Excel</button>
-                    <button class="btn-export pdf" onclick="exportarRelatorioPDF()">📑 PDF</button>
+                    <button class="btn-export pdf" onclick="exportarRelatorioPDF()">📑 PDF Profissional</button>
                 </div>
             </div>
         </div>
@@ -408,7 +408,24 @@
                 </div>
             </div>
             
-            <!-- Linha 4: Registros por Tipo e Registros por Analista lado a lado -->
+            <!-- Linha 4: Registros por Técnico (Total e Média) -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <div class="chart-title">👨‍🔧 Registros por Técnico - Total</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoTecnicosTotal"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">👨‍🔧 Registros por Técnico - Média por Registro</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoTecnicosMedia"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Linha 5: Registros por Tipo e Registros por Analista lado a lado -->
             <div class="chart-row">
                 <div class="chart-container">
                     <div class="chart-title">📊 Registros por Tipo - Total</div>
@@ -499,6 +516,7 @@
                 'graficoMateriaisUsadosTotal', 'graficoMateriaisUsadosMedia',
                 'graficoCabosTotal', 'graficoCabosMedia',
                 'graficoEquipesTotal', 'graficoEquipesMedia',
+                'graficoTecnicosTotal', 'graficoTecnicosMedia',
                 'graficoTipoTotal',
                 'graficoAnalistasTotal'
             ];
@@ -720,7 +738,7 @@
 
         // MAPEAMENTO TÉCNICOS POR EQUIPE
         const tecnicosPorEquipe = {
-            "Angra dos Reis": ["Geremias / Douglas", "Cosme / Felipe", "Jonatan / José"],
+            "Angra dos Reis": ["Geremais / Douglas", "Cosme / Felipe", "Jonatan / José"],
             "Volta Redonda": ["Mário / Daniel", "Ramon / Calebe", "Vagner / Weskley", "Rodrigo / Dhiobert", "Wellington / Erman"],
             "Mangaratiba": ["Ailton / Josiel"],
             "Juiz de Fora": ["FHM Telecom"],
@@ -764,28 +782,23 @@
         // VALIDAÇÃO NÚMEROS
         const numericos = ['evento', 'optloop', 'bap', 'rack', 'protetor', 'kitDeriv', 'kitOval'];
         numericos.forEach(id => {
-            const elemento = document.getElementById(id);
-            if (elemento) {
-                elemento.addEventListener('input', function() {
-                    if (!this.disabled) {
-                        this.value = this.value.replace(/\D/g, '').slice(0, 7);
-                    }
-                });
-            }
+            document.getElementById(id).addEventListener('input', function() {
+                if (!this.disabled) {
+                    this.value = this.value.replace(/\D/g, '').slice(0, 7);
+                }
+            });
         });
 
         // FUNÇÃO PARA OBTER VALORES MULTISELECT
         function getMultiselectWithQuantity(containerId) {
             const container = document.getElementById(containerId);
-            if (!container) return [];
-            
             const items = container.querySelectorAll('.multiselect-item');
             const resultado = [];
             
             items.forEach(item => {
                 const checkbox = item.querySelector('input[type="checkbox"]');
                 
-                if (checkbox && checkbox.checked) {
+                if (checkbox.checked) {
                     let quantidade = 1;
                     
                     // Verificar se é um item de cabo (com select e input)
@@ -795,7 +808,7 @@
                     
                     if (container) {
                         // É um item de cabo
-                        const selectVisible = select && select.style.display !== 'none';
+                        const selectVisible = select.style.display !== 'none';
                         if (selectVisible) {
                             quantidade = select.value ? parseInt(select.value) : 1;
                         } else {
@@ -816,71 +829,6 @@
             return resultado;
         }
 
-        // FUNÇÃO PARA PREENCHER MULTISELECT COM DADOS EXISTENTES
-        function preencherMultiselect(containerId, dados) {
-            const container = document.getElementById(containerId);
-            if (!container || !dados) return;
-            
-            const items = container.querySelectorAll('.multiselect-item');
-            
-            // Primeiro, desmarcar todos
-            items.forEach(item => {
-                const checkbox = item.querySelector('input[type="checkbox"]');
-                if (checkbox) checkbox.checked = false;
-                
-                const select = item.querySelector('select.qtd-select');
-                const input = item.querySelector('input.qtd-input');
-                const container = item.querySelector('div[style*="display: flex"]');
-                
-                if (select) {
-                    select.value = '0';
-                    select.style.display = 'block';
-                }
-                if (input) {
-                    input.value = '';
-                    input.style.display = 'none';
-                }
-            });
-            
-            // Marcar os itens que estão nos dados
-            if (dados && Array.isArray(dados)) {
-                dados.forEach(item => {
-                    const itemElement = Array.from(items).find(el => {
-                        const cb = el.querySelector('input[type="checkbox"]');
-                        return cb && cb.value === item.item;
-                    });
-                    
-                    if (itemElement) {
-                        const checkbox = itemElement.querySelector('input[type="checkbox"]');
-                        if (checkbox) checkbox.checked = true;
-                        
-                        const select = itemElement.querySelector('select.qtd-select');
-                        const input = itemElement.querySelector('input.qtd-input');
-                        const container = itemElement.querySelector('div[style*="display: flex"]');
-                        
-                        if (container && select) {
-                            // Verificar se o valor está nas opções
-                            const optionExists = Array.from(select.options).some(opt => opt.value === item.quantidade.toString());
-                            if (optionExists) {
-                                select.value = item.quantidade.toString();
-                                select.style.display = 'block';
-                                if (input) input.style.display = 'none';
-                            } else {
-                                // Valor personalizado, usar modo input
-                                select.style.display = 'none';
-                                if (input) {
-                                    input.style.display = 'block';
-                                    input.value = item.quantidade.toString();
-                                }
-                            }
-                        } else if (input) {
-                            input.value = item.quantidade.toString();
-                        }
-                    }
-                });
-            }
-        }
-
         // FUNÇÃO PARA VALIDAR FORMULÁRIO
         function validarFormulario() {
             const camposObrigatorios = [
@@ -892,7 +840,7 @@
             
             for (let campo of camposObrigatorios) {
                 const elemento = document.getElementById(campo.id);
-                if (!elemento || !elemento.value) {
+                if (!elemento.value) {
                     return `O campo ${campo.nome} é obrigatório`;
                 }
             }
@@ -926,7 +874,7 @@
             return total;
         }
 
-        // FUNÇÃO PARA CRIAR PLANILHA RESUMO (SEM PERCENTUAL)
+        // FUNÇÃO PARA CRIAR PLANILHA RESUMO
         function criarPlanilhaResumo(dados, totalRegistros) {
             const summaryContainer = document.getElementById('summaryTables');
             if (!summaryContainer) return;
@@ -1025,7 +973,7 @@
                 `;
             }
             
-            // 3. Registros por Equipe (mantém percentual)
+            // 3. Registros por Equipe
             if (Object.keys(dados.equipes).length > 0) {
                 html += `
                     <div class="summary-table-container">
@@ -1062,7 +1010,44 @@
                 `;
             }
             
-            // 4. Registros por Analista (SEM PERCENTUAL)
+            // 4. Registros por Técnico
+            if (Object.keys(dados.tecnicos).length > 0) {
+                html += `
+                    <div class="summary-table-container">
+                        <h4>👨‍🔧 Registros por Técnico</h4>
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Técnico</th>
+                                    <th>Quantidade de Registros</th>
+                                    <th>Percentual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                const tecnicosArray = Object.entries(dados.tecnicos)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                tecnicosArray.forEach(([tecnico, quantidade]) => {
+                    const percentual = ((quantidade / totalRegistros) * 100).toFixed(1);
+                    html += `
+                        <tr>
+                            <td>${tecnico}</td>
+                            <td>${quantidade}</td>
+                            <td>${percentual}%</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+            }
+            
+            // 5. Registros por Analista
             if (Object.keys(dados.analistas).length > 0) {
                 html += `
                     <div class="summary-table-container">
@@ -1096,7 +1081,7 @@
                 `;
             }
             
-            // 5. Tipos de Registro (SEM PERCENTUAL)
+            // 6. Tipos de Registro
             if (dados.tipos.Manutenção > 0 || dados.tipos.Requisição > 0) {
                 html += `
                     <div class="summary-table-container">
@@ -1132,381 +1117,690 @@
             summaryContainer.innerHTML = html || '<p>Nenhum dado disponível para o período selecionado.</p>';
         }
 
-        // FUNÇÃO PARA ABRIR MODAL DE EDIÇÃO
-        window.abrirModalEdicao = function(id) {
-            currentEditId = id;
-            const modal = document.getElementById('editModal');
-            const formContainer = document.getElementById('editFormContainer');
+        // FUNÇÃO PARA GERAR ANÁLISE DOS DADOS
+        function gerarAnaliseDados(dados, totalRegistros, periodo, equipe) {
+            let analise = [];
             
-            // Buscar dados do registro
-            supabase
-                .from('materiais_manutencao')
-                .select('*')
-                .eq('id', id)
-                .single()
-                .then(({ data, error }) => {
-                    if (error) {
-                        alert('Erro ao carregar dados: ' + error.message);
-                        return;
-                    }
-                    
-                    // Criar formulário de edição
-                    let formHtml = `
-                        <form id="editForm">
-                            <input type="hidden" id="editId" value="${data.id}">
-                            
-                            <div class="row-duo">
-                                <div class="field-group">
-                                    <label>📅 Data</label>
-                                    <input type="date" id="editData" value="${data.data}" required>
-                                </div>
-                                
-                                <div class="field-group">
-                                    <label>📋 Registro</label>
-                                    <select id="editRegistro" required>
-                                        <option value="">Selecione...</option>
-                                        <option value="Manutenção" ${data.registro === 'Manutenção' ? 'selected' : ''}>Manutenção</option>
-                                        <option value="Requisição" ${data.registro === 'Requisição' ? 'selected' : ''}>Requisição</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="field-group">
-                                    <label>🔢 Evento</label>
-                                    <input type="text" id="editEvento" value="${data.evento || ''}" maxlength="7" inputmode="numeric">
-                                </div>
-                            </div>
-                            
-                            <div class="row-duo">
-                                <div class="field-group">
-                                    <label>👤 Analista</label>
-                                    <select id="editAnalista" required>
-                                        <option value="">Selecione...</option>
-                                        <option value="Kowalsky" ${data.analista === 'Kowalsky' ? 'selected' : ''}>Kowalsky</option>
-                                        <option value="Naira" ${data.analista === 'Naira' ? 'selected' : ''}>Naira</option>
-                                        <option value="Pablo" ${data.analista === 'Pablo' ? 'selected' : ''}>Pablo</option>
-                                        <option value="Washington" ${data.analista === 'Washington' ? 'selected' : ''}>Washington</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="field-group">
-                                    <label>🚩 Equipe</label>
-                                    <select id="editEquipe" required>
-                                        <option value="">Selecione...</option>
-                                        <option value="Angra dos Reis" ${data.equipe === 'Angra dos Reis' ? 'selected' : ''}>Angra dos Reis</option>
-                                        <option value="Juiz de Fora" ${data.equipe === 'Juiz de Fora' ? 'selected' : ''}>Juiz de Fora</option>
-                                        <option value="Mangaratiba" ${data.equipe === 'Mangaratiba' ? 'selected' : ''}>Mangaratiba</option>
-                                        <option value="Resende" ${data.equipe === 'Resende' ? 'selected' : ''}>Resende</option>
-                                        <option value="Ubatuba" ${data.equipe === 'Ubatuba' ? 'selected' : ''}>Ubatuba</option>
-                                        <option value="Vassouras" ${data.equipe === 'Vassouras' ? 'selected' : ''}>Vassouras</option>
-                                        <option value="Volta Redonda" ${data.equipe === 'Volta Redonda' ? 'selected' : ''}>Volta Redonda</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="field-group">
-                                    <label>👷 Técnico</label>
-                                    <select id="editTecnico" required>
-                                        <option value="">Selecione...</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <!-- Campos de materiais serão preenchidos via JavaScript após carregar os dados -->
-                            <div id="editMultiselects">
-                                <!-- Os multiselects serão inseridos aqui dinamicamente -->
-                            </div>
-                            
-                            <div class="row-duo">
-                                <div class="field-group">
-                                    <label>🔁 Optloop</label>
-                                    <input type="text" id="editOptloop" value="${data.optloop || ''}" maxlength="7" inputmode="numeric">
-                                </div>
-                                <div class="field-group">
-                                    <label>⚙️ Bap</label>
-                                    <input type="text" id="editBap" value="${data.bap || ''}" maxlength="7" inputmode="numeric">
-                                </div>
-                                <div class="field-group">
-                                    <label>🗄️ Rack</label>
-                                    <input type="text" id="editRack" value="${data.rack || ''}" maxlength="7" inputmode="numeric">
-                                </div>
-                            </div>
-                            
-                            <div class="row-duo">
-                                <div class="field-group">
-                                    <label>🛡️ Protetor</label>
-                                    <input type="text" id="editProtetor" value="${data.protetor_emenda || ''}" maxlength="7" inputmode="numeric">
-                                </div>
-                                <div class="field-group">
-                                    <label>🔀 Kit Derivação</label>
-                                    <input type="text" id="editKitDeriv" value="${data.kit_derivacao || ''}" maxlength="7" inputmode="numeric">
-                                </div>
-                                <div class="field-group">
-                                    <label>⚪ Kit Oval</label>
-                                    <input type="text" id="editKitOval" value="${data.kit_oval || ''}" maxlength="7" inputmode="numeric">
-                                </div>
-                            </div>
-                            
-                            <hr>
-                            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                                <button type="button" class="btn-filter" onclick="fecharModal()">Cancelar</button>
-                                <button type="submit" class="btn-filter secondary" style="background: #28a745;">Salvar Alterações</button>
-                            </div>
-                        </form>
-                    `;
-                    
-                    formContainer.innerHTML = formHtml;
-                    
-                    // Adicionar os containers de multiselect ao formulário
-                    const editMultiselects = document.getElementById('editMultiselects');
-                    
-                    // Clonar os containers de multiselect do formulário original
-                    const caboContainer = document.getElementById('caboContainer').cloneNode(true);
-                    caboContainer.id = 'editCaboContainer';
-                    
-                    const alcaContainer = document.getElementById('alcaContainer').cloneNode(true);
-                    alcaContainer.id = 'editAlcaContainer';
-                    
-                    const caixaContainer = document.getElementById('caixaContainer').cloneNode(true);
-                    caixaContainer.id = 'editCaixaContainer';
-                    
-                    editMultiselects.innerHTML = `
-                        <div class="field-group">
-                            <label>🔌 Cabo</label>
-                            <div id="editCaboContainer"></div>
-                        </div>
-                        <div class="field-group">
-                            <label>⛓️ Alça</label>
-                            <div id="editAlcaContainer"></div>
-                        </div>
-                        <div class="field-group">
-                            <label>📦 Caixa</label>
-                            <div id="editCaixaContainer" class="caixa-container"></div>
-                        </div>
-                    `;
-                    
-                    document.getElementById('editCaboContainer').replaceWith(caboContainer);
-                    document.getElementById('editAlcaContainer').replaceWith(alcaContainer);
-                    document.getElementById('editCaixaContainer').replaceWith(caixaContainer);
-                    
-                    // Reconfigurar os botões de toggle para os cabos no modal
-                    const cabosEdit = document.getElementById('editCaboContainer');
-                    if (cabosEdit) {
-                        const toggleBtns = cabosEdit.querySelectorAll('.multiselect-item button');
-                        toggleBtns.forEach(btn => {
-                            // Remover eventos antigos e adicionar novos
-                            btn.replaceWith(btn.cloneNode(true));
-                        });
-                        
-                        // Adicionar novos eventos
-                        cabosEdit.querySelectorAll('.multiselect-item').forEach(item => {
-                            const select = item.querySelector('select.qtd-select');
-                            const input = item.querySelector('input.qtd-input');
-                            const toggleBtn = item.querySelector('button');
-                            
-                            if (select && input && toggleBtn) {
-                                toggleBtn.addEventListener('click', function() {
-                                    if (select.style.display !== 'none') {
-                                        select.style.display = 'none';
-                                        input.style.display = 'block';
-                                        input.value = select.value;
-                                        input.focus();
-                                        toggleBtn.textContent = '✓';
-                                    } else {
-                                        select.style.display = 'block';
-                                        input.style.display = 'none';
-                                        if (input.value && !isNaN(parseInt(input.value))) {
-                                            const val = parseInt(input.value);
-                                            if (val === 200 || val === 300) {
-                                                select.value = val.toString();
-                                            } else {
-                                                const existingOption = Array.from(select.options).find(opt => opt.value === input.value);
-                                                if (!existingOption && input.value !== '0') {
-                                                    const newOption = document.createElement('option');
-                                                    newOption.value = input.value;
-                                                    newOption.textContent = input.value;
-                                                    select.appendChild(newOption);
-                                                    select.value = input.value;
-                                                }
-                                            }
-                                        }
-                                        toggleBtn.textContent = '✏️';
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    
-                    // Popular técnicos
-                    const editEquipe = document.getElementById('editEquipe');
-                    const editTecnico = document.getElementById('editTecnico');
-                    
-                    popularTecnicos(data.equipe, editTecnico, data.tecnico);
-                    
-                    editEquipe.addEventListener('change', function() {
-                        popularTecnicos(this.value, editTecnico);
-                    });
-                    
-                    // Preencher multiselects com os dados existentes
-                    preencherMultiselect('editCaboContainer', data.cabos);
-                    preencherMultiselect('editAlcaContainer', data.alcas);
-                    preencherMultiselect('editCaixaContainer', data.caixas);
-                    
-                    // Adicionar evento de submit
-                    document.getElementById('editForm').addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        salvarEdicao();
-                    });
-                    
-                    modal.style.display = 'block';
+            // Análise geral
+            const totalMateriais = Object.values(dados.materiaisUsados).reduce((a, b) => a + b, 0);
+            const totalCabos = Object.values(dados.cabos).reduce((a, b) => a + b, 0);
+            const totalGeral = totalMateriais + totalCabos;
+            
+            analise.push({
+                titulo: '📊 ANÁLISE GERAL',
+                itens: [
+                    `Período analisado: ${periodo} dias`,
+                    equipe ? `Equipe filtrada: ${equipe}` : 'Todas as equipes',
+                    `Total de registros: ${totalRegistros}`,
+                    `Total de itens utilizados: ${totalGeral}`,
+                    `Média de itens por registro: ${Math.round(totalGeral / totalRegistros)}`,
+                    `Materiais diversos (Alças/Caixas/Itens): ${totalMateriais} itens`,
+                    `Cabos: ${totalCabos} itens`
+                ]
+            });
+            
+            // Top materiais mais usados
+            const topMateriais = Object.entries(dados.materiaisUsados)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+            
+            if (topMateriais.length > 0) {
+                analise.push({
+                    titulo: '🏆 TOP 3 MATERIAIS MAIS UTILIZADOS',
+                    itens: topMateriais.map(([item, qtd], index) => {
+                        const nome = item.includes('MP') ? extrairNomeItem(item) : item;
+                        return `${index + 1}. ${nome.substring(0, 40)}... - ${qtd} unidades (${Math.round(qtd / totalRegistros)} por registro)`;
+                    })
                 });
-        };
-
-        // FUNÇÃO PARA FECHAR MODAL
-        window.fecharModal = function() {
-            document.getElementById('editModal').style.display = 'none';
-            currentEditId = null;
-        };
-
-        // FUNÇÃO PARA SALVAR EDIÇÃO
-        window.salvarEdicao = async function() {
-            const id = document.getElementById('editId').value;
+            }
             
-            const dadosAtualizados = {
-                data: document.getElementById('editData').value,
-                registro: document.getElementById('editRegistro').value,
-                evento: document.getElementById('editEvento').value || null,
-                analista: document.getElementById('editAnalista').value,
-                equipe: document.getElementById('editEquipe').value,
-                tecnico: document.getElementById('editTecnico').value,
-                cabos: getMultiselectWithQuantity('editCaboContainer'),
-                alcas: getMultiselectWithQuantity('editAlcaContainer'),
-                caixas: getMultiselectWithQuantity('editCaixaContainer'),
-                optloop: document.getElementById('editOptloop').value || null,
-                bap: document.getElementById('editBap').value || null,
-                rack: document.getElementById('editRack').value || null,
-                protetor_emenda: document.getElementById('editProtetor').value || null,
-                kit_derivacao: document.getElementById('editKitDeriv').value || null,
-                kit_oval: document.getElementById('editKitOval').value || null
-            };
+            // Top cabos mais usados
+            const topCabos = Object.entries(dados.cabos)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+            
+            if (topCabos.length > 0) {
+                analise.push({
+                    titulo: '🏆 TOP 3 CABOS MAIS UTILIZADOS',
+                    itens: topCabos.map(([item, qtd], index) => {
+                        const nome = extrairNomeItem(item);
+                        return `${index + 1}. ${nome.substring(0, 40)}... - ${qtd} unidades (${Math.round(qtd / totalRegistros)} por registro)`;
+                    })
+                });
+            }
+            
+            // Análise por equipe
+            if (Object.keys(dados.equipes).length > 0) {
+                const equipeMaisAtiva = Object.entries(dados.equipes)
+                    .sort((a, b) => b[1] - a[1])[0];
+                const equipeMenosAtiva = Object.entries(dados.equipes)
+                    .sort((a, b) => a[1] - b[1])[0];
+                
+                analise.push({
+                    titulo: '🚩 ANÁLISE POR EQUIPE',
+                    itens: [
+                        `Equipe com mais registros: ${equipeMaisAtiva[0]} (${equipeMaisAtiva[1]} registros - ${Math.round(equipeMaisAtiva[1] / totalRegistros * 100)}%)`,
+                        `Equipe com menos registros: ${equipeMenosAtiva[0]} (${equipeMenosAtiva[1]} registros - ${Math.round(equipeMenosAtiva[1] / totalRegistros * 100)}%)`,
+                        `Média de registros por equipe: ${Math.round(totalRegistros / Object.keys(dados.equipes).length)}`
+                    ]
+                });
+            }
+            
+            // Análise por técnico
+            if (Object.keys(dados.tecnicos).length > 0) {
+                const tecnicoMaisAtivo = Object.entries(dados.tecnicos)
+                    .sort((a, b) => b[1] - a[1])[0];
+                
+                analise.push({
+                    titulo: '👨‍🔧 ANÁLISE POR TÉCNICO',
+                    itens: [
+                        `Técnico com mais registros: ${tecnicoMaisAtivo[0]} (${tecnicoMaisAtivo[1]} registros)`,
+                        `Total de técnicos ativos: ${Object.keys(dados.tecnicos).length}`,
+                        `Média de registros por técnico: ${Math.round(totalRegistros / Object.keys(dados.tecnicos).length)}`
+                    ]
+                });
+            }
+            
+            // Análise por analista
+            if (Object.keys(dados.analistas).length > 0) {
+                const analistaMaisAtivo = Object.entries(dados.analistas)
+                    .sort((a, b) => b[1] - a[1])[0];
+                
+                analise.push({
+                    titulo: '👤 ANÁLISE POR ANALISTA',
+                    itens: [
+                        `Analista com mais registros: ${analistaMaisAtivo[0]} (${analistaMaisAtivo[1]} registros)`
+                    ]
+                });
+            }
+            
+            // Tipo de registro predominante
+            const totalManutencao = dados.tipos.Manutenção || 0;
+            const totalRequisicao = dados.tipos.Requisição || 0;
+            const tipoPredominante = totalManutencao > totalRequisicao ? 'Manutenção' : 'Requisição';
+            const percentualPredominante = Math.round((Math.max(totalManutencao, totalRequisicao) / totalRegistros) * 100);
+            
+            analise.push({
+                titulo: '📋 TIPO DE REGISTRO',
+                itens: [
+                    `Tipo predominante: ${tipoPredominante} (${percentualPredominante}% dos registros)`,
+                    `Manutenções: ${totalManutencao} (${Math.round(totalManutencao / totalRegistros * 100)}%)`,
+                    `Requisições: ${totalRequisicao} (${Math.round(totalRequisicao / totalRegistros * 100)}%)`
+                ]
+            });
+            
+            return analise;
+        }
+
+        // FUNÇÃO PARA EXPORTAR RELATÓRIO PDF PROFISSIONAL
+        window.exportarRelatorioPDF = async function() {
+            const { jsPDF } = window.jspdf;
+            
+            // Mostrar loading
+            const loadingEl = document.getElementById('dashboardLoading');
+            loadingEl.style.display = 'block';
+            loadingEl.innerHTML = '<div class="loading-spinner"></div><div>Gerando relatório PDF profissional...</div>';
             
             try {
-                const { error } = await supabase
-                    .from('materiais_manutencao')
-                    .update(dadosAtualizados)
-                    .eq('id', id);
+                // Obter dados atuais
+                const periodo = document.getElementById('periodoFilter').value;
+                const equipe = document.getElementById('equipeFilter').value;
+                const dataAtual = new Date().toLocaleDateString('pt-BR');
                 
+                const dataInicial = new Date();
+                dataInicial.setDate(dataInicial.getDate() - parseInt(periodo));
+                const dataInicialStr = dataInicial.toLocaleDateString('pt-BR');
+                const dataFinalStr = new Date().toLocaleDateString('pt-BR');
+                
+                let query = supabase
+                    .from('materiais_manutencao')
+                    .select('*')
+                    .gte('data', dataInicial.toISOString().split('T')[0])
+                    .order('data', { ascending: false });
+                
+                if (equipe) query = query.eq('equipe', equipe);
+                
+                const { data: registros, error } = await query;
                 if (error) throw error;
                 
-                alert('Registro atualizado com sucesso!');
-                fecharModal();
-                carregarDashboard();
+                if (registros.length === 0) {
+                    alert('Não há dados para o período selecionado');
+                    loadingEl.style.display = 'none';
+                    return;
+                }
                 
-            } catch (error) {
-                alert('Erro ao atualizar: ' + error.message);
-            }
-        };
-
-        // FUNÇÃO PARA EXCLUIR REGISTRO
-        window.excluirRegistro = async function(id) {
-            if (!confirm('Tem certeza que deseja excluir este registro?')) return;
-            
-            try {
-                const { error } = await supabase
-                    .from('materiais_manutencao')
-                    .delete()
-                    .eq('id', id);
+                const dados = processarDadosGraficos(registros);
+                const totalReg = registros.length;
                 
-                if (error) throw error;
+                // Gerar análise dos dados
+                const analise = gerarAnaliseDados(dados, totalReg, periodo, equipe);
                 
-                alert('Registro excluído com sucesso!');
-                carregarDashboard();
+                // Criar PDF em formato A4 paisagem
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
                 
-            } catch (error) {
-                alert('Erro ao excluir: ' + error.message);
-            }
-        };
-
-        // SALVAR REGISTRO
-        document.getElementById('salvarBtn').addEventListener('click', async function() {
-            const msgDiv = document.getElementById('msgRetorno');
-            const btnSalvar = document.getElementById('salvarBtn');
-            
-            // Validar campos obrigatórios
-            const erroValidacao = validarFormulario();
-            if (erroValidacao) {
-                msgDiv.innerHTML = `❌ ${erroValidacao}`;
-                msgDiv.style.color = '#dc3545';
-                return;
-            }
-
-            const data = document.getElementById('data').value;
-            if (!data) { 
-                msgDiv.innerHTML = '❌ Data é obrigatória'; 
-                msgDiv.style.color = '#dc3545';
-                return; 
-            }
-
-            // Desabilitar botão e mostrar loading
-            btnSalvar.disabled = true;
-            btnSalvar.classList.add('saving');
-            msgDiv.innerHTML = '⏳ Salvando...';
-            msgDiv.style.color = '#0a66c2';
-
-            const registro = document.getElementById('registro').value || null;
-
-            const formData = {
-                data,
-                registro,
-                evento: document.getElementById('evento').value || null,
-                analista: document.getElementById('analista').value || null,
-                equipe: document.getElementById('equipe').value || null,
-                tecnico: document.getElementById('tecnico').value || null,
-                cabos: getMultiselectWithQuantity('caboContainer'),
-                alcas: getMultiselectWithQuantity('alcaContainer'),
-                caixas: getMultiselectWithQuantity('caixaContainer'),
-                optloop: document.getElementById('optloop').value || null,
-                bap: document.getElementById('bap').value || null,
-                rack: document.getElementById('rack').value || null,
-                protetor_emenda: document.getElementById('protetor').value || null,
-                kit_derivacao: document.getElementById('kitDeriv').value || null,
-                kit_oval: document.getElementById('kitOval').value || null,
-                created_at: new Date().toISOString()
-            };
-
-            try {
-                const { error } = await supabase.from('materiais_manutencao').insert([formData]);
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 15;
+                let yPos = margin;
                 
-                if (error) {
-                    msgDiv.innerHTML = `❌ Erro ao salvar: ${error.message}`;
-                    msgDiv.style.color = '#dc3545';
-                } else {
-                    msgDiv.innerHTML = '✅ Registro salvo com sucesso!';
-                    msgDiv.style.color = '#28a745';
+                // Função para adicionar cabeçalho de página
+                function adicionarCabecalho() {
+                    pdf.setFillColor(10, 42, 68); // #0a2a44
+                    pdf.rect(0, 0, pageWidth, 20, 'F');
                     
-                    // Limpar formulário
-                    document.getElementById('materialForm').reset();
-                    document.getElementById('data').value = new Date().toISOString().split('T')[0];
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(14);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text('RELATÓRIO DE GESTÃO DE MATERIAIS', margin, 13);
                     
-                    // Limpar checkboxes e quantidades
-                    document.querySelectorAll('.multiselect-item input[type="checkbox"]').forEach(cb => cb.checked = false);
-                    document.querySelectorAll('.qtd-input').forEach(input => input.value = '');
+                    pdf.setFontSize(8);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.text(`Gerado em: ${dataAtual}`, pageWidth - margin - 40, 13);
                     
-                    // Limpar selects de cabo
-                    document.querySelectorAll('.qtd-select').forEach(select => select.value = '0');
-                    
-                    // Se a dashboard estiver ativa, recarregar
-                    if (document.getElementById('dashboard-tab').classList.contains('active')) {
-                        carregarDashboard();
+                    pdf.setTextColor(0, 0, 0);
+                    return 25;
+                }
+                
+                // Função para adicionar rodapé
+                function adicionarRodape() {
+                    const pageCount = pdf.internal.getNumberOfPages();
+                    for (let i = 1; i <= pageCount; i++) {
+                        pdf.setPage(i);
+                        pdf.setFillColor(240, 242, 245);
+                        pdf.rect(0, pageHeight - 8, pageWidth, 8, 'F');
+                        
+                        pdf.setTextColor(100, 100, 100);
+                        pdf.setFontSize(7);
+                        pdf.text(`Página ${i} de ${pageCount}`, pageWidth - margin - 20, pageHeight - 3);
+                        pdf.text('Sistema de Gestão de Materiais', margin, pageHeight - 3);
                     }
                 }
-            } catch (err) {
-                msgDiv.innerHTML = `❌ Erro inesperado`;
-                msgDiv.style.color = '#dc3545';
+                
+                // Adicionar primeira página com cabeçalho
+                yPos = adicionarCabecalho();
+                
+                // Título da seção de análise
+                pdf.setFillColor(245, 247, 250);
+                pdf.roundedRect(margin, yPos - 3, pageWidth - (margin * 2), 15, 3, 3, 'F');
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(10, 42, 68);
+                pdf.text('📈 ANÁLISE DE DESEMPENHO', margin + 5, yPos + 5);
+                
+                yPos += 20;
+                
+                // Informações do relatório
+                pdf.setFillColor(245, 247, 250);
+                pdf.roundedRect(margin, yPos - 3, pageWidth - (margin * 2), 30, 3, 3, 'F');
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('Informações do Relatório', margin + 5, yPos + 4);
+                
+                pdf.setFontSize(9);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(`Período: ${dataInicialStr} a ${dataFinalStr} (${periodo} dias)`, margin + 5, yPos + 12);
+                pdf.text(`Equipe: ${equipe || 'Todas as equipes'}`, margin + 5, yPos + 20);
+                
+                yPos += 35;
+                
+                // Cards de totais
+                const cardWidth = (pageWidth - (margin * 2) - 20) / 4;
+                
+                // Calcular totais
+                let totalItens = 0;
+                Object.values(dados.materiaisUsados).forEach(v => totalItens += v);
+                Object.values(dados.cabos).forEach(v => totalItens += v);
+                
+                const cards = [
+                    { cor: 10, valor: totalItens, titulo: 'Total Itens' },
+                    { cor: 10, valor: dados.tipos.Manutenção || 0, titulo: 'Manutenções' },
+                    { cor: 18, valor: dados.tipos.Requisição || 0, titulo: 'Requisições' },
+                    { cor: 30, valor: Math.round(totalItens / totalReg) || 0, titulo: 'Média Itens/Reg' }
+                ];
+                
+                cards.forEach((card, index) => {
+                    pdf.setFillColor(card.cor, 42, 68);
+                    pdf.roundedRect(margin + (cardWidth + 5) * index, yPos, cardWidth, 20, 3, 3, 'F');
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(8);
+                    pdf.text(card.titulo, margin + (cardWidth + 5) * index + 5, yPos + 6);
+                    pdf.setFontSize(12);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(card.valor.toString(), margin + (cardWidth + 5) * index + 5, yPos + 16);
+                });
+                
+                pdf.setTextColor(0, 0, 0);
+                yPos += 30;
+                
+                // Adicionar análise detalhada
+                analise.forEach((secao, idx) => {
+                    if (yPos > pageHeight - 50) {
+                        pdf.addPage();
+                        yPos = adicionarCabecalho() + 5;
+                    }
+                    
+                    pdf.setFillColor(10, 42, 68);
+                    pdf.rect(margin, yPos - 3, pageWidth - (margin * 2), 8, 'F');
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(10);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(secao.titulo, margin + 5, yPos + 2);
+                    
+                    yPos += 10;
+                    
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.setFontSize(8);
+                    pdf.setFont('helvetica', 'normal');
+                    
+                    secao.itens.forEach(item => {
+                        if (yPos > pageHeight - 20) {
+                            pdf.addPage();
+                            yPos = adicionarCabecalho() + 5;
+                        }
+                        pdf.text(`• ${item}`, margin + 5, yPos);
+                        yPos += 6;
+                    });
+                    
+                    yPos += 5;
+                });
+                
+                // Adicionar nova página para os gráficos
+                pdf.addPage();
+                yPos = adicionarCabecalho() + 5;
+                
+                // Função para capturar e adicionar gráfico ao PDF
+                async function adicionarGrafico(elementId, titulo, y) {
+                    const canvas = document.getElementById(elementId);
+                    if (!canvas) return y;
+                    
+                    try {
+                        const canvasElement = canvas;
+                        const canvasImage = canvasElement.toDataURL('image/png');
+                        
+                        pdf.setFillColor(245, 247, 250);
+                        pdf.roundedRect(margin, y - 3, pageWidth - (margin * 2), 8, 3, 3, 'F');
+                        pdf.setTextColor(10, 42, 68);
+                        pdf.setFontSize(10);
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.text(titulo, margin + 5, y + 2);
+                        
+                        y += 10;
+                        
+                        const imgWidth = pageWidth - (margin * 2);
+                        const imgHeight = 80; // Altura fixa para os gráficos
+                        
+                        pdf.addImage(canvasImage, 'PNG', margin, y, imgWidth, imgHeight, undefined, 'FAST');
+                        
+                        return y + imgHeight + 10;
+                    } catch (error) {
+                        console.error(`Erro ao adicionar gráfico ${elementId}:`, error);
+                        return y;
+                    }
+                }
+                
+                // Adicionar todos os gráficos
+                const graficos = [
+                    { id: 'graficoMateriaisUsadosTotal', titulo: '📦 Materiais Usados - Total' },
+                    { id: 'graficoMateriaisUsadosMedia', titulo: '📦 Materiais Usados - Média por Registro' },
+                    { id: 'graficoCabosTotal', titulo: '🔌 Cabos - Total' },
+                    { id: 'graficoCabosMedia', titulo: '🔌 Cabos - Média por Registro' },
+                    { id: 'graficoEquipesTotal', titulo: '🚩 Registros por Equipe - Total' },
+                    { id: 'graficoEquipesMedia', titulo: '🚩 Registros por Equipe - Média por Registro' },
+                    { id: 'graficoTecnicosTotal', titulo: '👨‍🔧 Registros por Técnico - Total' },
+                    { id: 'graficoTecnicosMedia', titulo: '👨‍🔧 Registros por Técnico - Média por Registro' },
+                    { id: 'graficoTipoTotal', titulo: '📊 Registros por Tipo - Total' },
+                    { id: 'graficoAnalistasTotal', titulo: '👥 Registros por Analista - Total' }
+                ];
+                
+                for (const grafico of graficos) {
+                    if (yPos > pageHeight - 100) {
+                        pdf.addPage();
+                        yPos = adicionarCabecalho() + 5;
+                    }
+                    yPos = await adicionarGrafico(grafico.id, grafico.titulo, yPos);
+                }
+                
+                // Adicionar tabelas resumo
+                pdf.addPage();
+                yPos = adicionarCabecalho() + 5;
+                
+                pdf.setFillColor(10, 42, 68);
+                pdf.rect(margin, yPos - 3, pageWidth - (margin * 2), 8, 'F');
+                pdf.setTextColor(255, 255, 255);
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('📊 TABELAS RESUMO', margin + 5, yPos + 2);
+                
+                yPos += 15;
+                
+                // Função para criar tabela no PDF
+                function criarTabela(titulo, cabecalho, dados, inicioY) {
+                    if (dados.length === 0) return inicioY;
+                    
+                    // Verificar se precisa de nova página
+                    if (inicioY > pageHeight - 60) {
+                        pdf.addPage();
+                        inicioY = adicionarCabecalho();
+                    }
+                    
+                    // Título da seção
+                    pdf.setFillColor(10, 42, 68);
+                    pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 8, 'F');
+                    pdf.setTextColor(255, 255, 255);
+                    pdf.setFontSize(9);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(titulo, margin + 5, inicioY + 2);
+                    
+                    inicioY += 10;
+                    
+                    // Cabeçalho da tabela
+                    pdf.setFillColor(230, 235, 240);
+                    pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 7, 'F');
+                    pdf.setTextColor(10, 42, 68);
+                    pdf.setFontSize(8);
+                    pdf.setFont('helvetica', 'bold');
+                    
+                    let xPos = margin + 5;
+                    cabecalho.forEach((col, index) => {
+                        pdf.text(col, xPos, inicioY);
+                        xPos += index === 0 ? 120 : 50;
+                    });
+                    
+                    inicioY += 7;
+                    
+                    // Dados da tabela
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(7);
+                    
+                    dados.forEach((linha, idx) => {
+                        // Verificar se precisa de nova página
+                        if (inicioY > pageHeight - 20) {
+                            pdf.addPage();
+                            inicioY = adicionarCabecalho() + 5;
+                            
+                            // Recriar cabeçalho na nova página
+                            pdf.setFillColor(230, 235, 240);
+                            pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 7, 'F');
+                            pdf.setTextColor(10, 42, 68);
+                            pdf.setFont('helvetica', 'bold');
+                            
+                            xPos = margin + 5;
+                            cabecalho.forEach((col, index) => {
+                                pdf.text(col, xPos, inicioY);
+                                xPos += index === 0 ? 120 : 50;
+                            });
+                            
+                            inicioY += 7;
+                            pdf.setFont('helvetica', 'normal');
+                        }
+                        
+                        // Linha de dados
+                        pdf.setTextColor(0, 0, 0);
+                        xPos = margin + 5;
+                        
+                        linha.forEach((valor, index) => {
+                            pdf.text(valor.toString(), xPos, inicioY);
+                            xPos += index === 0 ? 120 : 50;
+                        });
+                        
+                        inicioY += 6;
+                    });
+                    
+                    return inicioY + 5;
+                }
+                
+                // Preparar dados para as tabelas
+                
+                // Materiais Usados
+                const materiaisData = Object.entries(dados.materiaisUsados)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10)
+                    .map(([item, qtd]) => {
+                        const nome = item.includes('MP') ? extrairNomeItem(item) : item;
+                        const media = Math.round(qtd / totalReg);
+                        return [nome.substring(0, 35), qtd.toString(), media.toString()];
+                    });
+                
+                yPos = criarTabela(
+                    'MATERIAIS USADOS (Alças, Caixas e Itens Avulsos)',
+                    ['Item', 'Quantidade', 'Média'],
+                    materiaisData,
+                    yPos
+                );
+                
+                // Cabos
+                const cabosData = Object.entries(dados.cabos)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10)
+                    .map(([item, qtd]) => {
+                        const nome = extrairNomeItem(item);
+                        const media = Math.round(qtd / totalReg);
+                        return [nome.substring(0, 35), qtd.toString(), media.toString()];
+                    });
+                
+                yPos = criarTabela(
+                    'CABOS',
+                    ['Item', 'Quantidade', 'Média'],
+                    cabosData,
+                    yPos
+                );
+                
+                // Equipes
+                const equipesData = Object.entries(dados.equipes)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([equipe, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        return [equipe, qtd.toString(), perc];
+                    });
+                
+                yPos = criarTabela(
+                    'REGISTROS POR EQUIPE',
+                    ['Equipe', 'Quantidade', '%'],
+                    equipesData,
+                    yPos
+                );
+                
+                // Técnicos
+                const tecnicosData = Object.entries(dados.tecnicos)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10)
+                    .map(([tecnico, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        return [tecnico, qtd.toString(), perc];
+                    });
+                
+                yPos = criarTabela(
+                    'REGISTROS POR TÉCNICO',
+                    ['Técnico', 'Quantidade', '%'],
+                    tecnicosData,
+                    yPos
+                );
+                
+                // Analistas
+                const analistasData = Object.entries(dados.analistas)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([analista, qtd]) => {
+                        return [analista, qtd.toString()];
+                    });
+                
+                yPos = criarTabela(
+                    'REGISTROS POR ANALISTA',
+                    ['Analista', 'Quantidade'],
+                    analistasData,
+                    yPos
+                );
+                
+                // Tipos de Registro
+                const tiposData = [
+                    ['Manutenção', dados.tipos.Manutenção.toString()],
+                    ['Requisição', dados.tipos.Requisição.toString()]
+                ];
+                
+                yPos = criarTabela(
+                    'TIPOS DE REGISTRO',
+                    ['Tipo', 'Quantidade'],
+                    tiposData,
+                    yPos
+                );
+                
+                // Adicionar rodapé
+                adicionarRodape();
+                
+                // Salvar PDF
+                pdf.save(`relatorio_materiais_${new Date().toISOString().split('T')[0]}.pdf`);
+                
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                alert('Erro ao gerar PDF: ' + error.message);
             } finally {
-                // Reabilitar botão
-                btnSalvar.disabled = false;
-                btnSalvar.classList.remove('saving');
+                loadingEl.style.display = 'none';
             }
-        });
+        };
+
+        // FUNÇÃO PARA EXPORTAR RELATÓRIO EXCEL
+        window.exportarRelatorioExcel = async function() {
+            const periodo = document.getElementById('periodoFilter').value;
+            const equipe = document.getElementById('equipeFilter').value;
+            
+            const dataInicial = new Date();
+            dataInicial.setDate(dataInicial.getDate() - parseInt(periodo));
+            const dataInicialStr = dataInicial.toISOString().split('T')[0];
+            
+            try {
+                let query = supabase
+                    .from('materiais_manutencao')
+                    .select('*')
+                    .gte('data', dataInicialStr)
+                    .order('data', { ascending: false });
+                
+                if (equipe) query = query.eq('equipe', equipe);
+                
+                const { data: registros, error } = await query;
+                if (error) throw error;
+                
+                // Processar dados
+                const dados = processarDadosGraficos(registros);
+                const totalReg = registros.length;
+                
+                // Criar workbook
+                const wb = XLSX.utils.book_new();
+                
+                // 1. Planilha de Resumo
+                const resumoData = [
+                    ['RELATÓRIO DE MATERIAIS'],
+                    [`Período: ${periodo} dias`],
+                    [`Equipe: ${equipe || 'Todas'}`],
+                    [`Total de Registros: ${totalReg}`],
+                    [],
+                    ['MATERIAIS USADOS (Alças, Caixas e Itens Avulsos)'],
+                    ['Item', 'Quantidade Total', 'Média por Registro']
+                ];
+                
+                Object.entries(dados.materiaisUsados)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([item, qtd]) => {
+                        const nome = item.includes('MP') ? extrairNomeItem(item) : item;
+                        const media = Math.round(qtd / totalReg);
+                        resumoData.push([nome, qtd, media]);
+                    });
+                
+                resumoData.push([]);
+                resumoData.push(['CABOS'], ['Item', 'Quantidade Total', 'Média por Registro']);
+                
+                Object.entries(dados.cabos)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([item, qtd]) => {
+                        const nome = extrairNomeItem(item);
+                        const media = Math.round(qtd / totalReg);
+                        resumoData.push([nome, qtd, media]);
+                    });
+                
+                resumoData.push([]);
+                resumoData.push(['REGISTROS POR EQUIPE'], ['Equipe', 'Quantidade', 'Percentual']);
+                
+                Object.entries(dados.equipes)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([equipe, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        resumoData.push([equipe, qtd, perc]);
+                    });
+                
+                resumoData.push([]);
+                resumoData.push(['REGISTROS POR TÉCNICO'], ['Técnico', 'Quantidade', 'Percentual']);
+                
+                Object.entries(dados.tecnicos)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([tecnico, qtd]) => {
+                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
+                        resumoData.push([tecnico, qtd, perc]);
+                    });
+                
+                resumoData.push([]);
+                resumoData.push(['REGISTROS POR ANALISTA'], ['Analista', 'Quantidade']);
+                
+                Object.entries(dados.analistas)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([analista, qtd]) => {
+                        resumoData.push([analista, qtd]);
+                    });
+                
+                resumoData.push([]);
+                resumoData.push(['TIPOS DE REGISTRO'], ['Tipo', 'Quantidade']);
+                resumoData.push(['Manutenção', dados.tipos.Manutenção || 0]);
+                resumoData.push(['Requisição', dados.tipos.Requisição || 0]);
+                
+                const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
+                XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
+                
+                // 2. Planilha de Registros Detalhados
+                const detalhesData = [
+                    ['Data', 'Registro', 'Evento', 'Analista', 'Equipe', 'Técnico', 'Total Itens']
+                ];
+                
+                registros.forEach(reg => {
+                    const totalItens = calcularTotalItens(reg);
+                    detalhesData.push([
+                        reg.data,
+                        reg.registro || '',
+                        reg.evento || '',
+                        reg.analista || '',
+                        reg.equipe || '',
+                        reg.tecnico || '',
+                        totalItens
+                    ]);
+                });
+                
+                const wsDetalhes = XLSX.utils.aoa_to_sheet(detalhesData);
+                XLSX.utils.book_append_sheet(wb, wsDetalhes, 'Registros Detalhados');
+                
+                // 3. Planilha de Análise
+                const analise = gerarAnaliseDados(dados, totalReg, periodo, equipe);
+                const analiseData = [];
+                
+                analise.forEach(secao => {
+                    analiseData.push([secao.titulo]);
+                    secao.itens.forEach(item => analiseData.push([item]));
+                    analiseData.push([]);
+                });
+                
+                const wsAnalise = XLSX.utils.aoa_to_sheet(analiseData);
+                XLSX.utils.book_append_sheet(wb, wsAnalise, 'Análise');
+                
+                // Salvar arquivo
+                XLSX.writeFile(wb, `relatorio_materiais_${new Date().toISOString().split('T')[0]}.xlsx`);
+                
+            } catch (error) {
+                alert('Erro ao exportar Excel: ' + error.message);
+            }
+        };
+
+        // FUNÇÃO PARA EXPORTAR DADOS (CSV) - Mantida para compatibilidade
+        window.exportarDados = window.exportarRelatorioExcel;
 
         // FUNÇÃO PARA MUDAR DE ABA
         window.showTab = function(tabName) {
@@ -1844,7 +2138,32 @@
                 }
             }
             
-            // 4. Tipos - apenas total
+            // 4. Técnicos
+            const tecnicosArray = Object.entries(dados.tecnicos)
+                .sort((a, b) => b[1] - a[1]);
+            
+            if (tecnicosArray.length > 0) {
+                const coresTecnicos = tecnicosArray.map((_, i) => coresVariadas[(i + 20) % coresVariadas.length]);
+                
+                // Gráfico de Total de Técnicos
+                const ctxTecnicosTotal = document.getElementById('graficoTecnicosTotal')?.getContext('2d');
+                if (ctxTecnicosTotal) {
+                    chartInstances.graficoTecnicosTotal = new Chart(ctxTecnicosTotal, 
+                        criarConfiguracaoBarra(tecnicosArray.map(t => t[0]), tecnicosArray.map(t => t[1]), coresTecnicos, false)
+                    );
+                }
+                
+                // Gráfico de Média de Técnicos
+                const mediasTecnicos = tecnicosArray.map(t => t[1] / totalRegistros);
+                const ctxTecnicosMedia = document.getElementById('graficoTecnicosMedia')?.getContext('2d');
+                if (ctxTecnicosMedia) {
+                    chartInstances.graficoTecnicosMedia = new Chart(ctxTecnicosMedia, 
+                        criarConfiguracaoBarra(tecnicosArray.map(t => t[0]), mediasTecnicos, coresTecnicos, true)
+                    );
+                }
+            }
+            
+            // 5. Tipos - apenas total
             const tiposArray = [
                 { label: 'Manutenção', valor: dados.tipos.Manutenção || 0 },
                 { label: 'Requisição', valor: dados.tipos.Requisição || 0 }
@@ -1857,7 +2176,7 @@
                 );
             }
             
-            // 5. Analistas - apenas total
+            // 6. Analistas - apenas total
             const analistasArray = Object.entries(dados.analistas)
                 .sort((a, b) => b[1] - a[1]);
             
@@ -1886,6 +2205,7 @@
                 tipos: { Manutenção: 0, Requisição: 0 },
                 materiaisUsados: {},
                 cabos: {},
+                tecnicos: {},
                 analistas: {},
                 equipes: {}
             };
@@ -1946,6 +2266,7 @@
                     dados.materiaisUsados['Kit Oval'] = (dados.materiaisUsados['Kit Oval'] || 0) + parseInt(reg.kit_oval);
                 }
                 
+                if (reg.tecnico) dados.tecnicos[reg.tecnico] = (dados.tecnicos[reg.tecnico] || 0) + 1;
                 if (reg.analista) dados.analistas[reg.analista] = (dados.analistas[reg.analista] || 0) + 1;
                 if (reg.equipe) dados.equipes[reg.equipe] = (dados.equipes[reg.equipe] || 0) + 1;
             });
@@ -1953,435 +2274,361 @@
             return dados;
         }
 
-        // FUNÇÃO PARA EXPORTAR RELATÓRIO EXCEL
-        window.exportarRelatorioExcel = async function() {
-            const periodo = document.getElementById('periodoFilter').value;
-            const equipe = document.getElementById('equipeFilter').value;
+        // FUNÇÃO PARA ABRIR MODAL DE EDIÇÃO
+        window.abrirModalEdicao = function(id) {
+            currentEditId = id;
+            const modal = document.getElementById('editModal');
+            const formContainer = document.getElementById('editFormContainer');
             
-            const dataInicial = new Date();
-            dataInicial.setDate(dataInicial.getDate() - parseInt(periodo));
-            const dataInicialStr = dataInicial.toISOString().split('T')[0];
-            
-            try {
-                let query = supabase
-                    .from('materiais_manutencao')
-                    .select('*')
-                    .gte('data', dataInicialStr)
-                    .order('data', { ascending: false });
-                
-                if (equipe) query = query.eq('equipe', equipe);
-                
-                const { data: registros, error } = await query;
-                if (error) throw error;
-                
-                // Processar dados
-                const dados = processarDadosGraficos(registros);
-                const totalReg = registros.length;
-                
-                // Criar workbook
-                const wb = XLSX.utils.book_new();
-                
-                // 1. Planilha de Resumo
-                const resumoData = [
-                    ['RELATÓRIO DE MATERIAIS'],
-                    [`Período: ${periodo} dias`],
-                    [`Equipe: ${equipe || 'Todas'}`],
-                    [`Total de Registros: ${totalReg}`],
-                    [],
-                    ['MATERIAIS USADOS (Alças, Caixas e Itens Avulsos)'],
-                    ['Item', 'Quantidade Total', 'Média por Registro']
-                ];
-                
-                Object.entries(dados.materiaisUsados)
-                    .sort((a, b) => b[1] - a[1])
-                    .forEach(([item, qtd]) => {
-                        const nome = item.includes('MP') ? extrairNomeItem(item) : item;
-                        const media = Math.round(qtd / totalReg);
-                        resumoData.push([nome, qtd, media]);
-                    });
-                
-                resumoData.push([]);
-                resumoData.push(['CABOS'], ['Item', 'Quantidade Total', 'Média por Registro']);
-                
-                Object.entries(dados.cabos)
-                    .sort((a, b) => b[1] - a[1])
-                    .forEach(([item, qtd]) => {
-                        const nome = extrairNomeItem(item);
-                        const media = Math.round(qtd / totalReg);
-                        resumoData.push([nome, qtd, media]);
-                    });
-                
-                resumoData.push([]);
-                resumoData.push(['REGISTROS POR EQUIPE'], ['Equipe', 'Quantidade', 'Percentual']);
-                
-                Object.entries(dados.equipes)
-                    .sort((a, b) => b[1] - a[1])
-                    .forEach(([equipe, qtd]) => {
-                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
-                        resumoData.push([equipe, qtd, perc]);
-                    });
-                
-                resumoData.push([]);
-                resumoData.push(['REGISTROS POR ANALISTA'], ['Analista', 'Quantidade']);
-                
-                Object.entries(dados.analistas)
-                    .sort((a, b) => b[1] - a[1])
-                    .forEach(([analista, qtd]) => {
-                        resumoData.push([analista, qtd]);
-                    });
-                
-                resumoData.push([]);
-                resumoData.push(['TIPOS DE REGISTRO'], ['Tipo', 'Quantidade']);
-                resumoData.push(['Manutenção', dados.tipos.Manutenção || 0]);
-                resumoData.push(['Requisição', dados.tipos.Requisição || 0]);
-                
-                const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
-                XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
-                
-                // 2. Planilha de Registros Detalhados
-                const detalhesData = [
-                    ['Data', 'Registro', 'Evento', 'Analista', 'Equipe', 'Técnico', 'Total Itens']
-                ];
-                
-                registros.forEach(reg => {
-                    const totalItens = calcularTotalItens(reg);
-                    detalhesData.push([
-                        reg.data,
-                        reg.registro || '',
-                        reg.evento || '',
-                        reg.analista || '',
-                        reg.equipe || '',
-                        reg.tecnico || '',
-                        totalItens
-                    ]);
-                });
-                
-                const wsDetalhes = XLSX.utils.aoa_to_sheet(detalhesData);
-                XLSX.utils.book_append_sheet(wb, wsDetalhes, 'Registros Detalhados');
-                
-                // Salvar arquivo
-                XLSX.writeFile(wb, `relatorio_materiais_${new Date().toISOString().split('T')[0]}.xlsx`);
-                
-            } catch (error) {
-                alert('Erro ao exportar Excel: ' + error.message);
-            }
-        };
-
-        // FUNÇÃO PARA EXPORTAR RELATÓRIO PDF PROFISSIONAL
-        window.exportarRelatorioPDF = async function() {
-            const { jsPDF } = window.jspdf;
-            
-            // Mostrar loading
-            const loadingEl = document.getElementById('dashboardLoading');
-            loadingEl.style.display = 'block';
-            loadingEl.innerHTML = '<div class="loading-spinner"></div><div>Gerando PDF profissional...</div>';
-            
-            try {
-                // Obter dados atuais
-                const periodo = document.getElementById('periodoFilter').value;
-                const equipe = document.getElementById('equipeFilter').value;
-                const dataAtual = new Date().toLocaleDateString('pt-BR');
-                
-                const dataInicial = new Date();
-                dataInicial.setDate(dataInicial.getDate() - parseInt(periodo));
-                const dataInicialStr = dataInicial.toLocaleDateString('pt-BR');
-                const dataFinalStr = new Date().toLocaleDateString('pt-BR');
-                
-                let query = supabase
-                    .from('materiais_manutencao')
-                    .select('*')
-                    .gte('data', dataInicial.toISOString().split('T')[0])
-                    .order('data', { ascending: false });
-                
-                if (equipe) query = query.eq('equipe', equipe);
-                
-                const { data: registros, error } = await query;
-                if (error) throw error;
-                
-                if (registros.length === 0) {
-                    alert('Não há dados para o período selecionado');
-                    loadingEl.style.display = 'none';
-                    return;
-                }
-                
-                const dados = processarDadosGraficos(registros);
-                const totalReg = registros.length;
-                
-                // Criar PDF em formato A4 paisagem
-                const pdf = new jsPDF({
-                    orientation: 'landscape',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-                
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const margin = 15;
-                let yPos = margin;
-                
-                // Função para adicionar cabeçalho de página
-                function adicionarCabecalho() {
-                    pdf.setFillColor(10, 42, 68); // #0a2a44
-                    pdf.rect(0, 0, pageWidth, 20, 'F');
-                    
-                    pdf.setTextColor(255, 255, 255);
-                    pdf.setFontSize(14);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.text('RELATÓRIO DE GESTÃO DE MATERIAIS', margin, 13);
-                    
-                    pdf.setFontSize(8);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.text(`Gerado em: ${dataAtual}`, pageWidth - margin - 40, 13);
-                    
-                    pdf.setTextColor(0, 0, 0);
-                    return 25;
-                }
-                
-                // Função para adicionar rodapé
-                function adicionarRodape() {
-                    const pageCount = pdf.internal.getNumberOfPages();
-                    for (let i = 1; i <= pageCount; i++) {
-                        pdf.setPage(i);
-                        pdf.setFillColor(240, 242, 245);
-                        pdf.rect(0, pageHeight - 8, pageWidth, 8, 'F');
-                        
-                        pdf.setTextColor(100, 100, 100);
-                        pdf.setFontSize(7);
-                        pdf.text(`Página ${i} de ${pageCount}`, pageWidth - margin - 20, pageHeight - 3);
-                        pdf.text('Sistema de Gestão de Materiais', margin, pageHeight - 3);
-                    }
-                }
-                
-                // Adicionar primeira página com cabeçalho
-                yPos = adicionarCabecalho();
-                
-                // Informações do relatório
-                pdf.setFillColor(245, 247, 250);
-                pdf.roundedRect(margin, yPos - 3, pageWidth - (margin * 2), 30, 3, 3, 'F');
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('Informações do Relatório', margin + 5, yPos + 4);
-                
-                pdf.setFontSize(9);
-                pdf.setFont('helvetica', 'normal');
-                pdf.text(`Período: ${dataInicialStr} a ${dataFinalStr} (${periodo} dias)`, margin + 5, yPos + 12);
-                pdf.text(`Equipe: ${equipe || 'Todas as equipes'}`, margin + 5, yPos + 20);
-                
-                yPos += 35;
-                
-                // Totais em cards
-                const cardWidth = (pageWidth - (margin * 2) - 20) / 4;
-                
-                // Calcular totais
-                let totalItens = 0;
-                Object.values(dados.materiaisUsados).forEach(v => totalItens += v);
-                Object.values(dados.cabos).forEach(v => totalItens += v);
-                
-                pdf.setFillColor(10, 42, 68);
-                pdf.roundedRect(margin, yPos, cardWidth, 20, 3, 3, 'F');
-                pdf.setTextColor(255, 255, 255);
-                pdf.setFontSize(8);
-                pdf.text('Total Itens', margin + 5, yPos + 6);
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text(totalItens.toString(), margin + 5, yPos + 16);
-                
-                pdf.setFillColor(10, 102, 194);
-                pdf.roundedRect(margin + cardWidth + 5, yPos, cardWidth, 20, 3, 3, 'F');
-                pdf.setFontSize(8);
-                pdf.text('Manutenções', margin + cardWidth + 10, yPos + 6);
-                pdf.setFontSize(12);
-                pdf.text((dados.tipos.Manutenção || 0).toString(), margin + cardWidth + 10, yPos + 16);
-                
-                pdf.setFillColor(18, 69, 106);
-                pdf.roundedRect(margin + (cardWidth + 5) * 2, yPos, cardWidth, 20, 3, 3, 'F');
-                pdf.setFontSize(8);
-                pdf.text('Requisições', margin + (cardWidth + 5) * 2 + 5, yPos + 6);
-                pdf.setFontSize(12);
-                pdf.text((dados.tipos.Requisição || 0).toString(), margin + (cardWidth + 5) * 2 + 5, yPos + 16);
-                
-                pdf.setFillColor(30, 58, 95);
-                pdf.roundedRect(margin + (cardWidth + 5) * 3, yPos, cardWidth, 20, 3, 3, 'F');
-                pdf.setFontSize(8);
-                pdf.text('Média Itens/Reg', margin + (cardWidth + 5) * 3 + 5, yPos + 6);
-                pdf.setFontSize(12);
-                const mediaGeral = Math.round(totalItens / totalReg) || 0;
-                pdf.text(mediaGeral.toString(), margin + (cardWidth + 5) * 3 + 5, yPos + 16);
-                
-                pdf.setTextColor(0, 0, 0);
-                yPos += 30;
-                
-                // Função para criar tabela no PDF
-                function criarTabela(titulo, cabecalho, dados, inicioY) {
-                    if (dados.length === 0) return inicioY;
-                    
-                    // Verificar se precisa de nova página
-                    if (inicioY > pageHeight - 60) {
-                        pdf.addPage();
-                        inicioY = adicionarCabecalho();
+            // Buscar dados do registro
+            supabase
+                .from('materiais_manutencao')
+                .select('*')
+                .eq('id', id)
+                .single()
+                .then(({ data, error }) => {
+                    if (error) {
+                        alert('Erro ao carregar dados: ' + error.message);
+                        return;
                     }
                     
-                    // Título da seção
-                    pdf.setFillColor(10, 42, 68);
-                    pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 8, 'F');
-                    pdf.setTextColor(255, 255, 255);
-                    pdf.setFontSize(9);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.text(titulo, margin + 5, inicioY + 2);
-                    
-                    inicioY += 10;
-                    
-                    // Cabeçalho da tabela
-                    pdf.setFillColor(230, 235, 240);
-                    pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 7, 'F');
-                    pdf.setTextColor(10, 42, 68);
-                    pdf.setFontSize(8);
-                    pdf.setFont('helvetica', 'bold');
-                    
-                    let xPos = margin + 5;
-                    cabecalho.forEach((col, index) => {
-                        pdf.text(col, xPos, inicioY);
-                        xPos += index === 0 ? 120 : 50;
-                    });
-                    
-                    inicioY += 7;
-                    
-                    // Dados da tabela
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setFontSize(7);
-                    
-                    dados.forEach((linha, idx) => {
-                        // Verificar se precisa de nova página
-                        if (inicioY > pageHeight - 20) {
-                            pdf.addPage();
-                            inicioY = adicionarCabecalho() + 5;
+                    // Criar formulário de edição
+                    let formHtml = `
+                        <form id="editForm">
+                            <input type="hidden" id="editId" value="${data.id}">
                             
-                            // Recriar cabeçalho na nova página
-                            pdf.setFillColor(230, 235, 240);
-                            pdf.rect(margin, inicioY - 3, pageWidth - (margin * 2), 7, 'F');
-                            pdf.setTextColor(10, 42, 68);
-                            pdf.setFont('helvetica', 'bold');
+                            <div class="row-duo">
+                                <div class="field-group">
+                                    <label>📅 Data</label>
+                                    <input type="date" id="editData" value="${data.data}" required>
+                                </div>
+                                
+                                <div class="field-group">
+                                    <label>📋 Registro</label>
+                                    <select id="editRegistro" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="Manutenção" ${data.registro === 'Manutenção' ? 'selected' : ''}>Manutenção</option>
+                                        <option value="Requisição" ${data.registro === 'Requisição' ? 'selected' : ''}>Requisição</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="field-group">
+                                    <label>🔢 Evento</label>
+                                    <input type="text" id="editEvento" value="${data.evento || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                </div>
+                            </div>
                             
-                            xPos = margin + 5;
-                            cabecalho.forEach((col, index) => {
-                                pdf.text(col, xPos, inicioY);
-                                xPos += index === 0 ? 120 : 50;
-                            });
+                            <div class="row-duo">
+                                <div class="field-group">
+                                    <label>👤 Analista</label>
+                                    <select id="editAnalista" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="Kowalsky" ${data.analista === 'Kowalsky' ? 'selected' : ''}>Kowalsky</option>
+                                        <option value="Naira" ${data.analista === 'Naira' ? 'selected' : ''}>Naira</option>
+                                        <option value="Pablo" ${data.analista === 'Pablo' ? 'selected' : ''}>Pablo</option>
+                                        <option value="Washington" ${data.analista === 'Washington' ? 'selected' : ''}>Washington</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="field-group">
+                                    <label>🚩 Equipe</label>
+                                    <select id="editEquipe" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="Angra dos Reis" ${data.equipe === 'Angra dos Reis' ? 'selected' : ''}>Angra dos Reis</option>
+                                        <option value="Juiz de Fora" ${data.equipe === 'Juiz de Fora' ? 'selected' : ''}>Juiz de Fora</option>
+                                        <option value="Mangaratiba" ${data.equipe === 'Mangaratiba' ? 'selected' : ''}>Mangaratiba</option>
+                                        <option value="Resende" ${data.equipe === 'Resende' ? 'selected' : ''}>Resende</option>
+                                        <option value="Ubatuba" ${data.equipe === 'Ubatuba' ? 'selected' : ''}>Ubatuba</option>
+                                        <option value="Vassouras" ${data.equipe === 'Vassouras' ? 'selected' : ''}>Vassouras</option>
+                                        <option value="Volta Redonda" ${data.equipe === 'Volta Redonda' ? 'selected' : ''}>Volta Redonda</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="field-group">
+                                    <label>👷 Técnico</label>
+                                    <select id="editTecnico" required>
+                                        <option value="">Selecione...</option>
+                                    </select>
+                                </div>
+                            </div>
                             
-                            inicioY += 7;
-                            pdf.setFont('helvetica', 'normal');
-                        }
-                        
-                        // Linha de dados
-                        pdf.setTextColor(0, 0, 0);
-                        xPos = margin + 5;
-                        
-                        linha.forEach((valor, index) => {
-                            pdf.text(valor.toString(), xPos, inicioY);
-                            xPos += index === 0 ? 120 : 50;
+                            <!-- Campos de materiais serão preenchidos via JavaScript após carregar os dados -->
+                            <div id="editMultiselects">
+                                <!-- Os multiselects serão inseridos aqui dinamicamente -->
+                            </div>
+                            
+                            <div class="row-duo">
+                                <div class="field-group">
+                                    <label>🔁 Optloop</label>
+                                    <input type="text" id="editOptloop" value="${data.optloop || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                </div>
+                                <div class="field-group">
+                                    <label>⚙️ Bap</label>
+                                    <input type="text" id="editBap" value="${data.bap || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                </div>
+                                <div class="field-group">
+                                    <label>🗄️ Rack</label>
+                                    <input type="text" id="editRack" value="${data.rack || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                </div>
+                            </div>
+                            
+                            <div class="row-duo">
+                                <div class="field-group">
+                                    <label>🛡️ Protetor</label>
+                                    <input type="text" id="editProtetor" value="${data.protetor_emenda || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                </div>
+                                <div class="field-group">
+                                    <label>🔀 Kit Derivação</label>
+                                    <input type="text" id="editKitDeriv" value="${data.kit_derivacao || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                </div>
+                                <div class="field-group">
+                                    <label>⚪ Kit Oval</label>
+                                    <input type="text" id="editKitOval" value="${data.kit_oval || ''}" maxlength="7" pattern="\d*" inputmode="numeric">
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                <button type="button" class="btn-filter" onclick="fecharModal()">Cancelar</button>
+                                <button type="submit" class="btn-filter secondary" style="background: #28a745;">Salvar Alterações</button>
+                            </div>
+                        </form>
+                    `;
+                    
+                    formContainer.innerHTML = formHtml;
+                    
+                    // Adicionar os containers de multiselect ao formulário
+                    const editMultiselects = document.getElementById('editMultiselects');
+                    
+                    // Clonar os containers de multiselect do formulário original
+                    const caboContainer = document.getElementById('caboContainer').cloneNode(true);
+                    caboContainer.id = 'editCaboContainer';
+                    
+                    const alcaContainer = document.getElementById('alcaContainer').cloneNode(true);
+                    alcaContainer.id = 'editAlcaContainer';
+                    
+                    const caixaContainer = document.getElementById('caixaContainer').cloneNode(true);
+                    caixaContainer.id = 'editCaixaContainer';
+                    
+                    editMultiselects.innerHTML = `
+                        <div class="field-group">
+                            <label>🔌 Cabo</label>
+                            <div id="editCaboContainer"></div>
+                        </div>
+                        <div class="field-group">
+                            <label>⛓️ Alça</label>
+                            <div id="editAlcaContainer"></div>
+                        </div>
+                        <div class="field-group">
+                            <label>📦 Caixa</label>
+                            <div id="editCaixaContainer" class="caixa-container"></div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('editCaboContainer').replaceWith(caboContainer);
+                    document.getElementById('editAlcaContainer').replaceWith(alcaContainer);
+                    document.getElementById('editCaixaContainer').replaceWith(caixaContainer);
+                    
+                    // Reconfigurar os botões de toggle para os cabos no modal
+                    const cabosEdit = document.getElementById('editCaboContainer');
+                    if (cabosEdit) {
+                        const toggleBtns = cabosEdit.querySelectorAll('.multiselect-item button');
+                        toggleBtns.forEach(btn => {
+                            btn.replaceWith(btn.cloneNode(true));
                         });
                         
-                        inicioY += 6;
+                        cabosEdit.querySelectorAll('.multiselect-item').forEach(item => {
+                            const select = item.querySelector('select.qtd-select');
+                            const input = item.querySelector('input.qtd-input');
+                            const toggleBtn = item.querySelector('button');
+                            
+                            if (select && input && toggleBtn) {
+                                toggleBtn.addEventListener('click', function() {
+                                    if (select.style.display !== 'none') {
+                                        select.style.display = 'none';
+                                        input.style.display = 'block';
+                                        input.value = select.value;
+                                        input.focus();
+                                        toggleBtn.textContent = '✓';
+                                    } else {
+                                        select.style.display = 'block';
+                                        input.style.display = 'none';
+                                        if (input.value && !isNaN(parseInt(input.value))) {
+                                            const val = parseInt(input.value);
+                                            if (val === 200 || val === 300) {
+                                                select.value = val.toString();
+                                            } else {
+                                                const existingOption = Array.from(select.options).find(opt => opt.value === input.value);
+                                                if (!existingOption && input.value !== '0') {
+                                                    const newOption = document.createElement('option');
+                                                    newOption.value = input.value;
+                                                    newOption.textContent = input.value;
+                                                    select.appendChild(newOption);
+                                                    select.value = input.value;
+                                                }
+                                            }
+                                        }
+                                        toggleBtn.textContent = '✏️';
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Popular técnicos
+                    const editEquipe = document.getElementById('editEquipe');
+                    const editTecnico = document.getElementById('editTecnico');
+                    
+                    popularTecnicos(data.equipe, editTecnico, data.tecnico);
+                    
+                    editEquipe.addEventListener('change', function() {
+                        popularTecnicos(this.value, editTecnico);
                     });
                     
-                    return inicioY + 5;
-                }
-                
-                // Preparar dados para as tabelas
-                
-                // Materiais Usados
-                const materiaisData = Object.entries(dados.materiaisUsados)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 10)
-                    .map(([item, qtd]) => {
-                        const nome = item.includes('MP') ? extrairNomeItem(item) : item;
-                        const media = Math.round(qtd / totalReg);
-                        return [nome.substring(0, 35), qtd.toString(), media.toString()];
+                    // Preencher multiselects com os dados existentes
+                    preencherMultiselect('editCaboContainer', data.cabos);
+                    preencherMultiselect('editAlcaContainer', data.alcas);
+                    preencherMultiselect('editCaixaContainer', data.caixas);
+                    
+                    // Adicionar evento de submit
+                    document.getElementById('editForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        salvarEdicao();
                     });
+                    
+                    modal.style.display = 'block';
+                });
+        };
+
+        // FUNÇÃO PARA FECHAR MODAL
+        window.fecharModal = function() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditId = null;
+        };
+
+        // FUNÇÃO PARA SALVAR EDIÇÃO
+        window.salvarEdicao = async function() {
+            const id = document.getElementById('editId').value;
+            
+            const dadosAtualizados = {
+                data: document.getElementById('editData').value,
+                registro: document.getElementById('editRegistro').value,
+                evento: document.getElementById('editEvento').value || null,
+                analista: document.getElementById('editAnalista').value,
+                equipe: document.getElementById('editEquipe').value,
+                tecnico: document.getElementById('editTecnico').value,
+                cabos: getMultiselectWithQuantity('editCaboContainer'),
+                alcas: getMultiselectWithQuantity('editAlcaContainer'),
+                caixas: getMultiselectWithQuantity('editCaixaContainer'),
+                optloop: document.getElementById('editOptloop').value || null,
+                bap: document.getElementById('editBap').value || null,
+                rack: document.getElementById('editRack').value || null,
+                protetor_emenda: document.getElementById('editProtetor').value || null,
+                kit_derivacao: document.getElementById('editKitDeriv').value || null,
+                kit_oval: document.getElementById('editKitOval').value || null
+            };
+            
+            try {
+                const { error } = await supabase
+                    .from('materiais_manutencao')
+                    .update(dadosAtualizados)
+                    .eq('id', id);
                 
-                yPos = criarTabela(
-                    'MATERIAIS USADOS (Alças, Caixas e Itens Avulsos)',
-                    ['Item', 'Quantidade', 'Média'],
-                    materiaisData,
-                    yPos
-                );
+                if (error) throw error;
                 
-                // Cabos
-                const cabosData = Object.entries(dados.cabos)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 10)
-                    .map(([item, qtd]) => {
-                        const nome = extrairNomeItem(item);
-                        const media = Math.round(qtd / totalReg);
-                        return [nome.substring(0, 35), qtd.toString(), media.toString()];
-                    });
-                
-                yPos = criarTabela(
-                    'CABOS',
-                    ['Item', 'Quantidade', 'Média'],
-                    cabosData,
-                    yPos
-                );
-                
-                // Equipes
-                const equipesData = Object.entries(dados.equipes)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([equipe, qtd]) => {
-                        const perc = ((qtd / totalReg) * 100).toFixed(1) + '%';
-                        return [equipe, qtd.toString(), perc];
-                    });
-                
-                yPos = criarTabela(
-                    'REGISTROS POR EQUIPE',
-                    ['Equipe', 'Quantidade', '%'],
-                    equipesData,
-                    yPos
-                );
-                
-                // Analistas
-                const analistasData = Object.entries(dados.analistas)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([analista, qtd]) => {
-                        return [analista, qtd.toString()];
-                    });
-                
-                yPos = criarTabela(
-                    'REGISTROS POR ANALISTA',
-                    ['Analista', 'Quantidade'],
-                    analistasData,
-                    yPos
-                );
-                
-                // Tipos de Registro
-                const tiposData = [
-                    ['Manutenção', dados.tipos.Manutenção.toString()],
-                    ['Requisição', dados.tipos.Requisição.toString()]
-                ];
-                
-                yPos = criarTabela(
-                    'TIPOS DE REGISTRO',
-                    ['Tipo', 'Quantidade'],
-                    tiposData,
-                    yPos
-                );
-                
-                // Adicionar rodapé
-                adicionarRodape();
-                
-                // Salvar PDF
-                pdf.save(`relatorio_materiais_${new Date().toISOString().split('T')[0]}.pdf`);
+                alert('Registro atualizado com sucesso!');
+                fecharModal();
+                carregarDashboard();
                 
             } catch (error) {
-                console.error('Erro ao gerar PDF:', error);
-                alert('Erro ao gerar PDF: ' + error.message);
-            } finally {
-                loadingEl.style.display = 'none';
+                alert('Erro ao atualizar: ' + error.message);
             }
         };
 
-        // FUNÇÃO PARA EXPORTAR DADOS (CSV) - Mantida para compatibilidade
-        window.exportarDados = window.exportarRelatorioExcel;
+        // FUNÇÃO PARA EXCLUIR REGISTRO
+        window.excluirRegistro = async function(id) {
+            if (!confirm('Tem certeza que deseja excluir este registro?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('materiais_manutencao')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                alert('Registro excluído com sucesso!');
+                carregarDashboard();
+                
+            } catch (error) {
+                alert('Erro ao excluir: ' + error.message);
+            }
+        };
+
+        // FUNÇÃO PARA PREENCHER MULTISELECT COM DADOS EXISTENTES
+        function preencherMultiselect(containerId, dados) {
+            const container = document.getElementById(containerId);
+            if (!container || !dados) return;
+            
+            const items = container.querySelectorAll('.multiselect-item');
+            
+            // Primeiro, desmarcar todos
+            items.forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                if (checkbox) checkbox.checked = false;
+                
+                const select = item.querySelector('select.qtd-select');
+                const input = item.querySelector('input.qtd-input');
+                const container = item.querySelector('div[style*="display: flex"]');
+                
+                if (select) {
+                    select.value = '0';
+                    select.style.display = 'block';
+                }
+                if (input) {
+                    input.value = '';
+                    input.style.display = 'none';
+                }
+            });
+            
+            // Marcar os itens que estão nos dados
+            if (dados && Array.isArray(dados)) {
+                dados.forEach(item => {
+                    const itemElement = Array.from(items).find(el => {
+                        const cb = el.querySelector('input[type="checkbox"]');
+                        return cb && cb.value === item.item;
+                    });
+                    
+                    if (itemElement) {
+                        const checkbox = itemElement.querySelector('input[type="checkbox"]');
+                        if (checkbox) checkbox.checked = true;
+                        
+                        const select = itemElement.querySelector('select.qtd-select');
+                        const input = itemElement.querySelector('input.qtd-input');
+                        const container = itemElement.querySelector('div[style*="display: flex"]');
+                        
+                        if (container && select) {
+                            // Verificar se o valor está nas opções
+                            const optionExists = Array.from(select.options).some(opt => opt.value === item.quantidade.toString());
+                            if (optionExists) {
+                                select.value = item.quantidade.toString();
+                                select.style.display = 'block';
+                                if (input) input.style.display = 'none';
+                            } else {
+                                // Valor personalizado, usar modo input
+                                select.style.display = 'none';
+                                if (input) {
+                                    input.style.display = 'block';
+                                    input.value = item.quantidade.toString();
+                                }
+                            }
+                        } else if (input) {
+                            input.value = item.quantidade.toString();
+                        }
+                    }
+                });
+            }
+        }
 
         // Carregar dashboard se a aba estiver ativa
         if (document.getElementById('dashboard-tab').classList.contains('active')) {
