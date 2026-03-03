@@ -426,7 +426,7 @@
         .delete-btn { background: #dc3545; color: white; }
         .delete-btn:hover { background: #c82333; }
         
-        /* Modal */
+        /* Modal de Edição */
         .modal {
             display: none;
             position: fixed;
@@ -467,37 +467,70 @@
         }
         .close-modal:hover { color: #000; }
         
+        /* Popup de Sucesso - NOVO */
+        .success-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            background: linear-gradient(135deg, #0a2a44 0%, #12457a 100%);
+            color: white;
+            padding: 25px 40px;
+            border-radius: 50px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            animation: popupFadeIn 0.3s ease-out;
+            border: 3px solid #4CAF50;
+            min-width: 350px;
+            justify-content: center;
+        }
+        
+        .success-popup .check-icon {
+            font-size: 2.5rem;
+            animation: popupScale 0.5s ease;
+        }
+        
+        @keyframes popupFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -30%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        @keyframes popupFadeOut {
+            from {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+            to {
+                opacity: 0;
+                transform: translate(-50%, -30%);
+            }
+        }
+        
+        @keyframes popupScale {
+            0% { transform: scale(0.5); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
         /* Loading */
         .loading { text-align: center; padding: 20px; font-size: 0.9rem; color: #0a2a44; }
         .loading-spinner { display: inline-block; width: 25px; height: 25px; border: 2px solid #f3f3f3; border-top: 2px solid #0a66c2; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 5px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Mensagem de retorno */
+        /* Mensagem de retorno (oculta) */
         #msgRetorno {
-            margin-top: 10px;
-            text-align: center;
-            font-weight: 500;
-            font-size: 0.9rem;
-            min-height: 40px;
-            transition: all 0.3s ease;
-        }
-        
-        #msgRetorno span {
-            animation: fadeIn 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 10px 20px;
-            border-radius: 8px;
-            display: inline-block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-10px); }
+            display: none;
         }
         
         @media (max-width: 768px) {
@@ -508,6 +541,11 @@
             .chart-container { height: 350px; }
             .comparativo-grid { grid-template-columns: 1fr; }
             .periodos-selector { flex-direction: column; align-items: stretch; }
+            .success-popup { 
+                font-size: 1.2rem; 
+                padding: 20px 25px; 
+                min-width: 280px;
+            }
         }
     </style>
 </head>
@@ -903,6 +941,12 @@
     </div>
 </div>
 
+<!-- Popup de Sucesso - NOVO -->
+<div id="successPopup" class="success-popup" style="display: none;">
+    <span class="check-icon">✅</span>
+    <span>Registro salvo com sucesso!</span>
+</div>
+
 <!-- Modal de Edição -->
 <div id="editModal" class="modal">
     <div class="modal-content">
@@ -939,7 +983,30 @@
 
         let currentEditId = null;
         let timeoutId = null;
+        let popupTimeout = null;
         const chartInstances = {};
+
+        // FUNÇÃO PARA MOSTRAR POPUP DE SUCESSO - NOVA
+        function mostrarPopupSucesso() {
+            const popup = document.getElementById('successPopup');
+            
+            // Limpar timeout anterior se existir
+            if (popupTimeout) {
+                clearTimeout(popupTimeout);
+            }
+            
+            // Mostrar popup
+            popup.style.display = 'flex';
+            
+            // Configurar para fechar após 5 segundos
+            popupTimeout = setTimeout(() => {
+                popup.style.animation = 'popupFadeOut 0.3s ease-out';
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                    popup.style.animation = ''; // Resetar animação
+                }, 300);
+            }, 5000);
+        }
 
         // FUNÇÃO PARA ATUALIZAR AS DATAS DOS PERÍODOS
         function atualizarDatasPeriodos() {
@@ -2063,31 +2130,13 @@
             summaryContainer.innerHTML = html || '<p>Nenhum dado disponível para o período selecionado.</p>';
         }
 
-        // FUNÇÃO PARA MOSTRAR MENSAGEM TEMPORÁRIA
-        function mostrarMensagemTemporaria(texto, tipo) {
-            const msgDiv = document.getElementById('msgRetorno');
-            const cor = tipo === 'sucesso' ? '#28a745' : '#dc3545';
-            
-            msgDiv.innerHTML = `<span style="color: ${cor};">${texto}</span>`;
-            
-            setTimeout(() => {
-                const span = msgDiv.querySelector('span');
-                if (span) {
-                    span.style.animation = 'fadeOut 0.3s ease';
-                    setTimeout(() => {
-                        msgDiv.innerHTML = '';
-                    }, 300);
-                }
-            }, 5000);
-        }
-
-        // FUNÇÃO DE SALVAR REGISTRO
+        // FUNÇÃO DE SALVAR REGISTRO - MODIFICADA
         document.getElementById('salvarBtn').addEventListener('click', async function() {
             const btn = this;
             
             const erro = validarFormulario();
             if (erro) {
-                mostrarMensagemTemporaria(`❌ ${erro}`, 'erro');
+                alert(erro); // Usando alert para erro por simplicidade
                 return;
             }
             
@@ -2125,7 +2174,8 @@
                     throw error;
                 }
                 
-                mostrarMensagemTemporaria('✅ Registro salvo com sucesso!', 'sucesso');
+                // Mostrar popup de sucesso
+                mostrarPopupSucesso();
                 
                 document.getElementById('registro').value = '';
                 document.getElementById('evento').value = '';
@@ -2156,7 +2206,7 @@
                 
             } catch (error) {
                 console.error('Erro detalhado:', error);
-                mostrarMensagemTemporaria(`❌ Erro: ${error.message}`, 'erro');
+                alert(`❌ Erro: ${error.message}`);
             } finally {
                 btn.disabled = false;
                 btn.classList.remove('saving');
