@@ -636,13 +636,14 @@
                 <div class="multiselect-container caixa-container" id="caixaContainer"></div>
             </div>
 
-            <!-- CAMPOS NUMÉRICOS -->
+            <!-- CAMPOS NUMÉRICOS - COM BANDEJA INCLUÍDO -->
             <div class="row-duo">
                 <div class="field-group"><label>🔁 Optloop</label><input type="text" id="optloop" maxlength="7"></div>
                 <div class="field-group"><label>⚙️ Bap</label><input type="text" id="bap" maxlength="7"></div>
-                <div class="field-group"><label>🗄️ Rack</label><input type="text" id="rack" maxlength="7"></div>
+                <div class="field-group"><label>🗄️ Bandeja</label><input type="text" id="bandeja" maxlength="7"></div>
             </div>
             <div class="row-duo">
+                <div class="field-group"><label>🗄️ Rack</label><input type="text" id="rack" maxlength="7"></div>
                 <div class="field-group"><label>🛡️ Protetor</label><input type="text" id="protetor" maxlength="7"></div>
                 <div class="field-group"><label>🔀 Kit Derivação</label><input type="text" id="kitDeriv" maxlength="7"></div>
                 <div class="field-group"><label>⚪ Kit Oval</label><input type="text" id="kitOval" maxlength="7"></div>
@@ -1849,6 +1850,7 @@
             
             total += parseInt(dados.optloop) || 0;
             total += parseInt(dados.bap) || 0;
+            total += parseInt(dados.bandeja) || 0; // NOVO CAMPO BANDEJA
             total += parseInt(dados.rack) || 0;
             total += parseInt(dados.protetor_emenda) || 0;
             total += parseInt(dados.kit_derivacao) || 0;
@@ -2130,7 +2132,7 @@
             summaryContainer.innerHTML = html || '<p>Nenhum dado disponível para o período selecionado.</p>';
         }
 
-        // FUNÇÃO DE SALVAR REGISTRO - MODIFICADA
+        // FUNÇÃO DE SALVAR REGISTRO - MODIFICADA (COM BANDEJA)
         document.getElementById('salvarBtn').addEventListener('click', async function() {
             const btn = this;
             
@@ -2158,6 +2160,7 @@
                 caixas: getMultiselectWithQuantity('caixaContainer'),
                 optloop: document.getElementById('optloop').value || null,
                 bap: document.getElementById('bap').value || null,
+                bandeja: document.getElementById('bandeja').value || null, // NOVO CAMPO BANDEJA
                 rack: document.getElementById('rack').value || null,
                 protetor_emenda: document.getElementById('protetor').value || null,
                 kit_derivacao: document.getElementById('kitDeriv').value || null,
@@ -2194,6 +2197,7 @@
                 
                 document.getElementById('optloop').value = '';
                 document.getElementById('bap').value = '';
+                document.getElementById('bandeja').value = ''; // NOVO CAMPO BANDEJA
                 document.getElementById('rack').value = '';
                 document.getElementById('protetor').value = '';
                 document.getElementById('kitDeriv').value = '';
@@ -2214,7 +2218,7 @@
             }
         });
 
-        // FUNÇÃO PARA EXPORTAR RELATÓRIO EXCEL COMPLETO
+        // FUNÇÃO PARA EXPORTAR RELATÓRIO EXCEL COMPLETO (COM BANDEJA)
         window.exportarRelatorioExcel = async function() {
             const periodo = document.getElementById('periodoFilter').value;
             const equipe = document.getElementById('equipeFilter').value;
@@ -2395,10 +2399,10 @@
                 wsAnalistas['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
                 XLSX.utils.book_append_sheet(wb, wsAnalistas, 'Analistas');
                 
-                // Planilha 7: REGISTROS DETALHADOS
+                // Planilha 7: REGISTROS DETALHADOS (COM BANDEJA)
                 const detalhesData = [
                     ['REGISTROS DETALHADOS'],
-                    ['Data', 'Tipo', 'Evento', 'Analista', 'Equipe', 'Técnico', 'Cabos', 'Alças', 'Caixas', 'Optloop', 'Bap', 'Rack', 'Protetor', 'Kit Derivação', 'Kit Oval', 'Total Itens']
+                    ['Data', 'Tipo', 'Evento', 'Analista', 'Equipe', 'Técnico', 'Cabos', 'Alças', 'Caixas', 'Optloop', 'Bap', 'Bandeja', 'Rack', 'Protetor', 'Kit Derivação', 'Kit Oval', 'Total Itens']
                 ];
                 
                 registros.forEach(reg => {
@@ -2420,6 +2424,7 @@
                         caixasStr,
                         reg.optloop || '0',
                         reg.bap || '0',
+                        reg.bandeja || '0', // NOVO CAMPO BANDEJA
                         reg.rack || '0',
                         reg.protetor_emenda || '0',
                         reg.kit_derivacao || '0',
@@ -2432,7 +2437,7 @@
                 wsDetalhes['!cols'] = [
                     { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 15 }, { wch: 20 },
                     { wch: 30 }, { wch: 30 }, { wch: 20 }, { wch: 8 }, { wch: 8 }, { wch: 8 },
-                    { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 10 }
+                    { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 10 }
                 ];
                 XLSX.utils.book_append_sheet(wb, wsDetalhes, 'Registros Detalhados');
                 
@@ -2871,6 +2876,10 @@
                     dados.materiaisUsados['Bap'] = (dados.materiaisUsados['Bap'] || 0) + parseInt(reg.bap);
                 }
                 
+                if (reg.bandeja && parseInt(reg.bandeja) > 0) { // NOVO CAMPO BANDEJA
+                    dados.materiaisUsados['Bandeja'] = (dados.materiaisUsados['Bandeja'] || 0) + parseInt(reg.bandeja);
+                }
+                
                 if (reg.rack && parseInt(reg.rack) > 0) {
                     dados.materiaisUsados['Rack'] = (dados.materiaisUsados['Rack'] || 0) + parseInt(reg.rack);
                 }
@@ -3043,6 +3052,10 @@
                                     <input type="text" id="editBap" value="${data.bap || ''}" maxlength="7">
                                 </div>
                                 <div class="field-group">
+                                    <label>🗄️ Bandeja</label>
+                                    <input type="text" id="editBandeja" value="${data.bandeja || ''}" maxlength="7">
+                                </div>
+                                <div class="field-group">
                                     <label>🗄️ Rack</label>
                                     <input type="text" id="editRack" value="${data.rack || ''}" maxlength="7">
                                 </div>
@@ -3174,6 +3187,7 @@
                 caixas: getMultiselectWithQuantity('editCaixaContainer'),
                 optloop: document.getElementById('editOptloop').value || null,
                 bap: document.getElementById('editBap').value || null,
+                bandeja: document.getElementById('editBandeja').value || null,
                 rack: document.getElementById('editRack').value || null,
                 protetor_emenda: document.getElementById('editProtetor').value || null,
                 kit_derivacao: document.getElementById('editKitDeriv').value || null,
