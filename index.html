@@ -3347,11 +3347,13 @@
                     case 'AlterarPropriaSenha':
                         return true;
                     case 'ExcluirCoordenadas':
-                        return ['Administrador', 'Analistas'].includes(usuarioLogado.hierarquia);
+                        // Administrador, Projetos e Analistas podem excluir coordenadas
+                        return ['Administrador', 'Analistas', 'Projetos'].includes(usuarioLogado.hierarquia);
                     case 'EditarCoordenadas':
-                        return ['Administrador', 'Analistas'].includes(usuarioLogado.hierarquia);
+                        return ['Administrador', 'Analistas', 'Projetos'].includes(usuarioLogado.hierarquia);
                     case 'ExcluirCaixas':
-                        return usuarioLogado.hierarquia === 'Administrador';
+                        // Administrador, Projetos e Analistas podem excluir caixas
+                        return ['Administrador', 'Analistas', 'Projetos'].includes(usuarioLogado.hierarquia);
                     case 'EditarMateriais':
                         return usuarioLogado.hierarquia === 'Administrador';
                     case 'GerenciarCategorias':
@@ -3415,6 +3417,7 @@
 
                 const btnExcluirCoordenadas = document.getElementById('btn-excluir-coordenadas');
                 if (btnExcluirCoordenadas) {
+                    // Agora Projetos e Analistas podem ver e usar o botão de excluir coordenadas
                     if (!verificarAcesso('ExcluirCoordenadas')) {
                         btnExcluirCoordenadas.style.display = 'none';
                     } else {
@@ -3424,6 +3427,7 @@
 
                 const btnExcluirCaixas = document.getElementById('btn-excluir-caixas');
                 if (btnExcluirCaixas) {
+                    // Agora Projetos e Analistas podem ver e usar o botão de excluir caixas
                     if (!verificarAcesso('ExcluirCaixas')) {
                         btnExcluirCaixas.style.display = 'none';
                     } else {
@@ -5653,6 +5657,7 @@
 
                 if (btnExcluirCaixas) {
                     btnExcluirCaixas.addEventListener('click', function() {
+                        // Verificar permissão usando a função atualizada (agora inclui Projetos e Analistas)
                         if (!verificarAcesso('ExcluirCaixas')) {
                             mostrarToast('Você não tem permissão para excluir caixas.', 'erro');
                             return;
@@ -6162,12 +6167,18 @@
                     utilizarCaixasContainer.classList.remove('hidden');
                     document.getElementById('btn-utilizar-caixas').textContent = `Utilizar ${caixasSelecionadas.length} Caixa(s)`;
                     
-                    if (verificarAcesso('Administrador')) {
-                        document.getElementById('btn-editar-caixas').style.display = 'block';
+                    // Mostrar botão de excluir baseado na permissão atualizada
+                    if (verificarAcesso('ExcluirCaixas')) {
                         document.getElementById('btn-excluir-caixas').style.display = 'block';
                     } else {
-                        document.getElementById('btn-editar-caixas').style.display = 'none';
                         document.getElementById('btn-excluir-caixas').style.display = 'none';
+                    }
+                    
+                    // Botão editar permanece apenas para administradores
+                    if (verificarAcesso('Administrador')) {
+                        document.getElementById('btn-editar-caixas').style.display = 'block';
+                    } else {
+                        document.getElementById('btn-editar-caixas').style.display = 'none';
                     }
                 } else {
                     utilizarCaixasContainer.classList.add('hidden');
