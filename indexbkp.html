@@ -1630,6 +1630,355 @@
             overflow: hidden;
         }
 
+        /* NOVOS ESTILOS PARA A CALCULADORA FTTH */
+        .ftth-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .ftth-header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .ftth-header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        
+        .ftth-info-bar {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 20px 0 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .ftth-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 20px;
+        }
+        
+        .ftth-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .ftth-card h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 18px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .ftth-param-group {
+            margin-bottom: 15px;
+        }
+        
+        .ftth-param-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .ftth-param-group input, .ftth-param-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        
+        .ftth-param-group input:focus, .ftth-param-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .ftth-readonly-field {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .ftth-results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 0 20px 30px 20px;
+        }
+        
+        .ftth-result-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .ftth-result-card h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .ftth-result-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .ftth-result-unit {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .ftth-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .ftth-status.aprovado {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .ftth-status.reprovado {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .ftth-status.atencao {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .ftth-table-container {
+            margin: 20px;
+            overflow-x: auto;
+        }
+        
+        .ftth-table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .ftth-table-container th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .ftth-table-container td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .ftth-table-container td:nth-child(2), .ftth-table-container td:nth-child(3) {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+        
+        .ftth-table-container td[colspan="2"] {
+            text-align: center !important;
+        }
+        
+        .ftth-table-container tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .ftth-footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .ftth-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px;
+            font-size: 14px;
+        }
+        
+        .ftth-warning strong {
+            font-size: 16px;
+        }
+        
+        .ftth-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .ftth-button:hover {
+            background: #2980b9;
+        }
+        
+        .ftth-button.secondary {
+            background: #95a5a6;
+        }
+        
+        .ftth-button.secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .ftth-button.outline {
+            background: transparent;
+            border: 2px solid #3498db;
+            color: #3498db;
+            padding: 6px 15px;
+            font-size: 13px;
+            font-weight: normal;
+        }
+        
+        .ftth-button.outline:hover {
+            background: #3498db;
+            color: white;
+        }
+        
+        .ftth-splitter-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .ftth-splitter-item {
+            flex: 1;
+        }
+        
+        .ftth-toggle-section {
+            margin: 15px 20px;
+            text-align: center;
+        }
+        
+        .ftth-analysis-section {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 0 20px 20px 20px;
+            background: #f8f9fa;
+            font-size: 13px;
+        }
+        
+        .ftth-analysis-section h3 {
+            font-size: 16px;
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+        }
+        
+        .ftth-margin-box {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            margin: 0 5px;
+            font-size: 12px;
+        }
+        
+        .ftth-margin-box strong {
+            font-size: 13px;
+        }
+        
+        .ftth-margin-box span {
+            font-size: 18px;
+        }
+        
+        .ftth-distancia-box {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 12px;
+        }
+        
+        .ftth-distancia-box strong {
+            font-size: 13px;
+        }
+        
+        .ftth-distancia-box span {
+            font-size: 16px;
+        }
+        
+        .ftth-margin-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .ftth-margin-bar-container {
+            margin: 15px 0;
+        }
+        
+        .ftth-margin-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 11px;
+        }
+        
+        .ftth-margin-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .ftth-margin-fill {
+            height: 100%;
+            background-color: #3498db;
+            transition: width 0.3s;
+        }
+        
+        .ftth-button-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0 30px 0;
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -1756,6 +2105,13 @@
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
+
+            .ftth-grid,
+            .ftth-results-grid,
+            .ftth-splitter-row {
+                grid-template-columns: 1fr;
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -1844,9 +2200,10 @@
                             <li><strong>Usuários:</strong> Gerenciamento completo de usuários e hierarquias</li>
                             <li><strong>Coordenadas:</strong> Sistema de geolocalização e mapeamento</li>
                             <li><strong>Materiais:</strong> Controle de inventário e estoque</li>
-                            <li><strong>Logs do Sistema:</strong> Registro completo de atividades</li>
-                            <li><strong>Meu Perfil:</strong> Alteração de senha e dados pessoais</li>
-                            <li><strong>Links Úteis:</strong> Acesso rápido a sistemas e recursos</li>
+                            <li><strong>Orç. Potência FTTH:</strong> Ferramenta para projetos de fibra óptica</li>
+                            <li><strong>Logs:</strong> Registro completo de atividades</li>
+                            <li><strong>Perfil:</strong> Alteração de senha e dados pessoais</li>
+                            <li><strong>Links:</strong> Acesso rápido a sistemas e recursos</li>
                         </ul>
                     </div>
                 </div>
@@ -2532,9 +2889,240 @@
                 </div>
             </section>
 
-            <!-- Página Logs do Sistema -->
+            <!-- Página Orçamento de Potência FTTH (NOVA GUIA) -->
+            <section id="page-ftth" class="page-content">
+                <h2 class="page-title"><span>📡</span>Orç. Potência FTTH</h2>
+                
+                <div class="ftth-container">
+                    <div class="ftth-info-bar">
+                        <strong>ℹ️ Informação:</strong> As células em azul podem ser editadas. Valores baseados nas normas ITU-T G.984 (GPON) e G.671.
+                    </div>
+
+                    <div class="ftth-grid">
+                        <!-- Parâmetros de Enlace -->
+                        <div class="ftth-card">
+                            <h3>📏 Parâmetros do Enlace</h3>
+                            
+                            <div class="ftth-param-group">
+                                <label>Distância da Fibra (Km):</label>
+                                <input type="number" id="ftth-distancia" value="7" min="0" max="60" step="0.1">
+                            </div>
+
+                            <div class="ftth-param-group">
+                                <label>Quantidade de Conexões:</label>
+                                <input type="number" id="ftth-conexoes" value="4" min="0" max="20" step="1">
+                            </div>
+
+                            <div class="ftth-param-group">
+                                <label>Quantidade de Fusões:</label>
+                                <input type="number" id="ftth-fusoes" value="19" min="0" max="50" step="1">
+                            </div>
+
+                            <div class="ftth-param-group">
+                                <label>Margem de Segurança (dB):</label>
+                                <input type="number" id="ftth-margem" value="1" min="0" max="5" step="0.1">
+                            </div>
+                        </div>
+
+                        <!-- Classes dos Equipamentos e Splitters -->
+                        <div class="ftth-card">
+                            <h3>📡 Classes dos Equipamentos</h3>
+                            
+                            <div class="ftth-param-group">
+                                <label>Classe da OLT:</label>
+                                <select id="ftth-classeOLT">
+                                    <option value="NokiaC+">Nokia - C+ (Tx: 3 dBm | Rx: -28 dBm)</option>
+                                    <option value="HuaweiC+" selected>Huawei - C+ (Tx: 5 dBm | Rx: -32 dBm)</option>
+                                    <option value="HuaweiC++">Huawei - C++ (Tx: 7 dBm | Rx: -35 dBm)</option>
+                                </select>
+                            </div>
+
+                            <div class="ftth-param-group">
+                                <label>Classe da ONU:</label>
+                                <select id="ftth-classeONU">
+                                    <option value="NokiaC+_ONU" selected>Nokia - C+ (Tx: 1 dBm | Rx: -27 dBm)</option>
+                                    <option value="HuaweiC+_ONU">Huawei - C+ (Tx: 2 dBm | Rx: -30 dBm)</option>
+                                    <option value="HuaweiC++_ONU">Huawei - C++ (Tx: 2 dBm | Rx: -30 dBm)</option>
+                                </select>
+                            </div>
+
+                            <h3 style="margin-top: 20px;">🔀 Configuração dos Splitters</h3>
+                            
+                            <div class="ftth-splitter-row">
+                                <div class="ftth-splitter-item ftth-param-group">
+                                    <label>Splitter 1:</label>
+                                    <select id="ftth-splitter1">
+                                        <option value="1x8" selected>1:8 (10.5 dB)</option>
+                                        <option value="1x16">1:16 (13.7 dB)</option>
+                                    </select>
+                                </div>
+
+                                <div class="ftth-splitter-item ftth-param-group">
+                                    <label>Splitter 2:</label>
+                                    <select id="ftth-splitter2">
+                                        <option value="1x8">1:8 (10.5 dB)</option>
+                                        <option value="1x16" selected>1:16 (13.7 dB)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                                * Para usar apenas 1 splitter, selecione "1:8" no Splitter 2 e "1:8" no Splitter 1
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resultados Principais -->
+                    <div class="ftth-results-grid">
+                        <div class="ftth-result-card">
+                            <h4>📥 RX ONU (Downstream)</h4>
+                            <div class="ftth-result-value" id="ftth-rxOnu">-26.04</div>
+                            <div class="ftth-result-unit">dBm</div>
+                            <div id="ftth-statusOnu" class="ftth-status aprovado">✅ APROVADO</div>
+                        </div>
+
+                        <div class="ftth-result-card">
+                            <h4>📤 RX OLT (Upstream)</h4>
+                            <div class="ftth-result-value" id="ftth-rxOlt">-27.99</div>
+                            <div class="ftth-result-unit">dBm</div>
+                            <div id="ftth-statusOlt" class="ftth-status aprovado">✅ APROVADO</div>
+                        </div>
+                    </div>
+
+                    <!-- Botão para mostrar/ocultar análise -->
+                    <div class="ftth-toggle-section">
+                        <button class="ftth-button outline" onclick="ftthToggleAnalysis()" id="ftth-toggleBtn">
+                            🔍 Mostrar ANÁLISE DO SISTEMA
+                        </button>
+                    </div>
+
+                    <!-- Seção de Análise (inicialmente oculta) -->
+                    <div id="ftth-analysisSection" class="ftth-analysis-section hidden">
+                        <h3>📊 ANÁLISE DO SISTEMA</h3>
+                        
+                        <!-- Margens Detalhadas -->
+                        <div class="ftth-margin-display">
+                            <div class="ftth-margin-box">
+                                <strong>Margem Downstream:</strong><br>
+                                <span style="font-weight: bold; color: #3498db;" id="ftth-margemDownDetail">0.96</span> dB
+                            </div>
+                            <div class="ftth-margin-box">
+                                <strong>Margem Upstream:</strong><br>
+                                <span style="font-weight: bold; color: #3498db;" id="ftth-margemUpDetail">4.01</span> dB
+                            </div>
+                        </div>
+
+                        <!-- Barra de Margem -->
+                        <div class="ftth-margin-bar-container">
+                            <div class="ftth-margin-bar-labels">
+                                <span>0 dB</span>
+                                <span>Margem Mínima: 1 dB</span>
+                                <span>7 dB</span>
+                            </div>
+                            <div class="ftth-margin-bar">
+                                <div class="ftth-margin-fill" id="ftth-margemBarAnalysis" style="width: 14%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Tabela de Perdas na Análise -->
+                        <div class="ftth-table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Componente</th>
+                                        <th>Downstream (1490nm)</th>
+                                        <th>Upstream (1310nm)</th>
+                                        <th>Unidade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Potência Transmitida</strong></td>
+                                        <td id="ftth-analysisTxOlt">5.00</td>
+                                        <td id="ftth-analysisTxOnu">1.00</td>
+                                        <td>dBm</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Splitter 1</td>
+                                        <td colspan="2" style="text-align: center;" id="ftth-analysisSplitter1">10.50</td>
+                                        <td>dB</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Splitter 2</td>
+                                        <td colspan="2" style="text-align: center;" id="ftth-analysisSplitter2">13.70</td>
+                                        <td>dB</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Perda na Fibra</td>
+                                        <td id="ftth-analysisFibraDown">1.75</td>
+                                        <td id="ftth-analysisFibraUp">2.45</td>
+                                        <td>dB</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Perda em Conexões</td>
+                                        <td colspan="2" style="text-align: center;" id="ftth-analysisConexoes">1.20</td>
+                                        <td>dB</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Perda em Fusões</td>
+                                        <td colspan="2" style="text-align: center;" id="ftth-analysisFusoes">1.14</td>
+                                        <td>dB</td>
+                                    </tr>
+                                    <tr style="background: #f8f9fa; font-weight: bold;">
+                                        <td>PERDA TOTAL</td>
+                                        <td id="ftth-analysisTotalDown">28.29</td>
+                                        <td id="ftth-analysisTotalUp">28.99</td>
+                                        <td>dB</td>
+                                    </tr>
+                                    <tr style="background: #e9ecef; font-weight: bold;">
+                                        <td>SINAL RECEBIDO</td>
+                                        <td id="ftth-analysisRxDown">-23.29</td>
+                                        <td id="ftth-analysisRxUp">-27.99</td>
+                                        <td>dBm</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sensibilidade do Receptor</td>
+                                        <td id="ftth-analysisSensOnu">-27.00</td>
+                                        <td id="ftth-analysisSensOlt">-32.00</td>
+                                        <td>dBm</td>
+                                    </tr>
+                                    <tr style="background: #f8f9fa; font-weight: bold;">
+                                        <td>MARGEM</td>
+                                        <td id="ftth-analysisMargemDown">3.71</td>
+                                        <td id="ftth-analysisMargemUp">4.01</td>
+                                        <td>dB</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Distância Máxima -->
+                        <div class="ftth-distancia-box">
+                            <strong>📏 Distância Máxima Suportada:</strong> 
+                            <span style="font-weight: bold; color: #3498db;" id="ftth-distanciaMaximaAnalysis">4.2</span> Km
+                        </div>
+
+                        <!-- Avisos e Recomendações -->
+                        <div id="ftth-warningArea" class="ftth-warning" style="margin-top: 15px; padding: 12px; font-size: 12px;">
+                            <strong style="font-size: 13px;">⚠️ RECOMENDAÇÕES</strong><br>
+                            <span id="ftth-warningMessage">Sistema operacional dentro dos parâmetros normais.</span>
+                        </div>
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="ftth-button-container">
+                        <button class="ftth-button" onclick="ftthCalcular()">🔄 Calcular</button>
+                        <button class="ftth-button secondary" onclick="ftthResetarValores()">↺ Resetar</button>
+                    </div>
+
+                    <div class="ftth-footer">
+                        <p>Orçamento de Potência FTTH</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Página Logs -->
             <section id="page-logs" class="page-content">
-                <h2 class="page-title"><span>📋</span>Logs do Sistema</h2>
+                <h2 class="page-title"><span>📋</span>Logs</h2>
                 
                 <!-- Controle de Acesso para Logs -->
                 <div id="access-control-logs" class="hidden">
@@ -2575,6 +3163,7 @@
                                     <option value="Coordenadas">Coordenadas</option>
                                     <option value="Caixas">Caixas</option>
                                     <option value="Materiais">Materiais</option>
+                                    <option value="FTTH">FTTH</option>
                                     <option value="Usuários">Usuários</option>
                                     <option value="Importação">Importação</option>
                                 </select>
@@ -2617,9 +3206,9 @@
                 </div>
             </section>
 
-            <!-- Página Perfil do Usuário -->
+            <!-- Página Perfil -->
             <section id="page-perfil" class="page-content">
-                <h2 class="page-title"><span>👤</span>Meu Perfil</h2>
+                <h2 class="page-title"><span>👤</span>Perfil</h2>
                 
                 <div class="profile-container">
                     <div class="card">
@@ -2674,9 +3263,9 @@
                 </div>
             </section>
 
-            <!-- Página: Links Úteis -->
+            <!-- Página: Links -->
             <section id="page-links" class="page-content">
-                <h2 class="page-title"><span>🔗</span>Links Úteis</h2>
+                <h2 class="page-title"><span>🔗</span>Links</h2>
                 
                 <div class="card">
                     <h3>Recursos e Ferramentas</h3>
@@ -2742,19 +3331,6 @@
                     <div class="links-category">
                         <h4 class="category-title">Ferramentas de Suporte</h4>
                         <div class="links-grid">
-                            <div class="link-card">
-                                <div class="link-icon">
-                                    <i class="fas fa-calculator"></i>
-                                </div>
-                                <div class="link-title">Calculadora de Orçamento de Potência FTTH</div>
-                                <div class="link-description">
-                                    Ferramenta para cálculo de orçamento de potência em redes FTTH (Fiber to the Home).
-                                </div>
-                                <a href="https://kowalskymansur.github.io/portal/orcamentodepotenciaftth.html" target="_blank" class="link-button">
-                                    Acessar Calculadora
-                                </a>
-                            </div>
-                            
                             <div class="link-card">
                                 <div class="link-icon">
                                     <i class="fas fa-ruler"></i>
@@ -3179,7 +3755,7 @@
                 }
                 
                 if (hierarquia === 'Técnico') {
-                    navegacaoItens += `<li><a href="#" id="nav-perfil" class="nav-link">Meu Perfil</a></li>`;
+                    navegacaoItens += `<li><a href="#" id="nav-perfil" class="nav-link">Perfil</a></li>`;
                 }
                 
                 if (hierarquia === 'Administrador') {
@@ -3188,15 +3764,16 @@
                 
                 navegacaoItens += `<li><a href="#" id="nav-coordenadas" class="nav-link">Coordenadas</a></li>`;
                 navegacaoItens += `<li><a href="#" id="nav-materiais" class="nav-link">Materiais</a></li>`;
+                navegacaoItens += `<li><a href="#" id="nav-ftth" class="nav-link">Orç. Potência FTTH</a></li>`;
                 
                 if (hierarquia !== 'Técnico') {
-                    navegacaoItens += `<li><a href="#" id="nav-perfil" class="nav-link">Meu Perfil</a></li>`;
+                    navegacaoItens += `<li><a href="#" id="nav-perfil" class="nav-link">Perfil</a></li>`;
                 }
                 
-                navegacaoItens += `<li><a href="#" id="nav-links" class="nav-link">Links Úteis</a></li>`;
+                navegacaoItens += `<li><a href="#" id="nav-links" class="nav-link">Links</a></li>`;
                 
                 if (hierarquia === 'Administrador') {
-                    navegacaoItens += `<li><a href="#" id="nav-logs" class="nav-link">Logs do Sistema</a></li>`;
+                    navegacaoItens += `<li><a href="#" id="nav-logs" class="nav-link">Logs</a></li>`;
                 }
                 
                 navContainer.innerHTML = navegacaoItens;
@@ -3278,6 +3855,7 @@
                 configurarSistemaLogs();
                 configurarSistemaPerfil();
                 carregarUsuarios();
+                configurarSistemaFTTH();
             }
 
             function navegarParaPagina(pagina) {
@@ -3310,6 +3888,10 @@
                         break;
                     case 'materiais':
                         inicializarSistemaMateriais();
+                        break;
+                    case 'ftth':
+                        // Inicializar a calculadora FTTH
+                        ftthCalcular();
                         break;
                     case 'logs':
                         if (verificarAcesso('VisualizarLogs')) {
@@ -3671,9 +4253,6 @@
                         console.log(`✅ ${logsSistema.length} logs carregados do Supabase`);
                     }
                     
-                    // Não atualizar mais o total-logs pois o elemento foi removido
-                    // document.getElementById('total-logs').textContent = logsSistema.length;
-                    
                     return logsSistema;
                 } catch (error) {
                     console.error('❌ Erro ao carregar logs:', error);
@@ -3682,8 +4261,6 @@
                         const logsBackup = JSON.parse(localStorage.getItem('logs_sistema_backup') || '[]');
                         logsSistema = logsBackup;
                         console.log(`✅ ${logsSistema.length} logs carregados do backup (fallback)`);
-                        // Não atualizar mais o total-logs pois o elemento foi removido
-                        // document.getElementById('total-logs').textContent = logsSistema.length;
                         return logsSistema;
                     } catch (fallbackError) {
                         console.error('❌ Erro no fallback de carregamento de logs:', fallbackError);
@@ -3764,8 +4341,6 @@
                 
                 let logsFiltrados = [...logsSistema];
                 
-                // Administrador vê todos os logs independente do filtro de usuário
-                // O filtro de usuário só é aplicado se um usuário específico for selecionado
                 if (usuario) {
                     logsFiltrados = logsFiltrados.filter(log => log.usuario === usuario);
                 }
@@ -3920,9 +4495,6 @@
                                 </td>
                             </tr>
                         `).join('');
-                        
-                        // Não atualizar mais o total-usuarios pois o elemento foi removido
-                        // document.getElementById('total-usuarios').textContent = usuarios.length;
                     } else {
                         tbody.innerHTML = `
                             <tr>
@@ -5158,8 +5730,6 @@
                 
                 document.getElementById('loading-coordenadas').classList.add('hidden');
                 renderizarPagina();
-                
-                document.getElementById('total-coordenadas').textContent = coordenadas.length;
             }
 
             // =============================================
@@ -6292,9 +6862,6 @@
                     materiais = data || [];
                     console.log(`✅ ${materiais.length} materiais carregados`);
                     
-                    // Não atualizar mais o total-materiais pois o elemento foi removido
-                    // document.getElementById('total-materiais').textContent = materiais.length;
-                    
                     exibirMateriais(materiais);
                     
                     return materiais;
@@ -7106,6 +7673,215 @@
                 
                 window.open(outlookUrl, '_blank');
                 mostrarStatusMateriais('Email aberto no Outlook com os destinatários pré-definidos.', 'info');
+            }
+
+            // =============================================
+            // SISTEMA FTTH - NOVO
+            // =============================================
+
+            // Constantes de perda
+            const PERDA_FIBRA_1490 = 0.25; // dB/km
+            const PERDA_FIBRA_1310 = 0.35; // dB/km
+            const PERDA_CONEXAO = 0.3; // dB por conexão
+            const PERDA_FUSAO = 0.06; // dB por fusão
+            const PERDA_SPLITTER_1X8 = 10.5; // dB
+            const PERDA_SPLITTER_1X16 = 13.7; // dB
+
+            // Tabelas de classes - OLT
+            const CLASSES_OLT = {
+                'NokiaC+': { tx: 3, rx: -28 },
+                'HuaweiC+': { tx: 5, rx: -32 },
+                'HuaweiC++': { tx: 7, rx: -35 }
+            };
+
+            // Tabelas de classes - ONU
+            const CLASSES_ONU = {
+                'NokiaC+_ONU': { tx: 1, rx: -27 },
+                'HuaweiC+_ONU': { tx: 2, rx: -30 },
+                'HuaweiC++_ONU': { tx: 2, rx: -30 }
+            };
+
+            function configurarSistemaFTTH() {
+                const distancia = document.getElementById('ftth-distancia');
+                const conexoes = document.getElementById('ftth-conexoes');
+                const fusoes = document.getElementById('ftth-fusoes');
+                const margem = document.getElementById('ftth-margem');
+                const classeOLT = document.getElementById('ftth-classeOLT');
+                const classeONU = document.getElementById('ftth-classeONU');
+                const splitter1 = document.getElementById('ftth-splitter1');
+                const splitter2 = document.getElementById('ftth-splitter2');
+
+                // Adicionar listeners para recalcular automático
+                [distancia, conexoes, fusoes, margem, classeOLT, classeONU, splitter1, splitter2].forEach(el => {
+                    if (el) {
+                        el.addEventListener('input', ftthCalcular);
+                        el.addEventListener('change', ftthCalcular);
+                    }
+                });
+
+                // Calcular ao carregar
+                ftthCalcular();
+            }
+
+            function getPerdaSplitterFTTH(valor) {
+                return valor === '1x8' ? PERDA_SPLITTER_1X8 : PERDA_SPLITTER_1X16;
+            }
+
+            function ftthToggleAnalysis() {
+                const section = document.getElementById('ftth-analysisSection');
+                const btn = document.getElementById('ftth-toggleBtn');
+                
+                if (section.classList.contains('hidden')) {
+                    section.classList.remove('hidden');
+                    btn.innerHTML = '🔍 Ocultar ANÁLISE DO SISTEMA';
+                } else {
+                    section.classList.add('hidden');
+                    btn.innerHTML = '🔍 Mostrar ANÁLISE DO SISTEMA';
+                }
+            }
+
+            function ftthCalcular() {
+                // Obter valores dos inputs
+                const distancia = parseFloat(document.getElementById('ftth-distancia').value) || 0;
+                const conexoes = parseInt(document.getElementById('ftth-conexoes').value) || 0;
+                const fusoes = parseInt(document.getElementById('ftth-fusoes').value) || 0;
+                const margem = parseFloat(document.getElementById('ftth-margem').value) || 0;
+                const classeOLT = document.getElementById('ftth-classeOLT').value;
+                const classeONU = document.getElementById('ftth-classeONU').value;
+                const splitter1 = document.getElementById('ftth-splitter1').value;
+                const splitter2 = document.getElementById('ftth-splitter2').value;
+
+                // Obter valores das classes
+                const txOLT = CLASSES_OLT[classeOLT].tx;
+                const rxOLT = CLASSES_OLT[classeOLT].rx;
+                const txONU = CLASSES_ONU[classeONU].tx;
+                const rxONU = CLASSES_ONU[classeONU].rx;
+
+                // Calcular perdas dos splitters
+                const perdaSplitter1 = getPerdaSplitterFTTH(splitter1);
+                const perdaSplitter2 = getPerdaSplitterFTTH(splitter2);
+                const perdaSplitterTotal = perdaSplitter1 + perdaSplitter2;
+
+                // Calcular perdas
+                const perdaConexoes = conexoes * PERDA_CONEXAO;
+                const perdaFusoes = fusoes * PERDA_FUSAO;
+                
+                // Perdas na fibra
+                const perdaFibraDown = distancia * PERDA_FIBRA_1490;
+                const perdaFibraUp = distancia * PERDA_FIBRA_1310;
+
+                // Perdas totais
+                const perdaTotalDown = perdaSplitterTotal + perdaFibraDown + perdaConexoes + perdaFusoes;
+                const perdaTotalUp = perdaSplitterTotal + perdaFibraUp + perdaConexoes + perdaFusoes;
+
+                // Sinal recebido
+                const rxOnuCalculado = txOLT - perdaTotalDown;
+                const rxOltCalculado = txONU - perdaTotalUp;
+
+                // Margens
+                const margemDown = rxONU - rxOnuCalculado;
+                const margemUp = rxOLT - rxOltCalculado;
+
+                // Atualizar cards principais
+                document.getElementById('ftth-rxOnu').innerText = rxOnuCalculado.toFixed(2);
+                document.getElementById('ftth-rxOlt').innerText = rxOltCalculado.toFixed(2);
+
+                // Atualizar seção de análise
+                document.getElementById('ftth-margemDownDetail').innerText = margemDown.toFixed(2);
+                document.getElementById('ftth-margemUpDetail').innerText = margemUp.toFixed(2);
+                
+                // Atualizar tabela na análise
+                document.getElementById('ftth-analysisTxOlt').innerText = txOLT.toFixed(2);
+                document.getElementById('ftth-analysisTxOnu').innerText = txONU.toFixed(2);
+                document.getElementById('ftth-analysisSplitter1').innerText = perdaSplitter1.toFixed(2);
+                document.getElementById('ftth-analysisSplitter2').innerText = perdaSplitter2.toFixed(2);
+                document.getElementById('ftth-analysisFibraDown').innerText = perdaFibraDown.toFixed(2);
+                document.getElementById('ftth-analysisFibraUp').innerText = perdaFibraUp.toFixed(2);
+                document.getElementById('ftth-analysisConexoes').innerText = perdaConexoes.toFixed(2);
+                document.getElementById('ftth-analysisFusoes').innerText = perdaFusoes.toFixed(2);
+                document.getElementById('ftth-analysisTotalDown').innerText = perdaTotalDown.toFixed(2);
+                document.getElementById('ftth-analysisTotalUp').innerText = perdaTotalUp.toFixed(2);
+                document.getElementById('ftth-analysisRxDown').innerText = rxOnuCalculado.toFixed(2);
+                document.getElementById('ftth-analysisRxUp').innerText = rxOltCalculado.toFixed(2);
+                document.getElementById('ftth-analysisSensOnu').innerText = rxONU.toFixed(2);
+                document.getElementById('ftth-analysisSensOlt').innerText = rxOLT.toFixed(2);
+                document.getElementById('ftth-analysisMargemDown').innerText = margemDown.toFixed(2);
+                document.getElementById('ftth-analysisMargemUp').innerText = margemUp.toFixed(2);
+
+                // Barra de margem na análise
+                const maxMargem = 7;
+                const percentDown = Math.min((margemDown / maxMargem) * 100, 100);
+                document.getElementById('ftth-margemBarAnalysis').style.width = percentDown + '%';
+
+                // Status ONU
+                const statusOnu = document.getElementById('ftth-statusOnu');
+                if (rxOnuCalculado < rxONU) {
+                    statusOnu.className = 'ftth-status reprovado';
+                    statusOnu.innerHTML = '❌ REPROVADO - Sinal Fraco';
+                } else if (rxOnuCalculado > -8) {
+                    statusOnu.className = 'ftth-status atencao';
+                    statusOnu.innerHTML = '⚠️ ATENÇÃO - Saturação';
+                } else {
+                    statusOnu.className = 'ftth-status aprovado';
+                    statusOnu.innerHTML = '✅ APROVADO';
+                }
+
+                // Status OLT
+                const statusOlt = document.getElementById('ftth-statusOlt');
+                if (rxOltCalculado < rxOLT) {
+                    statusOlt.className = 'ftth-status reprovado';
+                    statusOlt.innerHTML = '❌ REPROVADO - Sinal Fraco';
+                } else if (rxOltCalculado > -8) {
+                    statusOlt.className = 'ftth-status atencao';
+                    statusOlt.innerHTML = '⚠️ ATENÇÃO - Saturação';
+                } else {
+                    statusOlt.className = 'ftth-status aprovado';
+                    statusOlt.innerHTML = '✅ APROVADO';
+                }
+
+                // Distância máxima
+                const distanciaMaxDown = (txOLT - perdaSplitterTotal - perdaConexoes - perdaFusoes - margem - rxONU) / PERDA_FIBRA_1490;
+                const distanciaMaxUp = (txONU - perdaSplitterTotal - perdaConexoes - perdaFusoes - margem - rxOLT) / PERDA_FIBRA_1310;
+                const distanciaMax = Math.min(distanciaMaxDown, distanciaMaxUp).toFixed(1);
+                document.getElementById('ftth-distanciaMaximaAnalysis').innerText = distanciaMax;
+
+                // Warnings
+                const warningMsg = [];
+                if (rxOnuCalculado < rxONU) warningMsg.push('⚠️ Sinal downstream fraco na ONU');
+                if (rxOltCalculado < rxOLT) warningMsg.push('⚠️ Sinal upstream fraco na OLT');
+                if (rxOnuCalculado > -8) warningMsg.push('⚠️ Risco de saturação na ONU');
+                if (rxOltCalculado > -8) warningMsg.push('⚠️ Risco de saturação na OLT');
+                if (margemDown < 1) warningMsg.push('⚠️ Margem downstream abaixo do recomendado (1 dB)');
+                if (margemUp < 1) warningMsg.push('⚠️ Margem upstream abaixo do recomendado (1 dB)');
+                if (distancia > distanciaMax) warningMsg.push('⚠️ Distância excede o máximo suportado');
+
+                const warningArea = document.getElementById('ftth-warningArea');
+                const warningMessage = document.getElementById('ftth-warningMessage');
+                
+                if (warningMsg.length > 0) {
+                    warningMessage.innerHTML = warningMsg.join('<br>');
+                    warningArea.style.background = '#fff3cd';
+                } else {
+                    warningMessage.innerHTML = '✅ Sistema operacional dentro dos parâmetros normais.';
+                    warningArea.style.background = '#d4edda';
+                }
+
+                // Registrar log do cálculo
+                registrarLog(usuarioLogado?.nome || 'Sistema', 'Cálculo de orçamento FTTH realizado', 'FTTH', `Distância: ${distancia}km, Margem Down: ${margemDown.toFixed(2)}dB, Margem Up: ${margemUp.toFixed(2)}dB`);
+            }
+
+            function ftthResetarValores() {
+                document.getElementById('ftth-distancia').value = '7';
+                document.getElementById('ftth-conexoes').value = '4';
+                document.getElementById('ftth-fusoes').value = '19';
+                document.getElementById('ftth-margem').value = '1';
+                document.getElementById('ftth-classeOLT').value = 'HuaweiC+';
+                document.getElementById('ftth-classeONU').value = 'NokiaC+_ONU';
+                document.getElementById('ftth-splitter1').value = '1x8';
+                document.getElementById('ftth-splitter2').value = '1x16';
+                ftthCalcular();
+                
+                mostrarToast('Valores resetados para o padrão', 'success');
             }
         } // Fim da verificação de inicialização
     </script>
