@@ -133,19 +133,27 @@
             margin-bottom: 30px;
         }
         
+        /* Estilo especial para a aba de gráficos - uma coluna */
+        .graficos-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
         .chart-container { 
             background: #f8fafc; 
             border-radius: 16px; 
             padding: 15px; 
             box-shadow: 0 3px 5px rgba(0,0,0,0.03); 
-            height: 400px;
+            height: 600px;
             display: flex;
             flex-direction: column;
             position: relative;
         }
         
         .chart-title { 
-            font-size: 0.95rem; 
+            font-size: 1rem; 
             font-weight: 600; 
             color: #0a2a44; 
             margin-bottom: 10px; 
@@ -159,6 +167,41 @@
             position: relative; 
             min-height: 0;
             width: 100%; 
+        }
+        
+        /* Seção de gráficos detalhados no dashboard */
+        .graficos-detalhados-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 3px solid #0a66c2;
+            box-shadow: 0 10px 25px rgba(10,102,194,0.15);
+        }
+        
+        .graficos-detalhados-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .graficos-detalhados-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a2a44;
+            border-left: 5px solid #0a66c2;
+            padding-left: 15px;
+            margin: 0;
+        }
+        
+        .graficos-detalhados-header h3 small {
+            font-size: 1rem;
+            color: #0a66c2;
+            font-weight: 400;
+            margin-left: 10px;
         }
         
         /* Seção de Comparativo */
@@ -538,7 +581,8 @@
             .dashboard-header { flex-direction: column; align-items: stretch; }
             .container { padding: 15px; }
             .charts-grid { grid-template-columns: 1fr; }
-            .chart-container { height: 350px; }
+            .graficos-grid { grid-template-columns: 1fr; }
+            .chart-container { height: 450px; }
             .comparativo-grid { grid-template-columns: 1fr; }
             .periodos-selector { flex-direction: column; align-items: stretch; }
             .success-popup { 
@@ -699,7 +743,7 @@
             <span>Carregando período...</span>
         </div>
 
-        <!-- Gráficos em grid -->
+        <!-- Gráficos em grid - 10 gráficos -->
         <div class="charts-grid" id="relatorioContainer">
             <!-- Materiais Usados -->
             <div class="chart-container">
@@ -777,7 +821,99 @@
             </div>
         </div>
 
-        <!-- Seção de Comparativo (sempre visível) -->
+        <!-- NOVA SEÇÃO: Gráficos Detalhados por Equipe (posicionada após os 10 gráficos) -->
+        <div class="graficos-detalhados-section">
+            <div class="graficos-detalhados-header">
+                <h3>
+                    📈 Gráficos Detalhados por Equipe
+                    <small>Análise completa de itens (todos os itens exibidos, mesmo com valor zero)</small>
+                </h3>
+                <div class="filters" style="margin: 0;">
+                    <div class="filter-group">
+                        <label>Período:</label>
+                        <select id="graficoDetalhadoPeriodoFilter" onchange="carregarGraficosDetalhadosDashboard()">
+                            <option value="7">7 dias</option>
+                            <option value="30" selected>30 dias</option>
+                            <option value="90">90 dias</option>
+                            <option value="365">1 ano</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Equipe:</label>
+                        <select id="graficoDetalhadoEquipeFilter" onchange="carregarGraficosDetalhadosDashboard()">
+                            <option value="">Todas as Equipes</option>
+                            <option value="Angra dos Reis">Angra dos Reis</option>
+                            <option value="Juiz de Fora">Juiz de Fora</option>
+                            <option value="Mangaratiba">Mangaratiba</option>
+                            <option value="Resende">Resende</option>
+                            <option value="Ubatuba">Ubatuba</option>
+                            <option value="Vassouras">Vassouras</option>
+                            <option value="Volta Redonda">Volta Redonda</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Técnico:</label>
+                        <select id="graficoDetalhadoTecnicoFilter" onchange="carregarGraficosDetalhadosDashboard()">
+                            <option value="">Todos os Técnicos</option>
+                        </select>
+                    </div>
+                    <button class="btn-filter" onclick="carregarGraficosDetalhadosDashboard()">Aplicar Filtros</button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="graficosDetalhadosLoading" style="display: none;" class="loading">
+                <div class="loading-spinner"></div>
+                <div>Carregando gráficos...</div>
+            </div>
+
+            <!-- Período info -->
+            <div class="periodo-info" id="graficosDetalhadosPeriodoInfo">
+                <span>Carregando período...</span>
+            </div>
+
+            <!-- Grid de Gráficos - EXATAMENTE IGUAL à aba Gráficos -->
+            <div class="graficos-grid" style="margin-bottom: 20px;">
+                <!-- Gráfico de Total por Item -->
+                <div class="chart-container">
+                    <div class="chart-title">📊 Quantidade Total por Item</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoDetalhadoTotalItens"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Gráfico de Média por Dia por Item -->
+                <div class="chart-container">
+                    <div class="chart-title">📈 Média por Dia por Item</div>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoDetalhadoMediaItens"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela Detalhada de Itens - EXATAMENTE IGUAL à aba Gráficos -->
+            <div class="summary-section" style="margin-top: 0;">
+                <h3>📋 Detalhamento de Itens por Equipe</h3>
+                <div class="summary-table-container">
+                    <table class="summary-table" id="tabelaDetalhadaItens">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Categoria</th>
+                                <th>Quantidade Total</th>
+                                <th>Média por Dia</th>
+                                <th>% do Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detalhadaItensBody">
+                            <tr><td colspan="5" style="text-align: center;">Aplique os filtros para visualizar os dados</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Comparativo -->
         <div class="comparativo-section">
             <div class="comparativo-header">
                 <h3>📈 Comparativo entre Períodos</h3>
@@ -910,7 +1046,7 @@
             </div>
         </div>
 
-        <!-- Seção de Planilha Resumo (AGORA DEPOIS DO COMPARATIVO) -->
+        <!-- Seção de Planilha Resumo -->
         <div class="summary-section">
             <h3>📊 Planilha Resumo de Materiais</h3>
             <div class="summary-tables" id="summaryTables"></div>
@@ -987,24 +1123,70 @@
         let popupTimeout = null;
         const chartInstances = {};
 
-        // FUNÇÃO PARA MOSTRAR POPUP DE SUCESSO - NOVA
+        // Lista completa de todos os itens disponíveis para os gráficos
+        const todosItens = [
+            // Cabos
+            "MP040016 - Cabo Drop 02F - Furukawa",
+            "MP040017 - Cabo Drop 12F - Furukawa",
+            "MP040010 - Cabo AS80 06F - Furukawa",
+            "MP040006 - Cabo AS120 12F - Tubo Unico - MiniRA - Furukawa",
+            "MP040007 - Cabo AS120 12F - Multitubo - Furukawa",
+            "MP040009 - Cabo AS200 12F - Multitubo - Furukawa",
+            "MP040015 - Cabo BLI 12F - Furukawa",
+            "MP040021 - Cabo BLI 24F - Furukawa",
+            "MP040011 - Cabo AS80 24F - Multitubo - Furukawa",
+            "MP040008 - Cabo AS120 24F - Multitubo - Furukawa",
+            "MP040018 - Cabo 24F - Anti-roedor - Furukawa",
+            "MP040002 - Cabo AS80 36F - Multitubo - ZTT",
+            "MP040023 - Cabo AS80 36F - Multitubo - Furukawa",
+            "MP040020 - Cabo AS120 36F - Multitubo - Furukawa",
+            "MP040012 - Cabo AS80 48F - Multitubo - Furukawa",
+            "MP040004 - Cabo AS80 72F - Multitubo - ZTT",
+            "MP040005 - Cabo AS80 144F - Multitubo - ZTT",
+            
+            // Alças
+            "MP100002 - Alça Azul - P/cabo 12F - DPR",
+            "MP100003 - Alça Verde - P/cabo Furukawa 24F, 48F, 36F e 72F",
+            "MP100004 - Alça Vermelha - P/corodalha de aço",
+            "MP100005 - Alça Laranja - P/cabo Furukawa 72F",
+            "MP100006 - Alça Amarela - P/cabo Furukawa 24F e 36F",
+            "MP100007 - Alça Azul - P/cabo Furukawa 12F",
+            "MP100008 - Alça Preta - P/cabo Furukawa 144F",
+            "MP100009 - Alça Vermelha - P/corodalha de aço",
+            "MP100010 - Alça P/corodalha dielétrica",
+            "MP100011 - Alça Branca - P/cabo Furukawa 12F Mini RA",
+            
+            // Caixas
+            "CEO Nova",
+            "CEO Usada",
+            "CTO Redex",
+            "CTO Furukawa",
+            
+            // Itens avulsos
+            "Optloop",
+            "Bap",
+            "Bandeja",
+            "Rack",
+            "Protetor",
+            "Kit Derivação",
+            "Kit Oval"
+        ];
+
+        // FUNÇÃO PARA MOSTRAR POPUP DE SUCESSO
         function mostrarPopupSucesso() {
             const popup = document.getElementById('successPopup');
             
-            // Limpar timeout anterior se existir
             if (popupTimeout) {
                 clearTimeout(popupTimeout);
             }
             
-            // Mostrar popup
             popup.style.display = 'flex';
             
-            // Configurar para fechar após 5 segundos
             popupTimeout = setTimeout(() => {
                 popup.style.animation = 'popupFadeOut 0.3s ease-out';
                 setTimeout(() => {
                     popup.style.display = 'none';
-                    popup.style.animation = ''; // Resetar animação
+                    popup.style.animation = '';
                 }, 300);
             }, 5000);
         }
@@ -1053,7 +1235,6 @@
                 const periodo3 = document.getElementById('periodo3').value;
                 const equipe = document.getElementById('equipeFilter').value;
                 
-                // Atualizar datas dos períodos
                 atualizarDatasPeriodos();
                 
                 const dataFim = new Date();
@@ -1072,7 +1253,6 @@
                 const dataInicio3Str = dataInicio3.toISOString().split('T')[0];
                 const dataFimStr = dataFim.toISOString().split('T')[0];
                 
-                // Buscar dados do período 1
                 let query1 = supabase
                     .from('materiais_manutencao')
                     .select('*')
@@ -1084,7 +1264,6 @@
                 const { data: registros1, error1 } = await query1;
                 if (error1) throw error1;
                 
-                // Buscar dados do período 2
                 let query2 = supabase
                     .from('materiais_manutencao')
                     .select('*')
@@ -1096,7 +1275,6 @@
                 const { data: registros2, error2 } = await query2;
                 if (error2) throw error2;
                 
-                // Buscar dados do período 3
                 let query3 = supabase
                     .from('materiais_manutencao')
                     .select('*')
@@ -1108,21 +1286,14 @@
                 const { data: registros3, error3 } = await query3;
                 if (error3) throw error3;
                 
-                // Processar dados
                 const dados1 = processarDadosGraficos(registros1);
                 const dados2 = processarDadosGraficos(registros2);
                 const dados3 = processarDadosGraficos(registros3);
                 
-                // Calcular métricas
                 const metricas = calcularMetricasComparativas(dados1, dados2, dados3, registros1, registros2, registros3);
                 
-                // Atualizar tabela comparativa
                 atualizarTabelaComparativa(metricas);
-                
-                // Atualizar tabelas detalhadas
                 atualizarTabelasDetalhadas(dados1, dados2, dados3);
-                
-                // Criar gráficos comparativos
                 criarGraficosComparativos(metricas);
                 
             } catch (error) {
@@ -1155,7 +1326,6 @@
 
         // FUNÇÃO PARA ATUALIZAR TABELAS DETALHADAS
         function atualizarTabelasDetalhadas(dados1, dados2, dados3) {
-            // Materiais Diversos
             const todosMateriais = new Set([
                 ...Object.keys(dados1.materiaisUsados),
                 ...Object.keys(dados2.materiaisUsados),
@@ -1184,7 +1354,6 @@
                 }).join('');
             }
             
-            // Cabos
             const todosCabos = new Set([
                 ...Object.keys(dados1.cabos),
                 ...Object.keys(dados2.cabos),
@@ -1277,7 +1446,6 @@
 
         // FUNÇÃO PARA CRIAR GRÁFICOS COMPARATIVOS
         function criarGraficosComparativos(metricas) {
-            // Destruir gráficos anteriores
             if (chartInstances.graficoComparativoRegistros) chartInstances.graficoComparativoRegistros.destroy();
             if (chartInstances.graficoComparativoMateriais) chartInstances.graficoComparativoMateriais.destroy();
             if (chartInstances.graficoComparativoCabos) chartInstances.graficoComparativoCabos.destroy();
@@ -1286,7 +1454,6 @@
             const periodo2Label = document.getElementById('dataPeriodo2').innerText;
             const periodo3Label = document.getElementById('dataPeriodo3').innerText;
             
-            // Gráfico de Registros
             const ctxReg = document.getElementById('graficoComparativoRegistros')?.getContext('2d');
             if (ctxReg) {
                 chartInstances.graficoComparativoRegistros = new Chart(ctxReg, {
@@ -1352,7 +1519,6 @@
                 });
             }
             
-            // Gráfico de Materiais
             const ctxMat = document.getElementById('graficoComparativoMateriais')?.getContext('2d');
             if (ctxMat) {
                 chartInstances.graficoComparativoMateriais = new Chart(ctxMat, {
@@ -1418,7 +1584,6 @@
                 });
             }
             
-            // Gráfico de Cabos
             const ctxCab = document.getElementById('graficoComparativoCabos')?.getContext('2d');
             if (ctxCab) {
                 chartInstances.graficoComparativoCabos = new Chart(ctxCab, {
@@ -1517,6 +1682,319 @@
             }, 300);
         }
 
+        // FUNÇÃO PARA CARREGAR OS GRÁFICOS DETALHADOS NO DASHBOARD
+        window.carregarGraficosDetalhadosDashboard = async function() {
+            const loadingEl = document.getElementById('graficosDetalhadosLoading');
+            const periodo = document.getElementById('graficoDetalhadoPeriodoFilter').value;
+            const equipe = document.getElementById('graficoDetalhadoEquipeFilter').value;
+            const tecnico = document.getElementById('graficoDetalhadoTecnicoFilter').value;
+            
+            // Atualizar período info
+            const dataFim = new Date();
+            const dataInicio = new Date();
+            dataInicio.setDate(dataInicio.getDate() - parseInt(periodo));
+            const dataInicioStr = dataInicio.toLocaleDateString('pt-BR');
+            const dataFimStr = dataFim.toLocaleDateString('pt-BR');
+            
+            let textoPeriodo = `${dataInicioStr} a ${dataFimStr} (${periodo} dias)`;
+            if (equipe) textoPeriodo += ` • Equipe: ${equipe}`;
+            if (tecnico) textoPeriodo += ` • Técnico: ${tecnico}`;
+            
+            document.getElementById('graficosDetalhadosPeriodoInfo').innerHTML = `<span>📅 ${textoPeriodo}</span>`;
+            
+            loadingEl.style.display = 'block';
+            
+            // Destruir gráficos anteriores
+            if (chartInstances.graficoDetalhadoTotalItens) chartInstances.graficoDetalhadoTotalItens.destroy();
+            if (chartInstances.graficoDetalhadoMediaItens) chartInstances.graficoDetalhadoMediaItens.destroy();
+            
+            const dataInicial = new Date();
+            dataInicial.setDate(dataInicial.getDate() - parseInt(periodo));
+            const dataInicialStr = dataInicial.toISOString().split('T')[0];
+            
+            try {
+                let query = supabase
+                    .from('materiais_manutencao')
+                    .select('*')
+                    .gte('data', dataInicialStr)
+                    .order('data', { ascending: false });
+                
+                if (equipe) query = query.eq('equipe', equipe);
+                if (tecnico) query = query.eq('tecnico', tecnico);
+                
+                const { data: registros, error } = await query;
+                if (error) throw error;
+                
+                // Processar todos os itens - incluindo os que têm valor zero
+                const itensData = {};
+                const diasPeriodo = parseInt(periodo);
+                
+                // Inicializar TODOS os itens com zero
+                todosItens.forEach(item => {
+                    const nomeExibicao = extrairNomeItem(item);
+                    itensData[item] = {
+                        nome: nomeExibicao,
+                        total: 0,
+                        media: 0,
+                        categoria: item.includes('MP040') ? 'Cabo' : 
+                                  item.includes('MP100') ? 'Alça' :
+                                  item.includes('CEO') || item.includes('CTO') ? 'Caixa' : 'Avulso'
+                    };
+                });
+                
+                // Somar quantidades dos registros
+                registros.forEach(reg => {
+                    // Cabos
+                    if (reg.cabos) {
+                        reg.cabos.forEach(cabo => {
+                            if (itensData[cabo.item]) {
+                                itensData[cabo.item].total += cabo.quantidade || 0;
+                            }
+                        });
+                    }
+                    
+                    // Alças
+                    if (reg.alcas) {
+                        reg.alcas.forEach(alca => {
+                            if (itensData[alca.item]) {
+                                itensData[alca.item].total += alca.quantidade || 0;
+                            }
+                        });
+                    }
+                    
+                    // Caixas
+                    if (reg.caixas) {
+                        reg.caixas.forEach(caixa => {
+                            if (itensData[caixa.item]) {
+                                itensData[caixa.item].total += caixa.quantidade || 0;
+                            }
+                        });
+                    }
+                    
+                    // Itens avulsos
+                    if (reg.optloop && parseInt(reg.optloop) > 0) itensData['Optloop'].total += parseInt(reg.optloop);
+                    if (reg.bap && parseInt(reg.bap) > 0) itensData['Bap'].total += parseInt(reg.bap);
+                    if (reg.bandeja && parseInt(reg.bandeja) > 0) itensData['Bandeja'].total += parseInt(reg.bandeja);
+                    if (reg.rack && parseInt(reg.rack) > 0) itensData['Rack'].total += parseInt(reg.rack);
+                    if (reg.protetor_emenda && parseInt(reg.protetor_emenda) > 0) itensData['Protetor'].total += parseInt(reg.protetor_emenda);
+                    if (reg.kit_derivacao && parseInt(reg.kit_derivacao) > 0) itensData['Kit Derivação'].total += parseInt(reg.kit_derivacao);
+                    if (reg.kit_oval && parseInt(reg.kit_oval) > 0) itensData['Kit Oval'].total += parseInt(reg.kit_oval);
+                });
+                
+                // Calcular médias para todos os itens (incluindo os zero)
+                Object.keys(itensData).forEach(key => {
+                    itensData[key].media = diasPeriodo > 0 ? itensData[key].total / diasPeriodo : 0;
+                });
+                
+                // IMPORTANTE: Não filtrar itens com total > 0 - mostrar TODOS os itens
+                const itensExibir = Object.values(itensData);
+                
+                // Ordenar por quantidade total (decrescente) - mantendo os zeros no final
+                itensExibir.sort((a, b) => b.total - a.total);
+                
+                const labels = itensExibir.map(item => item.nome);
+                const totais = itensExibir.map(item => item.total);
+                const medias = itensExibir.map(item => item.media);
+                
+                // Cores para os gráficos
+                const cores = [
+                    '#36A2EB', '#FFCE56', '#4BC0C0', '#FF9F40', '#20B2AA', '#F08080', 
+                    '#9ACD32', '#FF4500', '#2E8B57', '#DAA520', '#DC143C', '#00CED1',
+                    '#228B22', '#FF8C00', '#4169E1', '#006400', '#8B0000', '#008080',
+                    '#1E90FF', '#32CD32', '#FFA07A', '#5F9EA0', '#FF6346', '#4682B4',
+                    '#7FFF00', '#FFD700', '#CD5C5C', '#6495ED', '#40E0D0', '#BA55D3',
+                    '#FF1493', '#00FA9A', '#8A2BE2', '#A52A2A', '#DEB887', '#5F9EA0',
+                    '#7B68EE', '#48D1CC', '#C71585', '#191970'
+                ];
+                
+                // Criar gráfico de Total - com todos os itens
+                const ctxTotal = document.getElementById('graficoDetalhadoTotalItens')?.getContext('2d');
+                if (ctxTotal) {
+                    chartInstances.graficoDetalhadoTotalItens = new Chart(ctxTotal, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Quantidade Total',
+                                data: totais,
+                                backgroundColor: cores.slice(0, labels.length),
+                                borderRadius: 6,
+                                barPercentage: 0.7,
+                                categoryPercentage: 0.8
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const item = itensExibir[context.dataIndex];
+                                            return `${item.categoria}: ${context.raw}`;
+                                        }
+                                    }
+                                },
+                                datalabels: {
+                                    display: true,
+                                    color: '#000000',
+                                    anchor: 'end',
+                                    align: 'right',
+                                    offset: 4,
+                                    font: { weight: 'bold', size: 10 },
+                                    formatter: function(value) {
+                                        return value;
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: { 
+                                    beginAtZero: true, 
+                                    grid: { display: true },
+                                    ticks: { font: { size: 10 } }
+                                },
+                                y: { 
+                                    grid: { display: false }, 
+                                    ticks: { 
+                                        font: { size: 11 },
+                                        autoSkip: false,
+                                        maxRotation: 0,
+                                        minRotation: 0
+                                    }
+                                }
+                            },
+                            layout: {
+                                padding: { left: 10, right: 30, top: 10, bottom: 20 }
+                            }
+                        }
+                    });
+                }
+                
+                // Criar gráfico de Média - com todos os itens
+                const ctxMedia = document.getElementById('graficoDetalhadoMediaItens')?.getContext('2d');
+                if (ctxMedia) {
+                    chartInstances.graficoDetalhadoMediaItens = new Chart(ctxMedia, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Média por Dia',
+                                data: medias.map(v => Math.round(v * 100) / 100),
+                                backgroundColor: cores.slice(0, labels.length),
+                                borderRadius: 6,
+                                barPercentage: 0.7,
+                                categoryPercentage: 0.8
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const item = itensExibir[context.dataIndex];
+                                            return `${item.categoria}: ${context.raw.toFixed(2)}`;
+                                        }
+                                    }
+                                },
+                                datalabels: {
+                                    display: true,
+                                    color: '#000000',
+                                    anchor: 'end',
+                                    align: 'right',
+                                    offset: 4,
+                                    font: { weight: 'bold', size: 10 },
+                                    formatter: function(value) {
+                                        return value.toFixed(2);
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: { 
+                                    beginAtZero: true, 
+                                    grid: { display: true },
+                                    ticks: { font: { size: 10 } }
+                                },
+                                y: { 
+                                    grid: { display: false }, 
+                                    ticks: { 
+                                        font: { size: 11 },
+                                        autoSkip: false,
+                                        maxRotation: 0,
+                                        minRotation: 0
+                                    }
+                                }
+                            },
+                            layout: {
+                                padding: { left: 10, right: 30, top: 10, bottom: 20 }
+                            }
+                        }
+                    });
+                }
+                
+                // Atualizar tabela detalhada com todos os itens
+                const tbody = document.getElementById('detalhadaItensBody');
+                const totalGeral = itensExibir.reduce((acc, item) => acc + item.total, 0);
+                
+                if (totalGeral === 0) {
+                    // Se totalGeral for zero, ainda mostrar todos os itens com zeros
+                    tbody.innerHTML = itensExibir.map(item => {
+                        return `
+                            <tr>
+                                <td>${item.nome}</td>
+                                <td>${item.categoria}</td>
+                                <td>${item.total}</td>
+                                <td>${item.media.toFixed(2)}</td>
+                                <td>0.0%</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = itensExibir.map(item => {
+                        const percentual = ((item.total / totalGeral) * 100).toFixed(1) + '%';
+                        return `
+                            <tr>
+                                <td>${item.nome}</td>
+                                <td>${item.categoria}</td>
+                                <td>${item.total}</td>
+                                <td>${item.media.toFixed(2)}</td>
+                                <td>${percentual}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar gráficos detalhados:', error);
+                alert('Erro ao carregar dados: ' + error.message);
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        };
+
+        // Função para popular técnicos no filtro da nova seção
+        function popularTecnicosGraficoDetalhado() {
+            const selectTecnico = document.getElementById('graficoDetalhadoTecnicoFilter');
+            selectTecnico.innerHTML = '<option value="">Todos os Técnicos</option>';
+            
+            const tecnicosUnicos = new Set();
+            Object.values(tecnicosPorEquipe).forEach(lista => {
+                lista.forEach(tec => tecnicosUnicos.add(tec));
+            });
+            
+            Array.from(tecnicosUnicos).sort().forEach(tec => {
+                const opt = document.createElement('option');
+                opt.value = tec;
+                opt.textContent = tec;
+                selectTecnico.appendChild(opt);
+            });
+        }
+
         function destruirGraficos() {
             const chartIds = [
                 'graficoMateriaisUsadosTotal', 'graficoMateriaisUsadosMedia',
@@ -1527,7 +2005,9 @@
                 'graficoAnalistasTotal',
                 'graficoComparativoRegistros',
                 'graficoComparativoMateriais',
-                'graficoComparativoCabos'
+                'graficoComparativoCabos',
+                'graficoDetalhadoTotalItens',
+                'graficoDetalhadoMediaItens'
             ];
             chartIds.forEach(id => {
                 if (chartInstances[id]) {
@@ -2132,7 +2612,7 @@
             summaryContainer.innerHTML = html || '<p>Nenhum dado disponível para o período selecionado.</p>';
         }
 
-        // FUNÇÃO DE SALVAR REGISTRO - MODIFICADA (COM BANDEJA)
+        // FUNÇÃO DE SALVAR REGISTRO
         document.getElementById('salvarBtn').addEventListener('click', async function() {
             const btn = this;
             
@@ -2177,7 +2657,6 @@
                     throw error;
                 }
                 
-                // Mostrar popup de sucesso
                 mostrarPopupSucesso();
                 
                 document.getElementById('registro').value = '';
@@ -2203,7 +2682,6 @@
                 document.getElementById('kitDeriv').value = '';
                 document.getElementById('kitOval').value = '';
                 
-                // Atualizar dashboard se estiver visível
                 if (document.getElementById('dashboard-tab').classList.contains('active')) {
                     carregarDashboard();
                 }
@@ -2218,7 +2696,7 @@
             }
         });
 
-        // FUNÇÃO PARA EXPORTAR RELATÓRIO EXCEL COMPLETO (COM BANDEJA)
+        // FUNÇÃO PARA EXPORTAR RELATÓRIO EXCEL COMPLETO
         window.exportarRelatorioExcel = async function() {
             const periodo = document.getElementById('periodoFilter').value;
             const equipe = document.getElementById('equipeFilter').value;
@@ -2399,7 +2877,7 @@
                 wsAnalistas['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
                 XLSX.utils.book_append_sheet(wb, wsAnalistas, 'Analistas');
                 
-                // Planilha 7: REGISTROS DETALHADOS (COM BANDEJA)
+                // Planilha 7: REGISTROS DETALHADOS
                 const detalhesData = [
                     ['REGISTROS DETALHADOS'],
                     ['Data', 'Tipo', 'Evento', 'Analista', 'Equipe', 'Técnico', 'Cabos', 'Alças', 'Caixas', 'Optloop', 'Bap', 'Bandeja', 'Rack', 'Protetor', 'Kit Derivação', 'Kit Oval', 'Total Itens']
@@ -2526,13 +3004,16 @@
                 
                 if (error) throw error;
                 
+                // Carregar a nova seção com os gráficos detalhados
+                await carregarGraficosDetalhadosDashboard();
+                
                 // ATUALIZAR TABELA COM 30 REGISTROS
                 atualizarTabelaRecentes(registros);
                 
                 if (registros.length > 0) {
                     const dados = processarDadosGraficos(registros);
                     criarPlanilhaResumo(dados, registros.length);
-                    criarGraficos(registros, dados, periodo); // Passando o período para a função de gráficos
+                    criarGraficos(registros, dados, periodo);
                 } else {
                     document.getElementById('summaryTables').innerHTML = '<p>Nenhum dado disponível para o período selecionado.</p>';
                 }
@@ -2548,10 +3029,9 @@
             }
         };
 
-        // ATUALIZAR TABELA COM 30 REGISTROS (COM SCROLL)
+        // FUNÇÃO PARA ATUALIZAR TABELA COM 30 REGISTROS
         function atualizarTabelaRecentes(registros) {
             const tbody = document.getElementById('recentesBody');
-            // Pegar até 30 registros
             const recentes = registros.slice(0, 30);
             
             if (recentes.length === 0) {
@@ -2590,33 +3070,17 @@
             }).join('');
         }
 
-        // FUNÇÃO ATUALIZADA PARA CRIAR GRÁFICOS COM MÉDIA POR DIA
+        // FUNÇÃO PARA CRIAR GRÁFICOS
         function criarGraficos(registros, dados, periodo) {
             const totalRegistros = registros.length;
-            const diasPeriodo = parseInt(periodo); // Número de dias do período selecionado
+            const diasPeriodo = parseInt(periodo);
             
             if (totalRegistros === 0) return;
             
-            // CORES PROFISSIONAIS - SEM ROSA, ROXO OU LILÁS
             const coresProfissionais = [
-                '#36A2EB', // Azul claro
-                '#FFCE56', // Amarelo
-                '#4BC0C0', // Verde água
-                '#FF9F40', // Laranja
-                '#20B2AA', // Verde mar
-                '#F08080', // Coral (vermelho claro)
-                '#9ACD32', // Verde amarelado
-                '#FF4500', // Laranja avermelhado
-                '#2E8B57', // Verde escuro
-                '#DAA520', // Dourado
-                '#DC143C', // Carmim
-                '#00CED1', // Ciano escuro
-                '#228B22', // Verde floresta
-                '#FF8C00', // Laranja escuro
-                '#4169E1', // Azul royal
-                '#006400', // Verde muito escuro
-                '#8B0000', // Vermelho escuro
-                '#008080'  // Verde azulado
+                '#36A2EB', '#FFCE56', '#4BC0C0', '#FF9F40', '#20B2AA', '#F08080', 
+                '#9ACD32', '#FF4500', '#2E8B57', '#DAA520', '#DC143C', '#00CED1',
+                '#228B22', '#FF8C00', '#4169E1', '#006400', '#8B0000', '#008080'
             ];
             
             function quebrarTexto(texto, maxLength = 15) {
@@ -2629,7 +3093,6 @@
             }
             
             function criarConfiguracaoBarra(labels, dados, cores, isMedia = false) {
-                // Para gráficos de média, os dados já devem estar calculados como total / dias
                 const dadosExibicao = isMedia ? dados.map(v => arredondarInteiro(v)) : dados;
                 
                 return {
@@ -2704,7 +3167,6 @@
                     return quebrarTexto(nome, 15);
                 });
                 
-                // Gráfico de Total
                 const ctxTotal = document.getElementById('graficoMateriaisUsadosTotal')?.getContext('2d');
                 if (ctxTotal) {
                     chartInstances.graficoMateriaisUsadosTotal = new Chart(ctxTotal, 
@@ -2712,7 +3174,6 @@
                     );
                 }
                 
-                // Gráfico de Média por Dia - USANDO A NOVA FÓRMULA: total / dias do período
                 const mediasPorDia = materiaisUsadosArray.map(m => m[1] / diasPeriodo);
                 const ctxMedia = document.getElementById('graficoMateriaisUsadosMedia')?.getContext('2d');
                 if (ctxMedia) {
@@ -2731,7 +3192,6 @@
                 const cores = cabosArray.map((_, i) => coresProfissionais[(i + 6) % coresProfissionais.length]);
                 const labels = cabosArray.map(c => quebrarTexto(extrairNomeItem(c[0]), 15));
                 
-                // Gráfico de Total
                 const ctxTotal = document.getElementById('graficoCabosTotal')?.getContext('2d');
                 if (ctxTotal) {
                     chartInstances.graficoCabosTotal = new Chart(ctxTotal, 
@@ -2739,7 +3199,6 @@
                     );
                 }
                 
-                // Gráfico de Média por Dia - USANDO A NOVA FÓRMULA: total / dias do período
                 const mediasPorDia = cabosArray.map(c => c[1] / diasPeriodo);
                 const ctxMedia = document.getElementById('graficoCabosMedia')?.getContext('2d');
                 if (ctxMedia) {
@@ -2755,18 +3214,11 @@
             
             if (equipesArray.length > 0) {
                 const coresEquipes = [
-                    '#FFA500', // Laranja
-                    '#0a66c2', // Azul
-                    '#32CD32', // Verde
-                    '#FF4500', // Laranja avermelhado
-                    '#20B2AA', // Verde mar
-                    '#FFCE56', // Amarelo
-                    '#4169E1'  // Azul royal
+                    '#FFA500', '#0a66c2', '#32CD32', '#FF4500', '#20B2AA', '#FFCE56', '#4169E1'
                 ];
                 
                 const labels = equipesArray.map(e => quebrarTexto(e[0], 12));
                 
-                // Gráfico de Total
                 const ctxEquipesTotal = document.getElementById('graficoEquipesTotal')?.getContext('2d');
                 if (ctxEquipesTotal) {
                     chartInstances.graficoEquipesTotal = new Chart(ctxEquipesTotal, 
@@ -2774,7 +3226,6 @@
                     );
                 }
                 
-                // Gráfico de Média por Dia - USANDO A NOVA FÓRMULA: total / dias do período
                 const mediasPorDia = equipesArray.map(e => e[1] / diasPeriodo);
                 const ctxEquipesMedia = document.getElementById('graficoEquipesMedia')?.getContext('2d');
                 if (ctxEquipesMedia) {
@@ -2793,7 +3244,6 @@
                 const coresTecnicos = tecnicosArray.map((_, i) => coresProfissionais[(i + 12) % coresProfissionais.length]);
                 const labelsTecnicos = tecnicosArray.map(t => quebrarTexto(t[0], 15));
                 
-                // Gráfico de Total
                 const ctxTecnicosTotal = document.getElementById('graficoTecnicosTotal')?.getContext('2d');
                 if (ctxTecnicosTotal) {
                     chartInstances.graficoTecnicosTotal = new Chart(ctxTecnicosTotal, 
@@ -2801,7 +3251,6 @@
                     );
                 }
                 
-                // Gráfico de Média por Dia - USANDO A NOVA FÓRMULA: total / dias do período
                 const mediasPorDia = tecnicosArray.map(t => t[1] / diasPeriodo);
                 const ctxTecnicosMedia = document.getElementById('graficoTecnicosMedia')?.getContext('2d');
                 if (ctxTecnicosMedia) {
@@ -2811,7 +3260,7 @@
                 }
             }
             
-            // TIPOS - mantido
+            // TIPOS
             const tiposArray = [
                 { label: 'Manutenção', valor: dados.tipos.Manutenção || 0 },
                 { label: 'Requisição', valor: dados.tipos.Requisição || 0 }
@@ -2824,17 +3273,17 @@
                 );
             }
             
-            // ANALISTAS - SEM ALTERAÇÃO
+            // ANALISTAS
             const analistasArray = Object.entries(dados.analistas)
                 .sort((a, b) => b[1] - a[1]);
             
             if (analistasArray.length > 0) {
                 const coresAnalistas = analistasArray.map(([nome]) => {
                     switch(nome) {
-                        case 'Kowalsky': return '#0a66c2'; // Azul
-                        case 'Naira': return '#FF69B4'; // Rosa (MANTIDO)
-                        case 'Pablo': return '#FFA500'; // Laranja
-                        case 'Washington': return '#32CD32'; // Verde
+                        case 'Kowalsky': return '#0a66c2';
+                        case 'Naira': return '#FF69B4';
+                        case 'Pablo': return '#FFA500';
+                        case 'Washington': return '#32CD32';
                         default: return '#36A2EB';
                     }
                 });
@@ -3253,9 +3702,33 @@
         // ADICIONAR EVENTOS PARA CARREGAMENTO AUTOMÁTICO
         document.getElementById('periodoFilter').addEventListener('change', carregarDashboardComDebounce);
         document.getElementById('equipeFilter').addEventListener('change', carregarDashboardComDebounce);
+        
+        // Eventos para a nova seção
+        document.getElementById('graficoDetalhadoEquipeFilter').addEventListener('change', function() {
+            const equipe = this.value;
+            const selectTecnico = document.getElementById('graficoDetalhadoTecnicoFilter');
+            
+            if (equipe) {
+                const tecnicosDisponiveis = tecnicosPorEquipe[equipe] || [];
+                selectTecnico.innerHTML = '<option value="">Todos os Técnicos</option>';
+                tecnicosDisponiveis.forEach(tec => {
+                    const opt = document.createElement('option');
+                    opt.value = tec;
+                    opt.textContent = tec;
+                    selectTecnico.appendChild(opt);
+                });
+            } else {
+                popularTecnicosGraficoDetalhado();
+            }
+            
+            carregarGraficosDetalhadosDashboard();
+        });
 
         // Inicializar período info
         atualizarPeriodoInfo();
+
+        // Popular técnicos nos filtros
+        popularTecnicosGraficoDetalhado();
 
         if (document.getElementById('dashboard-tab').classList.contains('active')) {
             carregarDashboard();
