@@ -710,7 +710,7 @@
             </div>
             
             <div class="chart-container">
-                <div class="chart-title">📦 Materiais Usados - Média</div>
+                <div class="chart-title">📦 Materiais Usados - Média por Dia</div>
                 <div class="chart-wrapper">
                     <canvas id="graficoMateriaisUsadosMedia"></canvas>
                 </div>
@@ -725,7 +725,7 @@
             </div>
             
             <div class="chart-container">
-                <div class="chart-title">🔌 Cabos - Média</div>
+                <div class="chart-title">🔌 Cabos - Média por Dia</div>
                 <div class="chart-wrapper">
                     <canvas id="graficoCabosMedia"></canvas>
                 </div>
@@ -740,7 +740,7 @@
             </div>
             
             <div class="chart-container">
-                <div class="chart-title">🚩 Registros por Equipe - Média</div>
+                <div class="chart-title">🚩 Registros por Equipe - Média por Dia</div>
                 <div class="chart-wrapper">
                     <canvas id="graficoEquipesMedia"></canvas>
                 </div>
@@ -755,7 +755,7 @@
             </div>
             
             <div class="chart-container">
-                <div class="chart-title">👷 Registros por Técnico - Média</div>
+                <div class="chart-title">👷 Registros por Técnico - Média por Dia</div>
                 <div class="chart-wrapper">
                     <canvas id="graficoTecnicosMedia"></canvas>
                 </div>
@@ -1850,7 +1850,7 @@
             
             total += parseInt(dados.optloop) || 0;
             total += parseInt(dados.bap) || 0;
-            total += parseInt(dados.bandeja) || 0; // NOVO CAMPO BANDEJA
+            total += parseInt(dados.bandeja) || 0;
             total += parseInt(dados.rack) || 0;
             total += parseInt(dados.protetor_emenda) || 0;
             total += parseInt(dados.kit_derivacao) || 0;
@@ -2138,7 +2138,7 @@
             
             const erro = validarFormulario();
             if (erro) {
-                alert(erro); // Usando alert para erro por simplicidade
+                alert(erro);
                 return;
             }
             
@@ -2160,7 +2160,7 @@
                 caixas: getMultiselectWithQuantity('caixaContainer'),
                 optloop: document.getElementById('optloop').value || null,
                 bap: document.getElementById('bap').value || null,
-                bandeja: document.getElementById('bandeja').value || null, // NOVO CAMPO BANDEJA
+                bandeja: document.getElementById('bandeja').value || null,
                 rack: document.getElementById('rack').value || null,
                 protetor_emenda: document.getElementById('protetor').value || null,
                 kit_derivacao: document.getElementById('kitDeriv').value || null,
@@ -2197,7 +2197,7 @@
                 
                 document.getElementById('optloop').value = '';
                 document.getElementById('bap').value = '';
-                document.getElementById('bandeja').value = ''; // NOVO CAMPO BANDEJA
+                document.getElementById('bandeja').value = '';
                 document.getElementById('rack').value = '';
                 document.getElementById('protetor').value = '';
                 document.getElementById('kitDeriv').value = '';
@@ -2424,7 +2424,7 @@
                         caixasStr,
                         reg.optloop || '0',
                         reg.bap || '0',
-                        reg.bandeja || '0', // NOVO CAMPO BANDEJA
+                        reg.bandeja || '0',
                         reg.rack || '0',
                         reg.protetor_emenda || '0',
                         reg.kit_derivacao || '0',
@@ -2532,7 +2532,7 @@
                 if (registros.length > 0) {
                     const dados = processarDadosGraficos(registros);
                     criarPlanilhaResumo(dados, registros.length);
-                    criarGraficos(registros, dados);
+                    criarGraficos(registros, dados, periodo); // Passando o período para a função de gráficos
                 } else {
                     document.getElementById('summaryTables').innerHTML = '<p>Nenhum dado disponível para o período selecionado.</p>';
                 }
@@ -2590,9 +2590,10 @@
             }).join('');
         }
 
-        // FUNÇÃO CORRIGIDA PARA CRIAR GRÁFICOS - SEM ROSA/ROXO/LILÁS
-        function criarGraficos(registros, dados) {
+        // FUNÇÃO ATUALIZADA PARA CRIAR GRÁFICOS COM MÉDIA POR DIA
+        function criarGraficos(registros, dados, periodo) {
             const totalRegistros = registros.length;
+            const diasPeriodo = parseInt(periodo); // Número de dias do período selecionado
             
             if (totalRegistros === 0) return;
             
@@ -2628,6 +2629,7 @@
             }
             
             function criarConfiguracaoBarra(labels, dados, cores, isMedia = false) {
+                // Para gráficos de média, os dados já devem estar calculados como total / dias
                 const dadosExibicao = isMedia ? dados.map(v => arredondarInteiro(v)) : dados;
                 
                 return {
@@ -2652,7 +2654,11 @@
                                 callbacks: {
                                     label: function(context) {
                                         const valor = context.raw;
-                                        return isMedia ? `Média: ${valor}` : `Total: ${valor}`;
+                                        if (isMedia) {
+                                            return `Média por dia: ${valor}`;
+                                        } else {
+                                            return `Total: ${valor}`;
+                                        }
                                     }
                                 }
                             },
@@ -2686,7 +2692,7 @@
                 };
             }
             
-            // MATERIAIS USADOS - Total (SEM ROSA/ROXO/LILÁS)
+            // MATERIAIS USADOS - Total
             const materiaisUsadosArray = Object.entries(dados.materiaisUsados)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 6);
@@ -2698,6 +2704,7 @@
                     return quebrarTexto(nome, 15);
                 });
                 
+                // Gráfico de Total
                 const ctxTotal = document.getElementById('graficoMateriaisUsadosTotal')?.getContext('2d');
                 if (ctxTotal) {
                     chartInstances.graficoMateriaisUsadosTotal = new Chart(ctxTotal, 
@@ -2705,16 +2712,17 @@
                     );
                 }
                 
-                const medias = materiaisUsadosArray.map(m => m[1] / totalRegistros);
+                // Gráfico de Média por Dia - USANDO A NOVA FÓRMULA: total / dias do período
+                const mediasPorDia = materiaisUsadosArray.map(m => m[1] / diasPeriodo);
                 const ctxMedia = document.getElementById('graficoMateriaisUsadosMedia')?.getContext('2d');
                 if (ctxMedia) {
                     chartInstances.graficoMateriaisUsadosMedia = new Chart(ctxMedia, 
-                        criarConfiguracaoBarra(labels, medias, cores, true)
+                        criarConfiguracaoBarra(labels, mediasPorDia, cores, true)
                     );
                 }
             }
             
-            // CABOS - Total e Média (SEM ROSA/ROXO/LILÁS)
+            // CABOS - Total e Média por Dia
             const cabosArray = Object.entries(dados.cabos)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 6);
@@ -2723,6 +2731,7 @@
                 const cores = cabosArray.map((_, i) => coresProfissionais[(i + 6) % coresProfissionais.length]);
                 const labels = cabosArray.map(c => quebrarTexto(extrairNomeItem(c[0]), 15));
                 
+                // Gráfico de Total
                 const ctxTotal = document.getElementById('graficoCabosTotal')?.getContext('2d');
                 if (ctxTotal) {
                     chartInstances.graficoCabosTotal = new Chart(ctxTotal, 
@@ -2730,16 +2739,17 @@
                     );
                 }
                 
-                const medias = cabosArray.map(c => c[1] / totalRegistros);
+                // Gráfico de Média por Dia - USANDO A NOVA FÓRMULA: total / dias do período
+                const mediasPorDia = cabosArray.map(c => c[1] / diasPeriodo);
                 const ctxMedia = document.getElementById('graficoCabosMedia')?.getContext('2d');
                 if (ctxMedia) {
                     chartInstances.graficoCabosMedia = new Chart(ctxMedia, 
-                        criarConfiguracaoBarra(labels, medias, cores, true)
+                        criarConfiguracaoBarra(labels, mediasPorDia, cores, true)
                     );
                 }
             }
             
-            // EQUIPES - cores distintas (sem rosa/roxo/lilás)
+            // EQUIPES - Total e Média por Dia
             const equipesArray = Object.entries(dados.equipes)
                 .sort((a, b) => b[1] - a[1]);
             
@@ -2756,6 +2766,7 @@
                 
                 const labels = equipesArray.map(e => quebrarTexto(e[0], 12));
                 
+                // Gráfico de Total
                 const ctxEquipesTotal = document.getElementById('graficoEquipesTotal')?.getContext('2d');
                 if (ctxEquipesTotal) {
                     chartInstances.graficoEquipesTotal = new Chart(ctxEquipesTotal, 
@@ -2763,15 +2774,17 @@
                     );
                 }
                 
+                // Gráfico de Média por Dia - USANDO A NOVA FÓRMULA: total / dias do período
+                const mediasPorDia = equipesArray.map(e => e[1] / diasPeriodo);
                 const ctxEquipesMedia = document.getElementById('graficoEquipesMedia')?.getContext('2d');
                 if (ctxEquipesMedia) {
                     chartInstances.graficoEquipesMedia = new Chart(ctxEquipesMedia, 
-                        criarConfiguracaoBarra(labels, equipesArray.map(e => e[1] / totalRegistros), coresEquipes.slice(0, equipesArray.length), true)
+                        criarConfiguracaoBarra(labels, mediasPorDia, coresEquipes.slice(0, equipesArray.length), true)
                     );
                 }
             }
             
-            // TÉCNICOS - SEM ROSA/ROXO/LILÁS
+            // TÉCNICOS - Total e Média por Dia
             const tecnicosArray = Object.entries(dados.tecnicos)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 6);
@@ -2780,6 +2793,7 @@
                 const coresTecnicos = tecnicosArray.map((_, i) => coresProfissionais[(i + 12) % coresProfissionais.length]);
                 const labelsTecnicos = tecnicosArray.map(t => quebrarTexto(t[0], 15));
                 
+                // Gráfico de Total
                 const ctxTecnicosTotal = document.getElementById('graficoTecnicosTotal')?.getContext('2d');
                 if (ctxTecnicosTotal) {
                     chartInstances.graficoTecnicosTotal = new Chart(ctxTecnicosTotal, 
@@ -2787,11 +2801,12 @@
                     );
                 }
                 
-                const mediasTecnicos = tecnicosArray.map(t => t[1] / totalRegistros);
+                // Gráfico de Média por Dia - USANDO A NOVA FÓRMULA: total / dias do período
+                const mediasPorDia = tecnicosArray.map(t => t[1] / diasPeriodo);
                 const ctxTecnicosMedia = document.getElementById('graficoTecnicosMedia')?.getContext('2d');
                 if (ctxTecnicosMedia) {
                     chartInstances.graficoTecnicosMedia = new Chart(ctxTecnicosMedia, 
-                        criarConfiguracaoBarra(labelsTecnicos, mediasTecnicos, coresTecnicos, true)
+                        criarConfiguracaoBarra(labelsTecnicos, mediasPorDia, coresTecnicos, true)
                     );
                 }
             }
@@ -2809,7 +2824,7 @@
                 );
             }
             
-            // ANALISTAS - SEM ALTERAÇÃO (mantidas as cores originais)
+            // ANALISTAS - SEM ALTERAÇÃO
             const analistasArray = Object.entries(dados.analistas)
                 .sort((a, b) => b[1] - a[1]);
             
@@ -2876,7 +2891,7 @@
                     dados.materiaisUsados['Bap'] = (dados.materiaisUsados['Bap'] || 0) + parseInt(reg.bap);
                 }
                 
-                if (reg.bandeja && parseInt(reg.bandeja) > 0) { // NOVO CAMPO BANDEJA
+                if (reg.bandeja && parseInt(reg.bandeja) > 0) {
                     dados.materiaisUsados['Bandeja'] = (dados.materiaisUsados['Bandeja'] || 0) + parseInt(reg.bandeja);
                 }
                 
