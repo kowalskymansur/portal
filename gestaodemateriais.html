@@ -185,6 +185,60 @@
             margin-left: 10px;
         }
         
+        /* Filtros no estilo do consumo mensal */
+        .graficos-detalhados-filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            margin: 0;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #0a2a44;
+            min-width: 45px;
+        }
+        
+        .filter-group select {
+            min-width: 120px;
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .filter-group select:focus {
+            border-color: #0a66c2;
+            outline: none;
+        }
+        
+        .btn-filter {
+            background: #0a2a44;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .btn-filter:hover {
+            background: #12457a;
+        }
+        
         /* Grid de gráficos detalhados */
         .graficos-grid {
             display: grid;
@@ -790,6 +844,8 @@
                     <label class="required">📋 Registro</label>
                     <select id="registro" name="registro" required>
                         <option value="" selected></option>
+                        <option value="Ampliação / Empresarial">Ampliação / Empresarial</option>
+                        <option value="FTTA">FTTA</option>
                         <option value="Manutenção">Manutenção</option>
                         <option value="Requisição">Requisição</option>
                     </select>
@@ -1012,14 +1068,14 @@
             </div>
         </div>
 
-        <!-- NOVA SEÇÃO: Gráficos Detalhados por Equipe -->
+        <!-- NOVA SEÇÃO: Gráficos Detalhados por Equipe - COM FILTROS NO ESTILO DO CONSUMO MENSAL -->
         <div class="graficos-detalhados-section">
             <div class="graficos-detalhados-header">
                 <h3>
                     📈 Gráficos Detalhados por Equipe
                     <small>Análise completa de itens (todos os itens exibidos, mesmo com valor zero)</small>
                 </h3>
-                <div class="filters" style="margin: 0;">
+                <div class="graficos-detalhados-filters">
                     <div class="filter-group">
                         <label>Período:</label>
                         <select id="graficoDetalhadoPeriodoFilter" onchange="carregarGraficosDetalhadosDashboard()">
@@ -3413,7 +3469,7 @@
             }
             
             // TIPOS DE REGISTRO
-            if (dados.tipos.Manutenção > 0 || dados.tipos.Requisição > 0) {
+            if (dados.tipos.Manutenção > 0 || dados.tipos.Requisição > 0 || dados.tipos['Ampliação / Empresarial'] > 0 || dados.tipos['FTTA'] > 0) {
                 html += `
                     <div class="summary-table-container">
                         <h4>📊 Tipos de Registro</h4>
@@ -3428,22 +3484,23 @@
                             <tbody>
                 `;
                 
-                const totalTipos = (dados.tipos.Manutenção || 0) + (dados.tipos.Requisição || 0);
-                const percManutencao = totalTipos > 0 ? ((dados.tipos.Manutenção || 0) / totalTipos * 100).toFixed(1) + '%' : '0%';
-                const percRequisicao = totalTipos > 0 ? ((dados.tipos.Requisição || 0) / totalTipos * 100).toFixed(1) + '%' : '0%';
+                const totalTipos = (dados.tipos.Manutenção || 0) + (dados.tipos.Requisição || 0) + (dados.tipos['Ampliação / Empresarial'] || 0) + (dados.tipos['FTTA'] || 0);
                 
-                html += `
-                    <tr>
-                        <td>Manutenção</td>
-                        <td>${dados.tipos.Manutenção || 0}</td>
-                        <td>${percManutencao}</td>
-                    </tr>
-                    <tr>
-                        <td>Requisição</td>
-                        <td>${dados.tipos.Requisição || 0}</td>
-                        <td>${percRequisicao}</td>
-                    </tr>
-                `;
+                // Ordem alfabética dos tipos
+                const tiposOrdenados = Object.keys(dados.tipos).sort();
+                
+                tiposOrdenados.forEach(tipo => {
+                    if (dados.tipos[tipo] > 0) {
+                        const percentual = totalTipos > 0 ? ((dados.tipos[tipo] || 0) / totalTipos * 100).toFixed(1) + '%' : '0%';
+                        html += `
+                            <tr>
+                                <td>${tipo}</td>
+                                <td>${dados.tipos[tipo] || 0}</td>
+                                <td>${percentual}</td>
+                            </tr>
+                        `;
+                    }
+                });
                 
                 html += `
                         </tbody>
@@ -3572,10 +3629,16 @@
                     ['Total de cabos (metros):', Object.values(dados.cabos).reduce((a, b) => a + b, 0)],
                     [],
                     ['ANÁLISE POR TIPO'],
-                    ['Tipo', 'Quantidade', 'Percentual'],
-                    ['Manutenção', dados.tipos.Manutenção || 0, `${((dados.tipos.Manutenção || 0) / totalReg * 100).toFixed(1)}%`],
-                    ['Requisição', dados.tipos.Requisição || 0, `${((dados.tipos.Requisição || 0) / totalReg * 100).toFixed(1)}%`]
+                    ['Tipo', 'Quantidade', 'Percentual']
                 ];
+                
+                // Ordem alfabética dos tipos
+                const tiposOrdenados = Object.keys(dados.tipos).sort();
+                tiposOrdenados.forEach(tipo => {
+                    const qtd = dados.tipos[tipo] || 0;
+                    const perc = totalReg > 0 ? ((qtd / totalReg) * 100).toFixed(1) + '%' : '0%';
+                    resumoData.push([tipo, qtd, perc]);
+                });
                 
                 const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
                 wsResumo['!cols'] = [{ wch: 25 }, { wch: 15 }];
@@ -3898,7 +3961,7 @@
 
         function processarDadosGraficos(registros) {
             const dados = {
-                tipos: { Manutenção: 0, Requisição: 0 },
+                tipos: { Manutenção: 0, Requisição: 0, 'Ampliação / Empresarial': 0, 'FTTA': 0 },
                 materiaisUsados: {},
                 cabos: {},
                 analistas: {},
@@ -4043,6 +4106,8 @@
                                     <label>📋 Registro</label>
                                     <select id="editRegistro" required>
                                         <option value="">Selecione...</option>
+                                        <option value="Ampliação / Empresarial" ${data.registro === 'Ampliação / Empresarial' ? 'selected' : ''}>Ampliação / Empresarial</option>
+                                        <option value="FTTA" ${data.registro === 'FTTA' ? 'selected' : ''}>FTTA</option>
                                         <option value="Manutenção" ${data.registro === 'Manutenção' ? 'selected' : ''}>Manutenção</option>
                                         <option value="Requisição" ${data.registro === 'Requisição' ? 'selected' : ''}>Requisição</option>
                                     </select>
