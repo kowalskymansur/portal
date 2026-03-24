@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Almoxarifado</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body { font-family: Arial; margin:20px; }
+    button { margin:5px; padding:8px; }
+    .card { border:1px solid #ccc; padding:10px; margin:10px 0; }
+  </style>
+</head>
+<body>
+
+<h1>📦 Sistema de Almoxarifado</h1>
+
+<h2>Login</h2>
+<input id="email" placeholder="Email">
+<input id="senha" type="password" placeholder="Senha">
+<button onclick="login()">Entrar</button>
+
+<div id="app" style="display:none">
+
+  <h2>📊 Dashboard</h2>
+  <div id="dashboard"></div>
+
+  <h2>📦 Itens</h2>
+  <div id="items"></div>
+
+  <h2>🛒 Solicitação</h2>
+  <div id="cart"></div>
+  <button onclick="enviarSolicitacao()">Enviar</button>
+
+  <h2>📄 Solicitações</h2>
+  <div id="requests"></div>
+
+  <h2>📷 QR Code</h2>
+  <div id="reader" style="width:300px"></div>
+
+</div>
+
+<script>
+const SUPABASE_URL = "https://tfdniuwqjqvscwiypbuo.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmZG5pdXdxanF2c2N3aXlwYnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU1OTgsImV4cCI6MjA3NzUwMTU5OH0.ZeIef1hnlE4W10xD8Z23hiNEoOTdseNj_ox13uqchA0";
+
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let user = null;
+let cart = [];
+
+async function login(){
+  const email = document.getElementById('email').value;
+  const senha = document.getElementById('senha').value;
+
+  const { data, error } = await client.auth.signInWithPassword({ email, password: senha });
+
+  if(error) return alert(error.message);
+
+  user = data.user;
+  document.getElementById('app').style.display = 'block';
+
+  carregarTudo();
+}
+
+async function carregarTudo(){
+  carregarItens();
+  carregarSolicitacoes();
+  dashboard();
+  iniciarQR();
+}
+
+async function carregarItens(){
+  const { data } = await client.from('items').select('*');
+
+  const div = document.getElementById('items');
+  div.innerHTML = '';
+
+  data.forEach(item => {
+    div.innerHTML += `
+      <div class="card">
+        ${item.description}
+        <button onclick="addCarrinho('${item.id}','${item.description}')">Adicionar</button>
+      </div>
+    `;
+  });
+}
+
+function addCarrinho(id, desc){
+  cart.push({ id, desc, qty:1 });
+  renderCart();
+}
+
+function renderCart(){
+  const div = document.getElementById('cart');
+  div.innerHTML = '';
+
+  cart.forEach(c => {
+    div.innerHTML += `<div>${c.desc}</div>`;
+  });
+}
+
+async function enviarSolicitacao(){
+  const { data: req } = await client.from('requests').insert([
+    { user_id: user.id, status:'PENDENTE' }
+  ]).select().single();
+
+  for(let c of cart){
+    await client.from('request_items').insert([
+      { request_id: req.id, item_id: c.id, quantity:1 }
+    ]);
+  }
+
+  cart = [];
+  renderCart();
+  carregarSolicitacoes();
+}
+
+async function carregarSolicitacoes(){
+  const { data } = await client
+    .from('requests')
+    .select('*, request_items(*, items(*))');
+
+  const div = document.getElementById('requests');
+  div.innerHTML = '';
+
+  data.forEach(r => {
+    let itens = r.request_items.map(i => i.items.description).join(', ');
+
+    div.innerHTML += `
+      <div class="card">
+        ${r.status} - ${itens}
+        <button onclick="aprovar('${r.id}')">Aprovar</button>
+      </div>
+    `;
+  });
+}
+
+async function aprovar(id){
+  await client.from('requests').update({ status:'APROVADO' }).eq('id',id);
+  carregarSolicitacoes();
+}
+
+async function dashboard(){
+  const { data } = await client.from('requests').select('*');
+
+  const pendentes = data.filter(r=>r.status==='PENDENTE').length;
+  const aprovadas = data.filter(r=>r.status==='APROVADO').length;
+
+  document.getElementById('dashboard').innerHTML = `
+    Pendentes: ${pendentes} | Aprovadas: ${aprovadas}
+  `;
+}
+
+function iniciarQR(){
+  const scanner = new Html5QrcodeScanner("reader", { fps:10, qrbox:250 });
+
+  scanner.render((text)=>{
+    alert("Item lido: "+text);
+  });
+}
+
+</script>
+
+</body>
+</html>
