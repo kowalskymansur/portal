@@ -498,11 +498,14 @@
                         <div id="empty-state-caixas-utilizadas" class="empty-state hidden"><div class="empty-state-icon">📦</div><p>Nenhuma caixa reservada encontrada.</p></div>
                     </div>
                     <div class="card"><h3>Cadastrar Nova(s) Caixa(s)</h3>
-                        <div class="categoria-info"><strong>Nota:</strong> Todas as caixas serão automaticamente categorizadas como "Caixa CE"</div>
+                        <div class="categoria-info"><strong>Nota:</strong> Selecione a categoria correta para que as caixas sejam enviadas para a tabela correspondente ao serem movidas.</div>
                         <form id="form-caixas">
                             <div class="form-group"><label for="caixas-texto">Nomes das Caixas (separados por ;)</label><textarea id="caixas-texto" rows="4" placeholder="Ex: CAIXA A; CAIXA B; CAIXA C"></textarea></div>
-                            <div class="form-group"><label for="usuario-cadastro">Usuário que está cadastrando</label><input type="text" id="usuario-cadastro" required></div>
-                            <div class="form-group"><button type="submit" id="btn-cadastrar-caixas" class="btn-success">Cadastrar Caixas</button><button type="button" id="btn-limpar-caixas" class="btn-danger">Limpar Formulário</button></div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex: 1;"><label for="caixa-categoria-cadastro">Categoria da Caixa</label><select id="caixa-categoria-cadastro" required><option value="Caixa CD">Caixa CD</option><option value="Caixa CE" selected>Caixa CE</option><option value="Caixa CS">Caixa CS</option><option value="Caixa L1">Caixa L1</option><option value="Caixa L2">Caixa L2</option><option value="POP">POP</option><option value="Sobra Técnica">Sobra Técnica</option></select></div>
+                                <div class="form-group" style="flex: 1;"><label for="usuario-cadastro">Usuário que está cadastrando</label><input type="text" id="usuario-cadastro" required></div>
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;"><button type="submit" id="btn-cadastrar-caixas" class="btn-success">Cadastrar Caixas</button><button type="button" id="btn-limpar-caixas" class="btn-danger">Limpar Formulário</button></div>
                         </form>
                     </div>
                 </div>
@@ -520,7 +523,7 @@
                         </div>
                     </div>
                     <div class="card"><h3>📋 Formatos Esperados do CSV</h3>
-                        <div class="formato-tabela"><h4>Para a tabela <code>coordenadas</code>:</h4><p>Colunas esperadas (os nomes devem estar na primeira linha):</p><ul><li><code>Nome</code> (Texto) - Nome do local</li><li><code>Tipo de Local</code> (Texto) - Categoria/classificação</li><li><code>X</code> (Número) - Longitude</li><li><code>Y</code> (Número) - Latitude</li></ul><p><strong>Exemplo de linha:</strong> <code>Caixa 001,Caixa CE,-46.6333,-23.5505</code></p></div>
+                        <div class="formato-tabela"><h4>Para a tabela <code>coordenadas</code>:</h4><p>Colunas esperadas (os nomes devem estar na primeira linha):</p><ul><li><code>Nome</code> (Texto) - Nome do local</li><li><code>Tipo de Local</code> (Texto) - Categoria/classificação</li><li><code>X</code> (Número) - Longitude</li><li><code>Y</code> (Número) - Latitude</li></ul><p><strong>💡 Nota:</strong> Os registros serão automaticamente distribuídos entre as tabelas <code>coordenada-cd</code>, <code>coordenada-ce</code>, etc., com base no <code>Tipo de Local</code>.</p><p><strong>Exemplo de linha:</strong> <code>Caixa 001,Caixa CE,-46.6333,-23.5505</code></p></div>
                         <div class="formato-tabela" style="margin-top: 15px;"><h4>Para a tabela <code>cx_disponiveis</code>:</h4><p>Colunas esperadas:</p><ul><li><code>nome</code> (Texto) - Nome da caixa</li><li><code>categoria</code> (Texto, opcional) - Ex: "Caixa CE"</li><li><code>usuario_cadastro</code> (Texto) - Quem cadastrou</li><li><code>status</code> (Texto, opcional) - "disponivel" (padrão)</li></ul><p><strong>Exemplo de linha:</strong> <code>CAIXA A,Caixa CE,João Silva,disponivel</code></p></div>
                     </div>
                 </div>
@@ -711,6 +714,24 @@
             const TABELA_MATERIAIS = 'materiais';
             const TABELA_CATEGORIAS = 'categorias';
             const TABELA_LOGS = 'logs_sistema';
+
+            const TODAS_TABELAS_COORDENADAS = [
+                'coordenada-cd', 'coordenada-ce', 'coordenada-cs', 
+                'coordenada-l1', 'coordenada-l2', 'coordenada-pop', 
+                'coordenada-st', 'coordenadas'
+            ];
+
+            function obterTabelaPorTipo(tipo) {
+                const t = tipo ? tipo.toString().trim() : '';
+                if (t === 'Caixa CD') return 'coordenada-cd';
+                if (t === 'Caixa CE') return 'coordenada-ce';
+                if (t === 'Caixa CS') return 'coordenada-cs';
+                if (t === 'Caixa L1') return 'coordenada-l1';
+                if (t === 'Caixa L2') return 'coordenada-l2';
+                if (t === 'POP') return 'coordenada-pop';
+                if (t === 'Sobra Técnica') return 'coordenada-st';
+                return 'coordenadas';
+            }
             
             let supabase;
             try {
@@ -1174,12 +1195,8 @@
 
             async function descobrirColunaIdCoordenadas() {
                 if (colunaIdCoordenadas) return colunaIdCoordenadas;
-                try {
-                    const { data, error } = await supabase.from(TABELA_COORDENADAS).select('*').limit(1);
-                    if (error) throw error;
-                    if (data && data.length > 0) { colunaIdCoordenadas = 'Nome'; return 'Nome'; }
-                    colunaIdCoordenadas = 'Nome'; return 'Nome';
-                } catch (error) { colunaIdCoordenadas = 'Nome'; return 'Nome'; }
+                colunaIdCoordenadas = 'Nome';
+                return 'Nome';
             }
 
             function normalizarCoordenada(v) { return v ? v.toString().replace(',', '.') : ''; }
@@ -1187,22 +1204,40 @@
             async function validarCoordenadaDuplicada(nome, lat, lng, excluirAtual = null) {
                 try {
                     const ln = normalizarCoordenada(lat); const lg = normalizarCoordenada(lng);
-                    const { data, error } = await supabase.from(TABELA_COORDENADAS).select('*').or(`Nome.eq.${nome},and(Y.eq.${ln},X.eq.${lg})`);
-                    if (error || !data) return false;
-                    for (const d of data) { if (excluirAtual && d.Nome === excluirAtual) continue; if (d.Nome === nome) { mostrarToast(`Já existe coordenada com nome "${nome}"`, 'erro'); return true; } if (normalizarCoordenada(d.Y) === ln && normalizarCoordenada(d.X) === lg) { mostrarToast(`Já existe coordenada em ${ln}, ${lg}`, 'erro'); return true; } }
+                    for (const tabela of TODAS_TABELAS_COORDENADAS) {
+                        const { data, error } = await supabase.from(tabela).select('*').or(`Nome.eq.${nome},and(Y.eq.${ln},X.eq.${lg})`);
+                        if (error || !data) continue;
+                        for (const d of data) { 
+                            if (excluirAtual && d.Nome === excluirAtual) continue; 
+                            if (d.Nome === nome) { mostrarToast(`Já existe coordenada com nome "${nome}" na tabela ${tabela}`, 'erro'); return true; } 
+                            if (normalizarCoordenada(d.Y) === ln && normalizarCoordenada(d.X) === lg) { mostrarToast(`Já existe coordenada em ${ln}, ${lg} na tabela ${tabela}`, 'erro'); return true; } 
+                        }
+                    }
                     return false;
                 } catch (e) { return false; }
             }
 
             async function obterTodasCoordenadas() {
-                let todas = []; let inicio = 0; const limite = 1000; let hasMore = true;
+                let todas = [];
                 try {
-                    while (hasMore) {
-                        const { data, error } = await supabase.from(TABELA_COORDENADAS).select('*').range(inicio, inicio + limite - 1);
-                        if (error) break;
-                        if (data && data.length > 0) { todas = todas.concat(data); if (data.length < limite) hasMore = false; else inicio += limite; }
-                        else hasMore = false;
-                    }
+                    const promises = TODAS_TABELAS_COORDENADAS.map(async (tabela) => {
+                        let tabelaDados = [];
+                        let inicio = 0;
+                        const limite = 1000;
+                        let hasMore = true;
+                        while (hasMore) {
+                            const { data, error } = await supabase.from(tabela).select('*').range(inicio, inicio + limite - 1);
+                            if (error) break;
+                            if (data && data.length > 0) {
+                                tabelaDados = tabelaDados.concat(data);
+                                if (data.length < limite) hasMore = false;
+                                else inicio += limite;
+                            } else hasMore = false;
+                        }
+                        return tabelaDados;
+                    });
+                    const resultados = await Promise.all(promises);
+                    resultados.forEach(r => { todas = todas.concat(r); });
                     return todas;
                 } catch (e) { return []; }
             }
@@ -1226,10 +1261,13 @@
 
             async function excluirMultiplasCoordenadas(ids) {
                 try {
-                    const result = await supabase.from(TABELA_COORDENADAS).delete().in('Nome', ids).select();
-                    if (result.error) throw result.error;
-                    await registrarLog(usuarioLogado.nome, `${ids.length} coordenada(s) excluída(s)`, 'Coordenadas', `Nomes: ${ids.join(', ')}`);
-                    mostrarToast(`${ids.length} coordenada(s) excluída(s)!`);
+                    let totalExcluidos = 0;
+                    for (const tabela of TODAS_TABELAS_COORDENADAS) {
+                        const { data, error } = await supabase.from(tabela).delete().in('Nome', ids).select();
+                        if (!error && data) totalExcluidos += data.length;
+                    }
+                    await registrarLog(usuarioLogado.nome, `${ids.length} coordenada(s) processada(s) para exclusão`, 'Coordenadas', `Nomes: ${ids.join(', ')}`);
+                    mostrarToast(`${ids.length} coordenada(s) processada(s)!`);
                     await atualizarTabela();
                 } catch (error) { mostrarToast('Erro: ' + error.message, 'erro'); }
             }
@@ -1262,9 +1300,23 @@
                 if (!nome || !tipoLocal || !latitude || !longitude) { mostrarToast('Preencha todos os campos', 'erro'); return; }
                 if (await validarCoordenadaDuplicada(nome, latitude, longitude, nomeOriginal)) return;
                 try {
-                    const { error } = await supabase.from(TABELA_COORDENADAS).update({ Nome: nome, 'Tipo de Local': tipoLocal, Y: normalizarCoordenada(latitude), X: normalizarCoordenada(longitude) }).eq('Nome', nomeOriginal);
-                    if (error) throw error;
-                    await registrarLog(usuarioLogado.nome, 'Coordenada atualizada', 'Coordenadas', `${nomeOriginal} -> ${nome}`);
+                    let tabelaOrigem = '';
+                    let registroOriginal = null;
+                    for (const t of TODAS_TABELAS_COORDENADAS) {
+                        const { data } = await supabase.from(t).select('*').eq('Nome', nomeOriginal).single();
+                        if (data) { tabelaOrigem = t; registroOriginal = data; break; }
+                    }
+                    const tabelaDestino = obterTabelaPorTipo(tipoLocal);
+                    if (tabelaOrigem && tabelaOrigem !== tabelaDestino) {
+                        await supabase.from(tabelaOrigem).delete().eq('Nome', nomeOriginal);
+                        const { error } = await supabase.from(tabelaDestino).insert([{ Nome: nome, 'Tipo de Local': tipoLocal, Y: normalizarCoordenada(latitude), X: normalizarCoordenada(longitude) }]);
+                        if (error) throw error;
+                    } else {
+                        const targetTable = tabelaOrigem || TABELA_COORDENADAS;
+                        const { error } = await supabase.from(targetTable).update({ Nome: nome, 'Tipo de Local': tipoLocal, Y: normalizarCoordenada(latitude), X: normalizarCoordenada(longitude) }).eq('Nome', nomeOriginal);
+                        if (error) throw error;
+                    }
+                    await registrarLog(usuarioLogado.nome, 'Coordenada atualizada', 'Coordenadas', `${nomeOriginal} -> ${nome} (${tipoLocal})`);
                     document.getElementById('modal-editar-coordenada').style.display = 'none';
                     await atualizarTabela();
                     mostrarToast('Coordenada atualizada!');
@@ -1481,16 +1533,31 @@
                 try {
                     if (modo === 'substituir') {
                         pt.textContent = 'Limpando tabela...';
-                        if (tabela === 'coordenadas') { const { data: todos } = await supabase.from(TABELA_COORDENADAS).select('Nome'); if (todos && todos.length > 0) { for (let i = 0; i < todos.length; i += 100) { const lote = todos.slice(i, i+100).map(r => r.Nome); await supabase.from(TABELA_COORDENADAS).delete().in('Nome', lote); } } }
+                        if (tabela === 'coordenadas') { 
+                            for (const t of TODAS_TABELAS_COORDENADAS) {
+                                const { data: todos } = await supabase.from(t).select('Nome'); 
+                                if (todos && todos.length > 0) { 
+                                    for (let i = 0; i < todos.length; i += 100) { 
+                                        const lote = todos.slice(i, i+100).map(r => r.Nome); 
+                                        await supabase.from(t).delete().in('Nome', lote); 
+                                    } 
+                                } 
+                            }
+                        }
                         else if (tabela === 'cx_disponiveis') { await supabase.from(tabela).delete().neq('id', 0); }
                     }
                     for (let i = 0; i < dados.length; i++) {
                         const pct = Math.round((i/dados.length)*100); pp.textContent = pct+'%'; pb.style.width = pct+'%'; pt.textContent = `Processando ${i+1} de ${dados.length}`;
                         try {
                             let reg;
-                            if (tabela === 'coordenadas') { reg = { Nome: dados[i].Nome||dados[i].nome||'', 'Tipo de Local': dados[i]['Tipo de Local']||dados[i].tipo_local||'Caixa CE', X: parseFloat(dados[i].X||dados[i].x||0), Y: parseFloat(dados[i].Y||dados[i].y||0) }; if (!reg.Nome || isNaN(reg.X) || isNaN(reg.Y)) throw new Error('Dados inválidos'); }
+                            let targetTable = tabela;
+                            if (tabela === 'coordenadas') { 
+                                reg = { Nome: dados[i].Nome||dados[i].nome||'', 'Tipo de Local': dados[i]['Tipo de Local']||dados[i].tipo_local||'Caixa CE', X: parseFloat(dados[i].X||dados[i].x||0), Y: parseFloat(dados[i].Y||dados[i].y||0) }; 
+                                if (!reg.Nome || isNaN(reg.X) || isNaN(reg.Y)) throw new Error('Dados inválidos'); 
+                                targetTable = obterTabelaPorTipo(reg['Tipo de Local']);
+                            }
                             else if (tabela === 'cx_disponiveis') { reg = { nome: dados[i].nome||dados[i].Nome||'', categoria: dados[i].categoria||'Caixa CE', usuario_cadastro: dados[i].usuario_cadastro||usuarioLogado.nome, status: 'disponivel', data_cadastro: new Date().toISOString() }; if (!reg.nome) throw new Error('Nome obrigatório'); }
-                            const { error } = await supabase.from(tabela).insert([reg]);
+                            const { error } = await supabase.from(targetTable).insert([reg]);
                             if (error) throw new Error(error.message);
                             importados++;
                         } catch(er) { falhas++; }
@@ -1513,11 +1580,12 @@
                 document.getElementById('form-caixas').addEventListener('submit', async function(e) {
                     e.preventDefault();
                     const txt = document.getElementById('caixas-texto').value;
+                    const cat = document.getElementById('caixa-categoria-cadastro').value;
                     const usr = document.getElementById('usuario-cadastro').value;
                     if (!txt.trim() || !usr.trim()) { mostrarToast('Preencha todos os campos.', 'erro'); return; }
                     const nomes = txt.split(';').map(n => n.trim().toUpperCase()).filter(n => n);
                     if (nomes.length === 0) { mostrarToast('Insira pelo menos um nome.', 'erro'); return; }
-                    const sucesso = await cadastrarCaixas(nomes, usr);
+                    const sucesso = await cadastrarCaixas(nomes, usr, cat);
                     if (sucesso) { mostrarToast(`${nomes.length} caixa(s) cadastrada(s)!`); document.getElementById('form-caixas').reset(); const uci = document.getElementById('usuario-cadastro'); if (uci && usuarioLogado) uci.value = usuarioLogado.nome; atualizarListaCaixas(); }
                 });
                 document.getElementById('caixas-texto').addEventListener('input', function() { this.value = this.value.toUpperCase(); });
@@ -1552,12 +1620,12 @@
                 catch (error) { mostrarToast('Erro ao carregar caixas: ' + error.message, 'erro'); return []; }
             }
 
-            async function cadastrarCaixas(nomes, usuario) {
+            async function cadastrarCaixas(nomes, usuario, categoria = 'Caixa CE') {
                 try {
-                    const dados = nomes.map(n => ({ nome: n, usuario_cadastro: usuario, categoria: 'Caixa CE', data_cadastro: new Date().toISOString(), status: 'disponivel' }));
-                    const { error } = await supabase.from(TABELA_CAIXAS).insert(dados);
+                    const caixas = nomes.map(n => ({ nome: n, status: 'disponivel', usuario_cadastro: usuario, categoria: categoria, data_cadastro: new Date().toISOString() }));
+                    const { error } = await supabase.from(TABELA_CAIXAS).insert(caixas);
                     if (error) throw error;
-                    await registrarLog(usuarioLogado.nome, `${nomes.length} caixa(s) cadastrada(s)`, 'Caixas', `Caixas: ${nomes.join(', ')}`);
+                    await registrarLog(usuarioLogado.nome, `${nomes.length} caixa(s) cadastrada(s)`, 'Caixas', `Nomes: ${nomes.join(', ')} (${categoria})`);
                     return true;
                 } catch (error) { mostrarToast('Erro: ' + error.message, 'erro'); return false; }
             }
@@ -1597,11 +1665,13 @@
                     const { data: caixa, error: errBusca } = await supabase.from(TABELA_CAIXAS).select('*').eq('id', id).single();
                     if (errBusca) throw errBusca;
                     if (await validarCoordenadaDuplicada(caixa.nome, lat, lng)) return false;
-                    const { error: errIns } = await supabase.from(TABELA_COORDENADAS).insert([{ Nome: caixa.nome, 'Tipo de Local': 'Caixa CE', Y: normalizarCoordenada(lat), X: normalizarCoordenada(lng) }]);
+                    const tipoLocal = caixa.categoria || 'Caixa CE';
+                    const tabelaDestino = obterTabelaPorTipo(tipoLocal);
+                    const { error: errIns } = await supabase.from(tabelaDestino).insert([{ Nome: caixa.nome, 'Tipo de Local': tipoLocal, Y: normalizarCoordenada(lat), X: normalizarCoordenada(lng) }]);
                     if (errIns) throw errIns;
                     const { error: errDel } = await supabase.from(TABELA_CAIXAS).delete().eq('id', id);
                     if (errDel) throw errDel;
-                    await registrarLog(usuarioLogado.nome, 'Caixa movida para coordenadas', 'Caixas', `Caixa: ${caixa.nome}`);
+                    await registrarLog(usuarioLogado.nome, 'Caixa movida para coordenadas', 'Caixas', `Caixa: ${caixa.nome} (${tipoLocal})`);
                     mostrarToast('Caixa movida!'); atualizarListaCaixas();
                     return true;
                 } catch (error) { mostrarToast('Erro: ' + error.message, 'erro'); return false; }
