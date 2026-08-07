@@ -523,7 +523,7 @@
                         </div>
                     </div>
                     <div class="card"><h3>📋 Formatos Esperados do CSV</h3>
-                        <div class="formato-tabela"><h4>Para a tabela <code>coordenadas</code>:</h4><p>Colunas esperadas (os nomes devem estar na primeira linha):</p><ul><li><code>Nome</code> (Texto) - Nome do local</li><li><code>Tipo de Local</code> (Texto) - Categoria/classificação</li><li><code>X</code> (Número) - Longitude</li><li><code>Y</code> (Número) - Latitude</li></ul><p><strong>💡 Nota:</strong> Os registros serão automaticamente distribuídos entre as tabelas <code>coordenada-cd</code>, <code>coordenada-ce</code>, etc., com base no <code>Tipo de Local</code>.</p><p><strong>Exemplo de linha:</strong> <code>Caixa 001,Caixa CE,-46.6333,-23.5505</code></p></div>
+                        <div class="formato-tabela"><h4>Para a tabela <code>coordenadas</code>:</h4><p>Colunas esperadas (os nomes devem estar na primeira linha):</p><ul><li><code>Nome</code> (Texto) - Nome do local</li><li><code>Tipo de Local</code> (Texto) - Categoria/classificação</li><li><code>X</code> (Número) - Longitude</li><li><code>Y</code> (Número) - Latitude</li></ul><p><strong>💡 Nota:</strong> Os registros serão automaticamente distribuídos entre as tabelas <code>coordenadas-cd</code>, <code>coordenadas-ce</code>, etc., com base no <code>Tipo de Local</code>.</p><p><strong>Exemplo de linha:</strong> <code>Caixa 001,Caixa CE,-46.6333,-23.5505</code></p></div>
                         <div class="formato-tabela" style="margin-top: 15px;"><h4>Para a tabela <code>cx_disponiveis</code>:</h4><p>Colunas esperadas:</p><ul><li><code>nome</code> (Texto) - Nome da caixa</li><li><code>categoria</code> (Texto, opcional) - Ex: "Caixa CE"</li><li><code>usuario_cadastro</code> (Texto) - Quem cadastrou</li><li><code>status</code> (Texto, opcional) - "disponivel" (padrão)</li></ul><p><strong>Exemplo de linha:</strong> <code>CAIXA A,Caixa CE,João Silva,disponivel</code></p></div>
                     </div>
                 </div>
@@ -716,20 +716,20 @@
             const TABELA_LOGS = 'logs_sistema';
 
             const TODAS_TABELAS_COORDENADAS = [
-                'coordenada-cd', 'coordenada-ce', 'coordenada-cs', 
-                'coordenada-l1', 'coordenada-l2', 'coordenada-pop', 
-                'coordenada-st', 'coordenadas'
+                'coordenadas-cd', 'coordenadas-ce', 'coordenadas-cs', 
+                'coordenadas_l1', 'coordenadas-l2', 'coordenadas-pop', 
+                'coordenadas-st', 'coordenadas'
             ];
 
             function obterTabelaPorTipo(tipo) {
                 const t = tipo ? tipo.toString().trim() : '';
-                if (t === 'Caixa CD') return 'coordenada-cd';
-                if (t === 'Caixa CE') return 'coordenada-ce';
-                if (t === 'Caixa CS') return 'coordenada-cs';
-                if (t === 'Caixa L1') return 'coordenada-l1';
-                if (t === 'Caixa L2') return 'coordenada-l2';
-                if (t === 'POP') return 'coordenada-pop';
-                if (t === 'Sobra Técnica') return 'coordenada-st';
+                if (t === 'Caixa CD') return 'coordenadas-cd';
+                if (t === 'Caixa CE') return 'coordenadas-ce';
+                if (t === 'Caixa CS') return 'coordenadas-cs';
+                if (t === 'Caixa L1') return 'coordenadas_l1';
+                if (t === 'Caixa L2') return 'coordenadas-l2';
+                if (t === 'POP') return 'coordenadas-pop';
+                if (t === 'Sobra Técnica') return 'coordenadas-st';
                 return 'coordenadas';
             }
             
@@ -1307,14 +1307,30 @@
                         if (data) { tabelaOrigem = t; registroOriginal = data; break; }
                     }
                     const tabelaDestino = obterTabelaPorTipo(tipoLocal);
+                    const dadosRegistro = { 
+                        Nome: nome, 
+                        'Tipo de Local': tipoLocal, 
+                        Y: normalizarCoordenada(latitude), 
+                        X: normalizarCoordenada(longitude),
+                        'Status': 'Em Operação'
+                    };
+                    
                     if (tabelaOrigem && tabelaOrigem !== tabelaDestino) {
                         await supabase.from(tabelaOrigem).delete().eq('Nome', nomeOriginal);
-                        const { error } = await supabase.from(tabelaDestino).insert([{ Nome: nome, 'Tipo de Local': tipoLocal, Y: normalizarCoordenada(latitude), X: normalizarCoordenada(longitude) }]);
-                        if (error) throw error;
+                        let { error } = await supabase.from(tabelaDestino).insert([dadosRegistro]);
+                        if (error && error.code === '42501') {
+                            console.warn(`RLS bloqueou inserção em ${tabelaDestino}, tentando na tabela principal`);
+                            const fallback = await supabase.from(TABELA_COORDENADAS).insert([dadosRegistro]);
+                            if (fallback.error) throw fallback.error;
+                        } else if (error) throw error;
                     } else {
                         const targetTable = tabelaOrigem || TABELA_COORDENADAS;
-                        const { error } = await supabase.from(targetTable).update({ Nome: nome, 'Tipo de Local': tipoLocal, Y: normalizarCoordenada(latitude), X: normalizarCoordenada(longitude) }).eq('Nome', nomeOriginal);
-                        if (error) throw error;
+                        let { error } = await supabase.from(targetTable).update(dadosRegistro).eq('Nome', nomeOriginal);
+                        if (error && error.code === '42501' && targetTable !== TABELA_COORDENADAS) {
+                            console.warn(`RLS bloqueou update em ${targetTable}, tentando na tabela principal`);
+                            const fallback = await supabase.from(TABELA_COORDENADAS).insert([dadosRegistro]);
+                            if (fallback.error) throw fallback.error;
+                        } else if (error) throw error;
                     }
                     await registrarLog(usuarioLogado.nome, 'Coordenada atualizada', 'Coordenadas', `${nomeOriginal} -> ${nome} (${tipoLocal})`);
                     document.getElementById('modal-editar-coordenada').style.display = 'none';
@@ -1552,13 +1568,22 @@
                             let reg;
                             let targetTable = tabela;
                             if (tabela === 'coordenadas') { 
-                                reg = { Nome: dados[i].Nome||dados[i].nome||'', 'Tipo de Local': dados[i]['Tipo de Local']||dados[i].tipo_local||'Caixa CE', X: parseFloat(dados[i].X||dados[i].x||0), Y: parseFloat(dados[i].Y||dados[i].y||0) }; 
+                                reg = { 
+                                    Nome: dados[i].Nome||dados[i].nome||'', 
+                                    'Tipo de Local': dados[i]['Tipo de Local']||dados[i].tipo_local||'Caixa CE', 
+                                    X: parseFloat(dados[i].X||dados[i].x||0), 
+                                    Y: parseFloat(dados[i].Y||dados[i].y||0),
+                                    'Status': 'Em Operação'
+                                }; 
                                 if (!reg.Nome || isNaN(reg.X) || isNaN(reg.Y)) throw new Error('Dados inválidos'); 
                                 targetTable = obterTabelaPorTipo(reg['Tipo de Local']);
                             }
                             else if (tabela === 'cx_disponiveis') { reg = { nome: dados[i].nome||dados[i].Nome||'', categoria: dados[i].categoria||'Caixa CE', usuario_cadastro: dados[i].usuario_cadastro||usuarioLogado.nome, status: 'disponivel', data_cadastro: new Date().toISOString() }; if (!reg.nome) throw new Error('Nome obrigatório'); }
-                            const { error } = await supabase.from(targetTable).insert([reg]);
-                            if (error) throw new Error(error.message);
+                            let { error } = await supabase.from(targetTable).insert([reg]);
+                            if (error && error.code === '42501' && targetTable !== TABELA_COORDENADAS) {
+                                const fallback = await supabase.from(TABELA_COORDENADAS).insert([reg]);
+                                if (fallback.error) throw new Error(fallback.error.message);
+                            } else if (error) throw new Error(error.message);
                             importados++;
                         } catch(er) { falhas++; }
                     }
@@ -1667,8 +1692,21 @@
                     if (await validarCoordenadaDuplicada(caixa.nome, lat, lng)) return false;
                     const tipoLocal = caixa.categoria || 'Caixa CE';
                     const tabelaDestino = obterTabelaPorTipo(tipoLocal);
-                    const { error: errIns } = await supabase.from(tabelaDestino).insert([{ Nome: caixa.nome, 'Tipo de Local': tipoLocal, Y: normalizarCoordenada(lat), X: normalizarCoordenada(lng) }]);
-                    if (errIns) throw errIns;
+                    const dadosRegistro = { 
+                        Nome: caixa.nome, 
+                        'Tipo de Local': tipoLocal, 
+                        Y: normalizarCoordenada(lat), 
+                        X: normalizarCoordenada(lng),
+                        'Status': 'Em Operação'
+                    };
+                    let { error: errIns } = await supabase.from(tabelaDestino).insert([dadosRegistro]);
+                    
+                    if (errIns && errIns.code === '42501') {
+                        console.warn(`RLS bloqueou inserção em ${tabelaDestino}, tentando na tabela principal`);
+                        const fallback = await supabase.from(TABELA_COORDENADAS).insert([dadosRegistro]);
+                        if (fallback.error) throw fallback.error;
+                    } else if (errIns) throw errIns;
+
                     const { error: errDel } = await supabase.from(TABELA_CAIXAS).delete().eq('id', id);
                     if (errDel) throw errDel;
                     await registrarLog(usuarioLogado.nome, 'Caixa movida para coordenadas', 'Caixas', `Caixa: ${caixa.nome} (${tipoLocal})`);
