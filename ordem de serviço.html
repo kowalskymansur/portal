@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordem de Serviço · ZAMIX MULTIPLAY</title>
+    <!-- html2pdf (biblioteca para gerar PDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #e9edf2;
+            display: flex;
+            justify-content: center;
+            padding: 20px 10px;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            padding: 20px 20px 20px;
+            transition: 0.2s;
+        }
+        /* Cabeçalho com logo */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid #1f3a6b;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .logo-area {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+        .logo-img {
+            max-height: 60px;
+            width: auto;
+            display: block;
+        }
+        .logo-placeholder {
+            background: #0b1d3a;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            padding: 6px 16px;
+            border-radius: 60px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .logo-placeholder span {
+            background: #f5b81b;
+            color: #0b1d3a;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 13px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0b1d3a;
+            letter-spacing: -0.3px;
+            margin-right: 0;
+            margin-left: auto;
+        }
+        .os-number {
+            background: #f0f4fc;
+            padding: 5px 16px;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #1f3a6b;
+            border: 1px solid #ccd9eb;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .os-number input {
+            width: 85px;
+            border: none;
+            border-bottom: 1px solid #a0b8d6;
+            background: transparent;
+            font-weight: 500;
+            font-size: 14px;
+            color: #0b1d3a;
+        }
+        .os-number input:focus {
+            outline: none;
+            border-bottom: 2px solid #1f3a6b;
+        }
+
+        /* Campos */
+        .field-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            margin-bottom: 10px;
+            align-items: baseline;
+        }
+        .field-group {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .field-group label {
+            font-weight: 600;
+            color: #1f3a6b;
+            font-size: 13px;
+        }
+        .field-group input, .field-group select {
+            border: none;
+            border-bottom: 1px solid #a0b8d6;
+            background: transparent;
+            padding: 4px 4px;
+            font-size: 14px;
+            min-width: 130px;
+            transition: 0.2s;
+            color: #0b1d3a;
+        }
+        .field-group input:focus, .field-group select:focus {
+            outline: none;
+            border-bottom: 2px solid #1f3a6b;
+        }
+        .field-group input[type="date"] {
+            min-width: 140px;
+        }
+        input[type="text"], textarea {
+            text-transform: uppercase;
+        }
+        .time-field {
+            width: 100px !important;
+            min-width: 100px !important;
+            flex: 0 0 100px;
+            padding: 4px 28px 4px 6px !important;
+        }
+
+        /* Tabelas */
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0 12px;
+            font-size: 13px;
+        }
+        .doc-table td, .doc-table th {
+            border: 1px solid #b8cae0;
+            padding: 6px 10px;
+            vertical-align: middle;
+        }
+        .doc-table th {
+            background: #e5ecf7;
+            font-weight: 600;
+            color: #0b1d3a;
+            font-size: 13px;
+        }
+        .doc-table .label-cell {
+            background: #f3f7fd;
+            font-weight: 600;
+            color: #1f3a6b;
+            width: 18%;
+            font-size: 13px;
+        }
+        .doc-table input, .doc-table textarea, .doc-table select {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 4px 6px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        .doc-table input:focus, .doc-table textarea:focus, .doc-table select:focus {
+            outline: 2px solid #7f9bc0;
+            border-radius: 4px;
+            background: #fafcff;
+        }
+        .doc-table textarea {
+            min-height: 36px;
+            font-size: 14px;
+            padding: 4px 6px;
+        }
+        .tech-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px 14px;
+            padding: 4px 6px;
+        }
+        .tech-checkboxes label {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 13px;
+            line-height: 1.25;
+            cursor: pointer;
+        }
+        .tech-checkboxes input {
+            width: auto;
+            min-width: auto;
+            margin-top: 2px;
+        }
+        .pdf-tech-item {
+            padding: 3px 0;
+            line-height: 1.3;
+        }
+        .pdf-tech-empty {
+            color: #5f6f87;
+            font-style: italic;
+        }
+        .inline-checkbox {
+            display: flex;
+            gap: 18px;
+            flex-wrap: nowrap;
+            align-items: center;
+        }
+        .inline-checkbox label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 400;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+        .btn-pdf {
+            background: #0b1d3a;
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 10px rgba(11,29,58,0.3);
+        }
+        .btn-pdf:hover {
+            background: #1f3a6b;
+            transform: scale(1.02);
+        }
+        .btn-pdf:active {
+            background: #07122b;
+        }
+        .footer-note {
+            margin-top: 14px;
+            text-align: right;
+            font-size: 12px;
+            color: #5f6f87;
+            border-top: 1px solid #dce5f0;
+            padding-top: 10px;
+        }
+        /* campo contratante/terceirizada */
+        .field-group .preenchido {
+            font-weight: 500;
+            color: #0b1d3a;
+            background: #f0f5fe;
+            padding: 3px 12px;
+            border-radius: 20px;
+            border: 1px solid #ccd9eb;
+            display: inline-block;
+            font-size: 13px;
+        }
+        /* Títulos */
+        h2 {
+            font-size: 17px;
+            margin: 14px 0 6px;
+            color: #0b1d3a;
+        }
+        @media (max-width: 700px) {
+            .container { padding: 12px 12px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .field-row { flex-direction: column; gap: 6px; }
+            .inline-checkbox { flex-wrap: wrap; }
+            .doc-table { font-size: 12px; }
+            .doc-table td, .doc-table th { padding: 4px 6px; }
+        }
+        /* Estilos para impressão/PDF - ocupando toda a largura */
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .container { 
+                box-shadow: none; 
+                border-radius: 0; 
+                padding: 8px 12px; 
+                max-width: 100%;
+                width: 100%;
+            }
+            .btn-pdf { display: none; }
+            .footer-note { margin-top: 6px; padding-top: 6px; }
+            .doc-table { font-size: 12px; }
+            .doc-table td, .doc-table th { padding: 4px 8px; }
+            .field-group label { font-size: 12px; }
+            .field-group .preenchido { font-size: 12px; }
+            h2 { font-size: 15px; margin: 8px 0 4px; }
+            .doc-table input, .doc-table textarea { font-size: 13px; }
+            .field-group input { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="osContainer">
+    <!-- Cabeçalho com logo -->
+    <div class="header">
+        <div class="logo-area">
+            <img src="logo_zamix.png" alt="ZAMIX MULTIPLAY" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="logo-placeholder" style="display:none;">
+                🚧 ZAMIX <span>MULTIPLAY</span>
+            </div>
+        </div>
+        <h1>Ordem de Serviço</h1>
+        <div class="os-number">Nº do Evento: <input type="text" placeholder="______" style="width:85px;"></div>
+    </div>
+
+    <!-- Dados contratantes -->
+    <div class="field-row">
+        <div class="field-group">
+            <label>Empresa contratante</label>
+            <span class="preenchido">Zamix Multiplay Telecomunicações LTDA - 17.888.419/0001-24</span>
+        </div>
+        <div class="field-group">
+            <label>Empresa terceirizada</label>
+            <span class="preenchido">Rainstel LTDA - 01.184.505/0001-16</span>
+        </div>
+    </div>
+    <div class="field-row">
+        <div class="field-group"><label>Responsável pela OS</label> <select style="min-width:220px;"><option value="">Selecione o responsável</option><option value="Pablo Portilho">Pablo Portilho</option><option value="Naira Paula">Naira Paula</option><option value="Kowalsky Ferreira">Kowalsky Ferreira</option><option value="Washington Santos">Washington Santos</option><option value="Altacir Santos">Altacir Santos</option><option value="Adilson Oliveira">Adilson Oliveira</option></select></div>
+    </div>
+
+    <!-- 1. Dados do Serviço -->
+    <h2>1. Dados do Serviço</h2>
+    <table class="doc-table">
+        <tr>
+            <td class="label-cell">Rodovia/Local</td>
+            <td colspan="3"><input type="text" placeholder="____________________"></td>
+        </tr>
+        <tr>
+            <td class="label-cell">Município/UF</td>
+            <td colspan="3"><input type="text" placeholder="____________________"></td>
+        </tr>
+        <tr>
+            <td class="label-cell">Data prevista</td>
+            <td style="width:28%;"><input type="date" value="2026-08-20"></td>
+            <td class="label-cell" style="width:18%;">Horário previsto</td>
+            <td style="width:36%;">
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:nowrap;">
+                    <span style="font-size:12px;">Início:</span>
+                    <input class="time-field" type="time">
+                    <span style="font-size:12px;">Término:</span>
+                    <input class="time-field" type="time">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="label-cell">Descrição do serviço</td>
+            <td colspan="3"><textarea placeholder="Descreva detalhadamente o serviço a ser executado..." style="min-height:32px;"></textarea></td>
+        </tr>
+    </table>
+
+    <!-- 2. Equipe Técnica -->
+    <h2>2. Equipe Técnica</h2>
+    <table class="doc-table">
+        <thead>
+            <tr><th style="width:70%;">Nome do técnico / Documento</th><th style="width:30%;">Função</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><div class="tech-checkboxes" aria-label="Selecionar técnico ou técnicos"><label><input type="checkbox" class="tech-option" value="Daniel Moura Borges"> Daniel Moura Borges -</label><label><input type="checkbox" class="tech-option" value="Marcelo Moura Borges"> Marcelo Moura Borges -</label><label><input type="checkbox" class="tech-option" value="Jackson Sampaio de Souza - 122.386.087-61"> Jackson Sampaio de Souza - 122.386.087-61</label><label><input type="checkbox" class="tech-option" value="Igor de Oliveira Toledo - 189.318.317-30"> Igor de Oliveira Toledo - 189.318.317-30</label><label><input type="checkbox" class="tech-option" value="Vinicius dos Santos Oliveira - 127.400.547-77"> Vinicius dos Santos Oliveira - 127.400.547-77</label><label><input type="checkbox" class="tech-option" value="Geovani Silvério De Andrade - 145.402.547-66"> Geovani Silvério De Andrade - 145.402.547-66</label></div></td><td><input type="text" value="Técnico de Telecomunicações"></td></tr>
+        </tbody>
+    </table>
+
+    <!-- 3. Veículo -->
+    <h2>3. Veículo</h2>
+    <table class="doc-table">
+        <tr>
+            <td class="label-cell">Placa do veículo</td>
+            <td colspan="3"><input type="text" placeholder="____________________"></td>
+        </tr>
+        <tr>
+            <td class="label-cell">Modelo/Cor</td>
+            <td colspan="3"><input type="text" placeholder="____________________"></td>
+        </tr>
+        <tr>
+            <td class="label-cell">Identificação visual da empresa</td>
+            <td colspan="3">
+                <div class="inline-checkbox">
+                    <label><input type="radio" name="idVisual" value="sim" checked> Sim</label>
+                    <label><input type="radio" name="idVisual" value="nao"> Não</label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="label-cell">Cones e sinalização na pista</td>
+            <td colspan="3">
+                <div class="inline-checkbox">
+                    <label><input type="radio" name="sinalizacao" value="instalados" checked> Instalados</label>
+                    <label><input type="radio" name="sinalizacao" value="nao-aplicavel"> Não aplicável</label>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Botão PDF -->
+    <div style="text-align: center; margin-top: 14px;">
+        <button class="btn-pdf" id="gerarPdfBtn">
+            <span>📄</span> Gerar PDF
+        </button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const btn = document.getElementById('gerarPdfBtn');
+        const container = document.getElementById('osContainer');
+
+        container.addEventListener('input', function(event) {
+            if (event.target.matches('input[type="text"], textarea')) {
+                const inicio = event.target.selectionStart;
+                event.target.value = event.target.value.toUpperCase();
+                if (typeof inicio === 'number') event.target.setSelectionRange(inicio, inicio);
+            }
+        });
+
+        function gerarPDF() {
+            const selecionados = Array.from(container.querySelectorAll('.tech-option:checked'))
+                .map(input => input.value);
+
+            // Clona o container
+            const clone = container.cloneNode(true);
+            const techClone = clone.querySelector('.tech-checkboxes');
+            if (techClone) {
+                techClone.innerHTML = selecionados.length
+                    ? selecionados.map(nome => `<div class="pdf-tech-item">${nome}</div>`).join('')
+                    : '<div class="pdf-tech-empty">Nenhum técnico selecionado</div>';
+            }
+            // Remove o botão do clone
+            const btnClone = clone.querySelector('#gerarPdfBtn');
+            if (btnClone) btnClone.remove();
+
+            // Aplica estilos para ocupar toda a largura
+            clone.style.boxShadow = 'none';
+            clone.style.borderRadius = '0';
+            clone.style.padding = '6px 10px';
+            clone.style.background = 'white';
+            clone.style.maxWidth = '100%';
+            clone.style.width = '100%';
+            clone.style.margin = '0';
+
+            // Wrapper para o PDF
+            const wrapper = document.createElement('div');
+            wrapper.style.background = 'white';
+            wrapper.style.padding = '4px 6px';
+            wrapper.style.width = '100%';
+            wrapper.style.maxWidth = '100%';
+            wrapper.style.margin = '0 auto';
+            wrapper.appendChild(clone);
+
+            // Opções otimizadas - sem margens laterais grandes
+            const opt = {
+                margin:        [5, 5, 5, 5],
+                filename:     'Ordem_de_Servico_ZAMIX.pdf',
+                image:        { type: 'jpeg', quality: 0.95 },
+                html2canvas:  { 
+                    scale: 2, 
+                    letterRendering: true, 
+                    useCORS: true, 
+                    logging: false,
+                    width: 1000,
+                    height: 1350
+                },
+                jsPDF:        { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                },
+                pagebreak:    { mode: ['avoid-all', 'css'] }
+            };
+
+            html2pdf().set(opt).from(wrapper).save();
+        }
+
+        btn.addEventListener('click', gerarPDF);
+    })();
+</script>
+
+<!--
+    Instruções para a logo:
+    - Coloque a imagem com o nome "logo_zamix.png" no mesmo diretório do arquivo HTML.
+    - Caso o nome seja diferente, altere o atributo src da tag <img>.
+    - Se a imagem não carregar, um placeholder estilizado será exibido.
+-->
+</body>
+</html>
