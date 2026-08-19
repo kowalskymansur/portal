@@ -1152,6 +1152,18 @@
         .password-requirements li {
             margin-bottom: 5px;
         }
+        
+        .links-grid.ferramentas-suporte-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 20px;
+        }
+        @media (max-width: 1100px) {
+            .links-grid.ferramentas-suporte-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 700px) {
+            .links-grid.ferramentas-suporte-grid { grid-template-columns: 1fr; }
+        }
+
         .links-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -6499,63 +6511,71 @@
                     </div>
                     <div class="links-category">
                         <h4 class="category-title">Ferramentas de Suporte</h4>
-                        <div class="links-grid">
+                        <div class="links-grid ferramentas-suporte-grid">
+
                             <div class="link-card">
                                 <div class="link-icon"><i class="fas fa-image"></i></div>
                                 <div class="link-title">Referencia OTDR</div>
                                 <div class="link-description">Tabela de referência de pulsos para medição com OTDR em redes de fibra óptica.</div>
                                 <a href="https://kowalskymansur.github.io/portal/tabela%20referencia.jpg" target="_blank" class="link-button">Visualizar Imagem</a>
                             </div>
+
                             <div class="link-card">
                                 <div class="link-icon"><i class="fas fa-server"></i></div>
                                 <div class="link-title">NCE Zamix</div>
                                 <div class="link-description">Sistema de gerenciamento de rede NCE Zamix.</div>
                                 <a href="https://10.29.0.239:31943/" target="_blank" class="link-button">Acessar Sistema</a>
                             </div>
+
                             <div class="link-card">
                                 <div class="link-icon"><i class="fas fa-server"></i></div>
                                 <div class="link-title">NCE Samm</div>
                                 <div class="link-description">Sistema de gerenciamento de rede NCE Samm.</div>
                                 <a href="https://10.81.42.211:31943/" target="_blank" class="link-button">Acessar Sistema</a>
                             </div>
-                            <div class="link-card">
-                                <div class="link-icon"><i class="fas fa-project-diagram"></i></div>
-                                <div class="link-title">Padtec VOLTA REDONDA</div>
-                                <div class="link-description">Sistema de gerenciamento Padtec - região Volta Redonda.</div>
-                                <a href="http://10.29.3.5/index.php" target="_blank" class="link-button">Acessar Sistema</a>
-                            </div>
-                            <div class="link-card">
-                                <div class="link-icon"><i class="fas fa-project-diagram"></i></div>
-                                <div class="link-title">Padtec VALE DO CAFÉ</div>
-                                <div class="link-description">Sistema de gerenciamento Padtec - região Vale do Café.</div>
-                                <a href="http://10.29.3.6/index.php" target="_blank" class="link-button">Acessar Sistema</a>
-                            </div>
-                            <div class="link-card">
-                                <div class="link-icon"><i class="fas fa-project-diagram"></i></div>
-                                <div class="link-title">Padtec COSTA VERDE</div>
-                                <div class="link-description">Sistema de gerenciamento Padtec - região Costa Verde.</div>
-                                <a href="http://10.29.3.9/app.php" target="_blank" class="link-button">Acessar Sistema</a>
-                            </div>
-                            <div class="link-card">
-                                <div class="link-icon"><i class="fas fa-project-diagram"></i></div>
-                                <div class="link-title">Padtec JUIZ DE FORA</div>
-                                <div class="link-description">Sistema de gerenciamento Padtec - região Juiz de Fora.</div>
-                                <a href="http://10.29.3.7/" target="_blank" class="link-button">Acessar Sistema</a>
-                            </div>
+
                             <div class="link-card">
                                 <div class="link-icon"><i class="fas fa-wave-square"></i></div>
                                 <div class="link-title">Validação de Potências - Samm</div>
                                 <div class="link-description">Ferramenta para validação e análise de potências do sistema Samm.</div>
                                 <a href="https://sodobrasilnet-my.sharepoint.com/:f:/r/personal/kowalsky_ferreira_sodobrasil_net_br/Documents/Valida%C3%A7%C3%A3o%20de%20Potencias%20-%20%20Samm?d=w54b20d88e3af4eea8a60c7da1ac4dbe1&csf=1&web=1&e=Vb6isk" target="_blank" class="link-button">Acessar Planilha</a>
                             </div>
-                            <!-- FTTH movido para Ferramentas de Suporte -->
+
                             <div class="link-card">
-                                <div class="link-icon"><i class="fas fa-calculator"></i></div>
-                                <div class="link-title">Orç. Potência FTTH</div>
-                                <div class="link-description">Ferramenta para cálculo de orçamento de potência em redes FTTH (GPON).</div>
-                                <button class="link-button" onclick="abrirFTTH()">Abrir Ferramenta</button>
+                                <div class="link-icon"><i class="fas fa-project-diagram"></i></div>
+                                <div class="link-title">Padtec COSTA VERDE</div>
+                                <div class="link-description">Sistema de gerenciamento Padtec - região Costa Verde.</div>
+                                <a href="http://10.29.3.9/app.php" target="_blank" class="link-button">Acessar Sistema</a>
                             </div>
-                        </div>
+
+                            <div class="link-card">
+                                <div class="link-icon"><i class="fas fa-project-diagram"></i></div>
+                                <div class="link-title">Padtec JUIZ DE FORA</div>
+                                <div class="link-description">Sistema de gerenciamento Padtec - região Juiz de Fora.</div>
+                                <a href="http://10.29.3.7/" target="_blank" class="link-button">Acessar Sistema</a>
+                            </div>
+
+                            <div class="link-card">
+                                <div class="link-icon"><i class="fas fa-project-diagram"></i></div>
+                                <div class="link-title">Padtec VALE DO CAFÉ</div>
+                                <div class="link-description">Sistema de gerenciamento Padtec - região Vale do Café.</div>
+                                <a href="http://10.29.3.6/index.php" target="_blank" class="link-button">Acessar Sistema</a>
+                            </div>
+
+                            <div class="link-card">
+                                <div class="link-icon"><i class="fas fa-project-diagram"></i></div>
+                                <div class="link-title">Padtec VOLTA REDONDA</div>
+                                <div class="link-description">Sistema de gerenciamento Padtec - região Volta Redonda.</div>
+                                <a href="http://10.29.3.5/index.php" target="_blank" class="link-button">Acessar Sistema</a>
+                            </div>
+
+                            <div class="link-card">
+                                <div class="link-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="link-title">Ordem de Serviço</div>
+                                <div class="link-description">Acesso à ferramenta de Ordem de Serviço.</div>
+                                <a href="https://kowalskymansur.github.io/portal/ordem-de-servico.html" target="_blank" rel="noopener noreferrer" class="link-button">Acessar Ferramenta</a>
+                            </div>
+</div>
                     </div>
                 </div>
                 <div class="card">
