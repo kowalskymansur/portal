@@ -6748,7 +6748,7 @@
 
             const SUPABASE_URL = 'https://tfdniuwqjqvscwiypbuo.supabase.co';
             const SUPABASE_ANON_KEY =
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmZG5pdXdxanF2c2N3aXlwYnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjU1OTgsImV4cCI6MjA3NzUwMTU5OH0.ZeIef1hnlE4W10xD8Z23hiNEoOTdseNj_ox13uqchA0';
+                'sb_publishable_sWz1866_Wv8xFHCcjrWdgA_rnsB8FRU';
             const TABELA_COORDENADAS = 'coordenadas';
             const TABELA_CAIXAS = 'cx_disponiveis';
             const TABELA_MATERIAIS = 'materiais';
@@ -7386,29 +7386,92 @@
             }
 
             async function obterTodasCoordenadas() {
-                let todas = [];
-                try {
-                    const promises = TODAS_TABELAS_COORDENADAS.map(async (tabela) => {
-                        let tabelaDados = [];
-                        let inicio = 0;
-                        const limite = 1000;
-                        let hasMore = true;
-                        while (hasMore) {
-                            const { data, error } = await supabase.from(tabela).select('*').range(inicio,
-                                inicio + limite - 1);
-                            if (error) break;
-                            if (data && data.length > 0) {
-                                tabelaDados = tabelaDados.concat(data);
-                                if (data.length < limite) hasMore = false;
-                                else inicio += limite;
-                            } else hasMore = false;
+                const todas = [];
+                const tamanhoLote = 1000;
+                const erros = [];
+
+                // O Supabase/PostgREST pode limitar cada resposta a 1.000 linhas.
+                // A leitura ocorre em lotes ordenados até o último registro, inclusive
+                // para tabelas com mais de 16.000 itens.
+                for (const tabela of TODAS_TABELAS_COORDENADAS) {
+                    let inicio = 0;
+
+                    while (true) {
+                        const { data, error } = await supabase
+                            .from(tabela)
+                            .select('*')
+                            .order('Nome', { ascending: true, nullsFirst: false })
+                            .range(inicio, inicio + tamanhoLote - 1);
+
+                        if (error) {
+                            console.error(`Erro ao consultar ${tabela} no intervalo ${inicio}-${inicio + tamanhoLote - 1}:`, error);
+                            erros.push(`${tabela}: ${error.message}`);
+                            break;
                         }
-                        return tabelaDados;
-                    });
-                    const resultados = await Promise.all(promises);
-                    resultados.forEach(r => { todas = todas.concat(r); });
-                    return todas;
-                } catch (e) { return []; }
+
+                        const lote = Array.isArray(data) ? data : [];
+                        if (lote.length === 0) break;
+
+                        todas.push(...lote);
+
+                        // O tamanho de dois lotes consecutivos pode ser igual;
+                        // portanto, a paginação deve avançar sempre pelo número
+                        // efetivamente retornado, inclusive em tabelas extensas.
+                        inicio += lote.length;
+
+                        if (lote.length < tamanhoLote) break;
+                    }
+                }
+
+                if (erros.length > 0) {
+                    console.warn('A consulta foi concluída parcialmente:', erros);
+                    mostrarToast(`Não foi possível carregar ${erros.length} tabela(s). Consulte o console.`, 'erro');
+                }
+
+                return todas;
+            }
+
+            async function obterCoordenadasParaPesquisa(termo) {
+                const termos = processarTermosPesquisa(termo);
+                if (termos.length === 0) return obterTodasCoordenadas();
+
+                const encontrados = [];
+                const chaves = new Set();
+                const tamanhoLote = 1000;
+
+                for (const tabela of TODAS_TABELAS_COORDENADAS) {
+                    for (const busca of termos) {
+                        let inicio = 0;
+                        while (true) {
+                            const { data, error } = await supabase
+                                .from(tabela)
+                                .select('*')
+                                .ilike('Nome', `%${busca}%`)
+                                .range(inicio, inicio + tamanhoLote - 1);
+
+                            if (error) {
+                                console.error(`Erro na busca direta de "${busca}" em ${tabela}:`, error);
+                                break;
+                            }
+
+                            const lote = Array.isArray(data) ? data : [];
+                            if (lote.length === 0) break;
+
+                            lote.forEach(registro => {
+                                const chave = `${tabela}|${registro.Nome ?? registro.nome ?? ''}|${registro.X ?? ''}|${registro.Y ?? ''}`;
+                                if (!chaves.has(chave)) {
+                                    chaves.add(chave);
+                                    encontrados.push(registro);
+                                }
+                            });
+
+                            inicio += lote.length;
+                            if (lote.length < tamanhoLote) break;
+                        }
+                    }
+                }
+
+                return encontrados;
             }
 
             async function obterTiposDeLocal() {
@@ -7588,14 +7651,35 @@
                     document.getElementById('stats-info').classList.remove('hidden'); }
             }
 
-            function processarTermosPesquisa(t) { if (!t) return []; return t.split(';').map(x => x.trim()).filter(x =>
-                    x); }
+            function normalizarTextoPesquisa(valor) {
+                return (valor ?? '').toString()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .toLowerCase()
+                    .replace(/[\s\-_\/]+/g, '');
+            }
+
+            function obterTextoCoordenada(coord) {
+                return [coord.Nome, coord.nome, coord.name, coord.codigo, coord.Codigo]
+                    .filter(valor => valor !== null && valor !== undefined)
+                    .join(' ');
+            }
+
+            function processarTermosPesquisa(t) {
+                if (!t) return [];
+                return t.split(';').map(x => x.trim()).filter(Boolean);
+            }
 
             function encontrarItensPesquisados(coords, termos) {
                 const indices = [];
-                termos.forEach(termo => { const tl = termo.toLowerCase(); for (let i = 0; i < coords.length; i++) { const
-                            c = coords[i]; if ((c.Nome || '').toLowerCase().includes(tl) || ((c['Tipo de Local'] ||
-                                '').toLowerCase().includes(tl))) { if (!indices.includes(i)) indices.push(i); } } });
+                termos.forEach(termo => {
+                    const termoNormalizado = normalizarTextoPesquisa(termo);
+                    for (let i = 0; i < coords.length; i++) {
+                        const c = coords[i];
+                        const texto = normalizarTextoPesquisa(`${obterTextoCoordenada(c)} ${c['Tipo de Local'] || c.tipo_local || ''}`);
+                        if (texto.includes(termoNormalizado) && !indices.includes(i)) indices.push(i);
+                    }
+                });
                 return indices.sort((a, b) => a - b);
             }
 
@@ -7655,20 +7739,21 @@
             async function atualizarTabela(termo = '') {
                 document.getElementById('loading-coordenadas').classList.remove('hidden');
                 document.getElementById('tabela-coordenadas').classList.add('hidden');
-                const coords = await obterTodasCoordenadas();
+                // Para uma pesquisa textual, consulta diretamente o campo Nome no
+                // banco. Isso evita depender da janela de registros previamente
+                // carregada e garante a localização de códigos em qualquer posição
+                // da tabela, como ZMX/L2-02673.
+                const coords = termo ? await obterCoordenadasParaPesquisa(termo) : await obterTodasCoordenadas();
                 const tipoSel = document.getElementById('tipo-local-select').value;
                 coordenadasFiltradas = coords;
                 if (termo || tipoSel) {
                     const termos = processarTermosPesquisa(termo);
                     coordenadasFiltradas = coords.filter(c => {
-                        const nome = c.Nome || '';
-                        const tl = c['Tipo de Local'] || '';
-                        let match = !termo;
-                        if (termos.length > 0) match = termos.some(t => nome.toLowerCase().includes(t
-                                .toLowerCase()) || tl.toLowerCase().includes(t.toLowerCase()));
-                        else if (termo) match = nome.toLowerCase().includes(termo.toLowerCase()) || tl
-                            .toLowerCase().includes(termo.toLowerCase());
-                        return match && (!tipoSel || tl === tipoSel);
+                        const tl = c['Tipo de Local'] || c.tipo_local || '';
+                        const texto = normalizarTextoPesquisa(`${obterTextoCoordenada(c)} ${tl}`);
+                        const match = !termo || termos.some(t => texto.includes(normalizarTextoPesquisa(t)));
+                        const tipoNormalizado = normalizarTextoPesquisa(tl);
+                        return match && (!tipoSel || tipoNormalizado === normalizarTextoPesquisa(tipoSel));
                     });
                 }
                 if (termo && coordenadasFiltradas.length > 0) {
