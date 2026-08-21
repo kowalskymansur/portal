@@ -8101,7 +8101,8 @@
                     if (errBusca) throw errBusca;
                     if (await validarCoordenadaDuplicada(caixa.nome, lat, lng)) return false;
                     const tipoLocal = caixa.categoria || 'Caixa CE';
-                    const tabelaDestino = obterTabelaPorTipo(tipoLocal);
+                    // Ao confirmar o movimento, a caixa deve entrar sempre em coordenadas-ce.
+                    const tabelaDestino = 'coordenadas-ce';
                     const dadosRegistro = {
                         Nome: caixa.nome,
                         'Tipo de Local': tipoLocal,
@@ -8119,8 +8120,8 @@
 
                     const { error: errDel } = await supabase.from(TABELA_CAIXAS).delete().eq('id', id);
                     if (errDel) throw errDel;
-                    await registrarLog(usuarioLogado.nome, 'Caixa movida para coordenadas', 'Caixas',
-                        `Caixa: ${caixa.nome} (${tipoLocal})`);
+                    await registrarLog(usuarioLogado.nome, 'Caixa movida para coordenadas-ce', 'Caixas',
+                        `Caixa: ${caixa.nome} (${tipoLocal}) -> coordenadas-ce`);
                     mostrarToast('Caixa movida!');
                     atualizarListaCaixas();
                     return true;
