@@ -7560,22 +7560,16 @@
                     };
 
                     if (tabelaOrigem && tabelaOrigem !== tabelaDestino) {
-                        await supabase.from(tabelaOrigem).delete().eq('Nome', nomeOriginal);
-                        let { error } = await supabase.from(tabelaDestino).insert([dadosRegistro]);
-                        if (error && error.code === '42501') {
-                            console.warn(`RLS bloqueou inserção em ${tabelaDestino}, tentando na tabela principal`);
-                            const fallback = await supabase.from(TABELA_COORDENADAS).insert([dadosRegistro]);
-                            if (fallback.error) throw fallback.error;
-                        } else if (error) throw error;
+                        // Inserir no destino antes de apagar a origem evita perda de dados.
+                        const { error } = await supabase.from(tabelaDestino).insert([dadosRegistro]);
+                        if (error) throw error;
+                        const { error: erroExclusao } = await supabase.from(tabelaOrigem).delete().eq('Nome', nomeOriginal);
+                        if (erroExclusao) throw erroExclusao;
                     } else {
                         const targetTable = tabelaOrigem || TABELA_COORDENADAS;
                         let { error } = await supabase.from(targetTable).update(dadosRegistro).eq('Nome',
                             nomeOriginal);
-                        if (error && error.code === '42501' && targetTable !== TABELA_COORDENADAS) {
-                            console.warn(`RLS bloqueou update em ${targetTable}, tentando na tabela principal`);
-                            const fallback = await supabase.from(TABELA_COORDENADAS).insert([dadosRegistro]);
-                            if (fallback.error) throw fallback.error;
-                        } else if (error) throw error;
+                        if (error) throw error;
                     }
                     await registrarLog(usuarioLogado.nome, 'Coordenada atualizada', 'Coordenadas',
                         `${nomeOriginal} -> ${nome} (${tipoLocal})`);
@@ -7931,10 +7925,7 @@
                                     status: 'disponivel', data_cadastro: new Date().toISOString() }; if (!
                                     reg.nome) throw new Error('Nome obrigatório'); }
                             let { error } = await supabase.from(targetTable).insert([reg]);
-                            if (error && error.code === '42501' && targetTable !== TABELA_COORDENADAS) {
-                                const fallback = await supabase.from(TABELA_COORDENADAS).insert([reg]);
-                                if (fallback.error) throw new Error(fallback.error.message);
-                            } else if (error) throw new Error(error.message);
+                            if (error) throw new Error(error.message);
                             importados++;
                         } catch (er) { falhas++; }
                     }
@@ -8112,11 +8103,7 @@
                     };
                     let { error: errIns } = await supabase.from(tabelaDestino).insert([dadosRegistro]);
 
-                    if (errIns && errIns.code === '42501') {
-                        console.warn(`RLS bloqueou inserção em ${tabelaDestino}, tentando na tabela principal`);
-                        const fallback = await supabase.from(TABELA_COORDENADAS).insert([dadosRegistro]);
-                        if (fallback.error) throw fallback.error;
-                    } else if (errIns) throw errIns;
+                    if (errIns) throw errIns;
 
                     const { error: errDel } = await supabase.from(TABELA_CAIXAS).delete().eq('id', id);
                     if (errDel) throw errDel;
