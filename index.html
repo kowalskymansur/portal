@@ -6749,7 +6749,8 @@
             const SUPABASE_URL = 'https://tfdniuwqjqvscwiypbuo.supabase.co';
             const SUPABASE_ANON_KEY =
                 'sb_publishable_sWz1866_Wv8xFHCcjrWdgA_rnsB8FRU';
-            const TABELA_COORDENADAS = 'coordenadas';
+            // A fonte padrão passou a ser a tabela coordenadas-ce.
+            const TABELA_COORDENADAS = 'coordenadas-ce';
             const TABELA_CAIXAS = 'cx_disponiveis';
             const TABELA_MATERIAIS = 'materiais';
             const TABELA_CATEGORIAS = 'categorias';
@@ -6770,7 +6771,7 @@
                 if (t === 'Caixa L2') return 'coordenadas-l2';
                 if (t === 'POP') return 'coordenadas-pop';
                 if (t === 'Sobra Técnica') return 'coordenadas-st';
-                return 'coordenadas';
+                return TABELA_COORDENADAS;
             }
 
             let supabase;
