@@ -7438,6 +7438,14 @@
 
             function normalizarCoordenada(v) { return v ? v.toString().replace(',', '.') : ''; }
 
+            function obterMensagemErroBanco(error) {
+                const mensagem = error?.message || error?.details || 'Erro desconhecido';
+                if (/row-level security policy/i.test(mensagem)) {
+                    return 'O banco bloqueou a inclusão em coordenadas-ce por uma política de segurança (RLS). Execute a migração correcao_rls_coordenadas_ce.sql no Supabase.';
+                }
+                return mensagem;
+            }
+
             async function validarCoordenadaDuplicada(nome, lat, lng, excluirAtual = null) {
                 try {
                     const ln = normalizarCoordenada(lat);
@@ -8198,10 +8206,10 @@
                         X: normalizarCoordenada(lng),
                         'Status': 'Em Operação'
                     };
-                    let { error: errIns } = await supabase.from(tabelaDestino).insert([dadosRegistro]);
-
+                                        // A inclusão deve ocorrer antes da exclusão da caixa disponível.
+                    // Assim, uma falha de RLS não causa perda do registro de origem.
+                    const { error: errIns } = await supabase.from(tabelaDestino).insert([dadosRegistro]);
                     if (errIns) throw errIns;
-
                     const { error: errDel } = await supabase.from(TABELA_CAIXAS).delete().eq('id', id);
                     if (errDel) throw errDel;
                     await registrarLog(usuarioLogado.nome, 'Caixa movida para coordenadas-ce', 'Caixas',
@@ -8209,9 +8217,8 @@
                     mostrarToast('Caixa movida!');
                     atualizarListaCaixas();
                     return true;
-                } catch (error) { mostrarToast('Erro: ' + error.message, 'erro'); return false; }
+                                } catch (error) { mostrarToast('Erro: ' + obterMensagemErroBanco(error), 'erro'); return false; }
             }
-
             async function atualizarListaCaixas() {
                 const caixas = await obterCaixas();
                 const listaDisp = document.getElementById('lista-caixas-disponiveis');
