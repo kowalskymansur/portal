@@ -1902,7 +1902,7 @@
                 <div class="abas-navegacao">
                     <div class="aba active" id="aba-consulta">Consulta de Coordenadas</div>
                     <div class="aba" id="aba-caixas">Caixas Disponíveis</div>
-                    <div class="aba" id="aba-importar">Importar CSV</div>
+                    <div class="aba" id="aba-importar" style="display: none;">Importar CSV</div>
                 </div>
                 <div id="conteudo-consulta" class="conteudo-aba active">
                     <div class="card">
@@ -1917,6 +1917,7 @@
                         </div>
                         <div class="copy-button-container">
                             <button id="btn-copiar" class="btn-success">Copiar</button>
+                            <button id="btn-enviar-whatsapp" class="btn-success">Enviar para WhatsApp</button>
                             <button id="btn-excluir-coordenadas" class="btn-danger hidden">Excluir Selecionadas</button>
                         </div>
                         <div class="table-container">
@@ -2158,7 +2159,7 @@
                         </form>
                     </div>
                 </div>
-                <div id="conteudo-importar" class="conteudo-aba">
+                <div id="conteudo-importar" class="conteudo-aba" style="display: none !important;">
                     <div class="card">
                         <h3>📤 Importar Dados via CSV</h3>
                         <p class="categoria-info"><strong>💡 Importante:</strong> Use esta ferramenta para atualizar a base de dados a partir de um arquivo CSV. O arquivo deve conter cabeçalhos na primeira linha.</p>
@@ -6923,17 +6924,14 @@
                 if (!nav || !usuarioLogado) return;
                 const h = usuarioLogado.hierarquia;
                 let itens = '';
-                if (h === 'Administrador' || h === 'Supervisão') itens +=
-                    '<li><a href="#" id="nav-dashboard" class="nav-link active">Dashboard</a></li>';
-                if (h === 'Técnico') itens += '<li><a href="#" id="nav-perfil" class="nav-link">Perfil</a></li>';
-                if (h === 'Administrador') itens += '<li><a href="#" id="nav-usuarios" class="nav-link">Usuários</a></li>';
-                itens += '<li><a href="#" id="nav-coordenadas" class="nav-link">Coordenadas</a></li>';
-                itens += '<li><a href="#" id="nav-materiais" class="nav-link">Materiais</a></li>';
-                itens += '<li><a href="#" id="nav-formularios" class="nav-link">Formulários</a></li>';
-                // FTTH removido do menu principal
-                if (h !== 'Técnico') itens += '<li><a href="#" id="nav-perfil" class="nav-link">Perfil</a></li>';
-                itens += '<li><a href="#" id="nav-links" class="nav-link">Links</a></li>';
-                if (h === 'Administrador') itens += '<li><a href="#" id="nav-logs" class="nav-link">Logs</a></li>';
+                if (verificarAcesso('Dashboard')) itens += '<li><a href="#" id="nav-dashboard" class="nav-link active">Dashboard</a></li>';
+                if (verificarAcesso('GerenciarUsuarios')) itens += '<li><a href="#" id="nav-usuarios" class="nav-link">Usuários</a></li>';
+                if (verificarAcesso('Coordenadas')) itens += '<li><a href="#" id="nav-coordenadas" class="nav-link">Coordenadas</a></li>';
+                if (verificarAcesso('Materiais')) itens += '<li><a href="#" id="nav-materiais" class="nav-link">Materiais</a></li>';
+                if (verificarAcesso('Formularios')) itens += '<li><a href="#" id="nav-formularios" class="nav-link">Formulários</a></li>';
+                if (verificarAcesso('Perfil')) itens += '<li><a href="#" id="nav-perfil" class="nav-link">Perfil</a></li>';
+                if (verificarAcesso('Links')) itens += '<li><a href="#" id="nav-links" class="nav-link">Links</a></li>';
+                if (verificarAcesso('VisualizarLogs')) itens += '<li><a href="#" id="nav-logs" class="nav-link">Logs</a></li>';
                 nav.innerHTML = itens;
                 document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', function(e) {
                         e.preventDefault();
@@ -6985,7 +6983,13 @@
                 const navEl = document.getElementById(`nav-${pagina}`);
                 if (navEl) navEl.classList.add('active');
                 document.querySelectorAll('.page-content').forEach(c => c.classList.remove('active'));
-                if (pagina === 'formularios' && !verificarAcesso('Formularios')) return;
+                const permissaoPagina = { dashboard: 'Dashboard', usuarios: 'GerenciarUsuarios', coordenadas: 'Coordenadas', caixas: 'Caixas', materiais: 'Materiais', formularios: 'Formularios', perfil: 'Perfil', links: 'Links', logs: 'VisualizarLogs' }[pagina];
+                if (permissaoPagina && !verificarAcesso(permissaoPagina)) {
+                    mostrarToast('Você não possui acesso a esta funcionalidade.', 'erro');
+                    const retorno = document.getElementById('page-dashboard');
+                    if (retorno) retorno.classList.add('active');
+                    return;
+                }
                 document.getElementById(`page-${pagina}`).classList.add('active');
                 aplicarControleAcesso();
                 if (pagina === 'usuarios' && verificarAcesso('GerenciarUsuarios')) carregarUsuarios();
@@ -6997,13 +7001,53 @@
             }
 
             // =============================================
-            // CONTROLE DE ACESSO
+            // CONTROLE DE ACESSO POR FUNCIONALIDADE
             // =============================================
-            function verificarAcesso(permissao = 'Administrador') {
+            const FUNCIONALIDADES_SISTEMA = [
+                { chave: 'Dashboard', nome: 'Dashboard' },
+                { chave: 'GerenciarUsuarios', nome: 'Gerenciar Usuários' },
+                { chave: 'Coordenadas', nome: 'Coordenadas' },
+                { chave: 'Caixas', nome: 'Caixas Disponíveis' },
+                { chave: 'Materiais', nome: 'Materiais' },
+                { chave: 'Formularios', nome: 'Formulários' },
+                { chave: 'Links', nome: 'Links' },
+                { chave: 'VisualizarLogs', nome: 'Logs' },
+                { chave: 'Perfil', nome: 'Perfil' }
+            ];
+            const TIPOS_ACESSO = [
+                { valor: 'nenhum', nome: 'Sem acesso' },
+                { valor: 'visualizacao', nome: 'Visualização' },
+                { valor: 'edicao', nome: 'Edição' },
+                { valor: 'total', nome: 'Acesso total' }
+            ];
+
+            function obterPermissoesUsuario(usuario = usuarioLogado) {
+                if (!usuario) return {};
+                let p = usuario.permissoes;
+                if (typeof p === 'string') { try { p = JSON.parse(p); } catch (_) { p = {}; } }
+                return p && typeof p === 'object' ? p : {};
+            }
+
+            function usuarioTemPermissao(chave, nivel = 'visualizacao') {
                 if (!usuarioLogado) return false;
                 if (usuarioLogado.hierarquia === 'Administrador') return true;
-                const map = { 'Administrador': ['Administrador'], 'GerenciarUsuarios': ['Administrador'],
-                    'VisualizarLogs': ['Administrador'], 'AlterarPropriaSenha': true,
+                const p = obterPermissoesUsuario()[chave];
+                if (p) {
+                    if (p === 'nenhum' || p === false) return false;
+                    if (nivel === 'edicao') return p === 'edicao' || p === 'total';
+                    return true;
+                }
+                return null;
+            }
+
+            function verificarAcesso(permissao = 'Administrador', nivel = 'visualizacao') {
+                if (!usuarioLogado) return false;
+                const explicito = usuarioTemPermissao(permissao, nivel);
+                if (explicito !== null) return explicito;
+                if (usuarioLogado.hierarquia === 'Administrador') return true;
+                const map = { 'Administrador': ['Administrador'], 'Dashboard': ['Administrador', 'Supervisão'],
+                    'GerenciarUsuarios': ['Administrador'], 'Coordenadas': true, 'Caixas': true, 'Materiais': true,
+                    'Links': true, 'Perfil': true, 'VisualizarLogs': ['Administrador'], 'AlterarPropriaSenha': true,
                     'ExcluirCoordenadas': ['Administrador', 'Analistas', 'Projetos'],
                     'EditarCoordenadas': ['Administrador', 'Analistas', 'Projetos'],
                     'ExcluirCaixas': ['Administrador', 'Analistas', 'Projetos'], 'EditarMateriais': [
@@ -7194,6 +7238,33 @@
                 });
             }
 
+            function renderizarPermissoesUsuario(permissoes = {}) {
+                const container = document.getElementById('usuario-permissoes');
+                if (!container) return;
+                container.innerHTML = FUNCIONALIDADES_SISTEMA.map(f => {
+                    const valor = permissoes[f.chave] || 'nenhum';
+                    const marcado = valor !== 'nenhum' && valor !== false;
+                    const opcoes = TIPOS_ACESSO.map(t => `<option value="${t.valor}" ${valor === t.valor ? 'selected' : ''}>${t.nome}</option>`).join('');
+                    return `<div class="permissao-linha" style="display:flex;align-items:center;gap:10px;margin:6px 0;padding:7px;border:1px solid #ddd;border-radius:4px"><label style="flex:1;display:flex;align-items:center;gap:8px;margin:0"><input type="checkbox" class="permissao-check" data-chave="${f.chave}" ${marcado ? 'checked' : ''}> ${f.nome}</label><select class="permissao-tipo" data-chave="${f.chave}" style="width:160px">${opcoes}</select></div>`;
+                }).join('');
+                container.querySelectorAll('.permissao-check').forEach(check => check.addEventListener('change', () => {
+                    const tipo = container.querySelector(`.permissao-tipo[data-chave="${check.dataset.chave}"]`);
+                    if (tipo) tipo.value = check.checked ? (tipo.value === 'nenhum' ? 'visualizacao' : tipo.value) : 'nenhum';
+                }));
+                container.querySelectorAll('.permissao-tipo').forEach(select => select.addEventListener('change', () => {
+                    const check = container.querySelector(`.permissao-check[data-chave="${select.dataset.chave}"]`);
+                    if (check) check.checked = select.value !== 'nenhum';
+                }));
+            }
+
+            function coletarPermissoesUsuario() {
+                const permissoes = {};
+                document.querySelectorAll('#usuario-permissoes .permissao-tipo').forEach(select => {
+                    permissoes[select.dataset.chave] = select.value;
+                });
+                return permissoes;
+            }
+
             function abrirModalUsuario(usuario = null) {
                 let modal = document.getElementById('modal-usuario');
                 if (!modal) {
@@ -7201,7 +7272,7 @@
                     modal.id = 'modal-usuario';
                     modal.className = 'modal';
                     modal.innerHTML =
-                        `<div class="modal-content"><div class="modal-header"><h3 class="modal-title" id="modal-usuario-titulo">Novo Usuário</h3><button class="close-modal">&times;</button></div><form id="form-usuario"><input type="hidden" id="usuario-id"><div class="form-group"><label for="usuario-nome">Nome *</label><input type="text" id="usuario-nome" required></div><div class="form-group"><label for="usuario-email">Email *</label><input type="email" id="usuario-email" required></div><div class="form-group"><label for="usuario-senha">Senha ${usuario ? '(deixe em branco)' : '*'} </label><input type="password" id="usuario-senha" ${usuario ? '' : 'required'}></div><div class="form-group"><label for="usuario-hierarquia">Hierarquia *</label><select id="usuario-hierarquia" required><option value="">Selecione</option><option value="Administrador">Administrador</option><option value="Supervisão">Supervisão</option><option value="Analistas">Analistas</option><option value="Técnico">Técnico</option><option value="Projetos">Projetos</option></select></div><div class="form-group"><label for="usuario-status">Status *</label><select id="usuario-status" required><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select></div><div class="modal-footer"><button type="button" class="btn-danger" id="btn-cancelar-usuario">Cancelar</button><button type="submit" class="btn-success" id="btn-salvar-usuario">Salvar</button></div></form></div>`;
+                        `<div class="modal-content"><div class="modal-header"><h3 class="modal-title" id="modal-usuario-titulo">Novo Usuário</h3><button class="close-modal">&times;</button></div><form id="form-usuario"><input type="hidden" id="usuario-id"><div class="form-group"><label for="usuario-nome">Nome *</label><input type="text" id="usuario-nome" required></div><div class="form-group"><label for="usuario-email">Email *</label><input type="email" id="usuario-email" required></div><div class="form-group"><label for="usuario-senha">Senha ${usuario ? '(deixe em branco)' : '*'} </label><input type="password" id="usuario-senha" ${usuario ? '' : 'required'}></div><div class="form-group"><label for="usuario-hierarquia">Hierarquia *</label><select id="usuario-hierarquia" required><option value="">Selecione</option><option value="Administrador">Administrador</option><option value="Supervisão">Supervisão</option><option value="Analistas">Analistas</option><option value="Técnico">Técnico</option><option value="Projetos">Projetos</option></select></div><div class="form-group"><label for="usuario-status">Status *</label><select id="usuario-status" required><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select></div><div class="form-group"><label>Funcionalidades e tipo de acesso</label><div id="usuario-permissoes" class="usuario-permissoes"></div><small class="categoria-info">Desmarque a caixa para bloquear o acesso. O tipo define se o usuário pode apenas visualizar, editar ou ter acesso total.</small></div><div class="modal-footer"><button type="button" class="btn-danger" id="btn-cancelar-usuario">Cancelar</button><button type="submit" class="btn-success" id="btn-salvar-usuario">Salvar</button></div></form></div>`;
                     document.body.appendChild(modal);
                     modal.querySelector('.close-modal').addEventListener('click', () => modal.style.display = 'none');
                     modal.querySelector('#btn-cancelar-usuario').addEventListener('click', () => modal.style.display =
@@ -7226,6 +7297,7 @@
                     document.getElementById('usuario-id').value = '';
                     document.getElementById('usuario-senha').required = true;
                 }
+                renderizarPermissoesUsuario(usuario ? obterPermissoesUsuario(usuario) : {});
                 modal.style.display = 'flex';
             }
 
@@ -7236,11 +7308,12 @@
                 const senha = document.getElementById('usuario-senha').value;
                 const hierarquia = document.getElementById('usuario-hierarquia').value;
                 const status = document.getElementById('usuario-status').value;
+                const permissoes = coletarPermissoesUsuario();
                 if (!nome || !email || !hierarquia || !status) { mostrarToast('Preencha todos os campos', 'erro');
                     return; }
                 const editando = !!id;
                 try {
-                    let dados = { nome, email, hierarquia, status };
+                    let dados = { nome, email, hierarquia, status, permissoes };
                     if (senha) dados.senha = CryptoJS.SHA256(senha).toString();
                     if (editando) { const { error } = await supabase.from('usuarios').update(dados).eq('id', id); if (
                             error) throw error; } else { dados.data_cadastro = new Date().toISOString();
@@ -7307,6 +7380,7 @@
                 document.getElementById('aba-caixas').addEventListener('click', () => alternarAba('caixas'));
                 document.getElementById('aba-importar').addEventListener('click', () => alternarAba('importar'));
                 document.getElementById('btn-copiar').addEventListener('click', copiarItensSelecionados);
+                document.getElementById('btn-enviar-whatsapp').addEventListener('click', enviarItensSelecionadosParaWhatsApp);
                 document.getElementById('btn-excluir-coordenadas').addEventListener('click', function() {
                     if (!verificarAcesso('ExcluirCoordenadas')) { mostrarToast('Sem permissão.', 'erro'); return; }
                     if (coordenadasSelecionadas.length === 0) { mostrarToast(
@@ -7635,7 +7709,7 @@
                     const lat = normalizarCoordenada(coord.Y);
                     const lng = normalizarCoordenada(coord.X);
                     tr.innerHTML =
-                        `<td class="checkbox-column"><input type="checkbox" class="item-checkbox" data-id="${nome}" data-nome="${nome}" data-latitude="${lat}" data-longitude="${lng}"></td><td>${nome}</td><td>${tl}</td><td>${lat}</td><td>${lng}</td><td>${podeEditar ? `<button class="btn-edit-coordenada" onclick="window.editarCoordenada('${nome}','${tl}','${lat}','${lng}')"><i class="fas fa-edit"></i> Editar</button>` : ''}</td>`;
+                        `<td class="checkbox-column"><input type="checkbox" class="item-checkbox" data-id="${nome}" data-nome="${nome}" data-tipo="${tl}" data-latitude="${lat}" data-longitude="${lng}"></td><td>${nome}</td><td>${tl}</td><td>${lat}</td><td>${lng}</td><td>${podeEditar ? `<button class="btn-edit-coordenada" onclick="window.editarCoordenada('${nome}','${tl}','${lat}','${lng}')"><i class="fas fa-edit"></i> Editar</button>` : ''}</td>`;
                     tbody.appendChild(tr);
                     tr.querySelector('.item-checkbox').addEventListener('change', function() { alternarSelecaoCoordenada(
                             this.getAttribute('data-id'), this.closest('tr')); });
@@ -7721,6 +7795,29 @@
                 if (idx === -1) coordenadasSelecionadas.push(coordId);
                 else coordenadasSelecionadas.splice(idx, 1);
                 atualizarBotoesAcao();
+            }
+
+            function gerarMensagemWhatsAppSelecionados() {
+                const cbs = document.querySelectorAll('.item-checkbox:checked');
+                const linhas = [];
+                cbs.forEach(cb => {
+                    const nome = cb.getAttribute('data-nome') || 'Sem nome';
+                    const latitude = cb.getAttribute('data-latitude') || '';
+                    const longitude = cb.getAttribute('data-longitude') || '';
+                    linhas.push(`*Localização aproximada da ${nome}:*`);
+                    linhas.push(`https://www.google.com/maps/place/${latitude},${longitude}`);
+                    linhas.push('');
+                });
+                return linhas.join('\n').trim();
+            }
+
+            function enviarItensSelecionadosParaWhatsApp() {
+                const cbs = document.querySelectorAll('.item-checkbox:checked');
+                if (cbs.length === 0) { mostrarToast('Selecione pelo menos um item.', 'erro'); return; }
+                const mensagem = gerarMensagemWhatsAppSelecionados();
+                const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+                window.open(url, '_blank', 'noopener,noreferrer');
+                registrarLog(usuarioLogado?.nome || 'Usuário', `${cbs.length} coordenada(s) preparadas para WhatsApp`, 'Coordenadas');
             }
 
             function copiarItensSelecionados() {
