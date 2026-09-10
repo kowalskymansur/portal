@@ -1003,8 +1003,6 @@
                         <option value="" selected></option>
                         <option value="Angra dos Reis">Angra dos Reis</option>
                         <option value="Juiz de Fora">Juiz de Fora</option>
-                        <option value="Mangaratiba">Mangaratiba</option>
-                        <option value="Resende">Resende</option>
                         <option value="Ubatuba">Ubatuba</option>
                         <option value="Vassouras">Vassouras</option>
                         <option value="Volta Redonda">Volta Redonda</option>
@@ -1219,8 +1217,6 @@
                             <option value="">Todas as Equipes</option>
                             <option value="Angra dos Reis">Angra dos Reis</option>
                             <option value="Juiz de Fora">Juiz de Fora</option>
-                            <option value="Mangaratiba">Mangaratiba</option>
-                            <option value="Resende">Resende</option>
                             <option value="Ubatuba">Ubatuba</option>
                             <option value="Vassouras">Vassouras</option>
                             <option value="Volta Redonda">Volta Redonda</option>
@@ -1486,8 +1482,6 @@
                             <option value="">Todas as Equipes</option>
                             <option value="Angra dos Reis">Angra dos Reis</option>
                             <option value="Juiz de Fora">Juiz de Fora</option>
-                            <option value="Mangaratiba">Mangaratiba</option>
-                            <option value="Resende">Resende</option>
                             <option value="Ubatuba">Ubatuba</option>
                             <option value="Vassouras">Vassouras</option>
                             <option value="Volta Redonda">Volta Redonda</option>
@@ -3401,13 +3395,11 @@
         });
 
         const tecnicosPorEquipe = {
-            "Angra dos Reis": ["Geremais / Douglas", "Cosme / Felipe", "Jonatan / José"],
-            "Volta Redonda": ["Mário / Daniel", "Ramon / Calebe", "Vagner / Weskley", "Rodrigo / Dhiobert", "Wellington / Erman"],
-            "Mangaratiba": ["Ailton / Josiel"],
+            "Angra dos Reis": ["Cosme", "Douglas", "Geremias", "Jonatan"],
+            "Volta Redonda": ["Laércio", "Mário", "Ramom", "Rodrigo", "Vagner", "Wellington"],
             "Juiz de Fora": ["FHM Telecom"],
             "Vassouras": ["Rainstel"],
-            "Ubatuba": ["TurboNet"],
-            "Resende": ["Laércio / Aldo"]
+            "Ubatuba": ["TurboNet"]
         };
 
         function popularTecnicos(equipeSelecionada, selectElement, valorSelecionado = null) {
@@ -4982,8 +4974,6 @@
                                         <option value="">Selecione...</option>
                                         <option value="Angra dos Reis" ${data.equipe === 'Angra dos Reis' ? 'selected' : ''}>Angra dos Reis</option>
                                         <option value="Juiz de Fora" ${data.equipe === 'Juiz de Fora' ? 'selected' : ''}>Juiz de Fora</option>
-                                        <option value="Mangaratiba" ${data.equipe === 'Mangaratiba' ? 'selected' : ''}>Mangaratiba</option>
-                                        <option value="Resende" ${data.equipe === 'Resende' ? 'selected' : ''}>Resende</option>
                                         <option value="Ubatuba" ${data.equipe === 'Ubatuba' ? 'selected' : ''}>Ubatuba</option>
                                         <option value="Vassouras" ${data.equipe === 'Vassouras' ? 'selected' : ''}>Vassouras</option>
                                         <option value="Volta Redonda" ${data.equipe === 'Volta Redonda' ? 'selected' : ''}>Volta Redonda</option>
