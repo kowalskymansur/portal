@@ -14,7 +14,6 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS completo mantido igual ao original - mesmo estilo */
         :root {
             --primary: #2c3e50;
             --secondary: #3498db;
@@ -31,6 +30,332 @@
             --header-bg: #2c3e50;
         }
 
+        /* Modo Noturno */
+        body.dark-mode {
+            --bg-color: #0f172a;
+            --text-color: #e2e8f0;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --header-bg: #020617;
+            --light: #1e293b;
+            --dark: #cbd5e1;
+        }
+
+        body.dark-mode .card,
+        body.dark-mode .stat-card,
+        body.dark-mode .link-card,
+        body.dark-mode .login-form,
+        body.dark-mode .form-container-materiais,
+        body.dark-mode .search-container-materiais,
+        body.dark-mode .caixa-item,
+        body.dark-mode .modal-content,
+        body.dark-mode .formulario-card,
+        body.dark-mode .formularios-page-card {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+
+        body.dark-mode table {
+            color: var(--text-color);
+        }
+
+        body.dark-mode th {
+            background-color: #334155;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode tr:hover {
+            background-color: #334155;
+        }
+
+        body.dark-mode td {
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode textarea {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+
+        body.dark-mode .search-input,
+        body.dark-mode .search-input-coordenadas,
+        body.dark-mode .form-control {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+
+        body.dark-mode .aba:hover,
+        body.dark-mode .tab-materiais:hover {
+            background-color: #334155;
+        }
+
+        body.dark-mode .empty-state,
+        body.dark-mode .no-results-materiais {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .info-pesquisa,
+        body.dark-mode .stats-info,
+        body.dark-mode .ultima-importacao-info {
+            background-color: #1e3a5f;
+            border-left-color: var(--secondary);
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .formato-tabela {
+            background-color: #1e293b;
+            border-left-color: var(--info);
+        }
+
+        body.dark-mode .formato-tabela code {
+            background-color: #334155;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .radio-option {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+
+        body.dark-mode .radio-option:hover {
+            background-color: #334155;
+        }
+
+        body.dark-mode .password-requirements {
+            background-color: #1e293b;
+        }
+
+        body.dark-mode .email-preview {
+            background-color: #0f172a;
+            border-color: #334155;
+        }
+
+        body.dark-mode .logs-container {
+            border-color: #334155;
+        }
+
+        body.dark-mode .log-item {
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode .log-item:hover {
+            background-color: #334155;
+        }
+
+        body.dark-mode .formularios-grupo-title {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode .weather-widget-item {
+            background-color: #1e293b;
+        }
+
+        body.dark-mode .stat-card h3 {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .category-title {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .link-title {
+            color: #93c5fd;
+        }
+
+        body.dark-mode .link-description {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .profile-info p {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .formulario-card-body p {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .caixa-details {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .caixa-item {
+            background-color: #1e293b;
+        }
+
+        body.dark-mode .caixa-selecionada {
+            background-color: #1e3a5f !important;
+            border-left-color: var(--secondary);
+        }
+
+        body.dark-mode .modal-header {
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode .modal-footer {
+            border-top-color: #334155;
+        }
+
+        body.dark-mode .search-container-materiais {
+            border-color: #334155;
+        }
+
+        body.dark-mode .form-group-materiais input,
+        body.dark-mode .form-group-materiais select,
+        body.dark-mode .form-group-materiais textarea {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+
+        body.dark-mode .selection-controls {
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode .tabs-materiais {
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode .tab-content-materiais {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .status-message-materiais {
+            color: white;
+        }
+
+        body.dark-mode .form-title-materiais {
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode .categoria-item {
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode .categoria-item:hover {
+            background-color: #334155;
+        }
+
+        body.dark-mode .abas-navegacao {
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode .conteudo-aba {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .destaque-pesquisa {
+            background-color: #4a3f1a !important;
+            border-left-color: #fbbf24;
+        }
+
+        body.dark-mode .pagination button {
+            background-color: #334155;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .pagination button.active {
+            background-color: var(--secondary);
+        }
+
+        body.dark-mode .pagination-info {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .loading {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .loading-spinner {
+            border-color: #334155;
+            border-top-color: var(--secondary);
+        }
+
+        body.dark-mode .log-usuario {
+            color: #93c5fd;
+        }
+
+        body.dark-mode .log-modulo {
+            background-color: #1e3a5f;
+        }
+
+        body.dark-mode .log-data {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .log-detalhes {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .filtros-container .form-control {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .formulario-incorporado iframe {
+            background: transparent;
+        }
+
+        body.dark-mode .formularios-intro {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .remember-me label {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .option-count {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .search-icon {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .clear-search-materiais {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .stats-info {
+            background-color: #1e3a5f;
+        }
+
+        /* Botão de alternância de tema */
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-toggle .theme-label {
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .theme-toggle .theme-label {
+                display: none;
+            }
+        }
+
+        /* ... (todo o CSS original permanece igual) ... */
         * {
             margin: 0;
             padding: 0;
@@ -125,8 +450,11 @@
             align-items: center;
             gap: 10px;
         }
+        body.dark-mode .page-title {
+            color: #e2e8f0;
+        }
         .card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
@@ -145,9 +473,11 @@
         textarea {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--text-color);
         }
         button {
             background-color: var(--secondary);
@@ -195,14 +525,20 @@
         td {
             padding: 0.75rem;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
         }
         th {
             background-color: #f8f9fa;
             font-weight: 600;
         }
+        body.dark-mode th {
+            background-color: #334155;
+        }
         tr:hover {
             background-color: #f8f9fa;
+        }
+        body.dark-mode tr:hover {
+            background-color: #334155;
         }
         .actions {
             display: flex;
@@ -223,7 +559,7 @@
             background-color: var(--light);
         }
         .login-form {
-            background: white;
+            background: var(--card-bg);
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -234,6 +570,9 @@
             margin-bottom: 1.5rem;
             text-align: center;
             color: var(--primary);
+        }
+        body.dark-mode .login-form h2 {
+            color: #e2e8f0;
         }
         .alert {
             padding: 0.75rem 1.25rem;
@@ -291,7 +630,7 @@
             margin-top: 20px;
         }
         .stat-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
@@ -313,6 +652,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        body.dark-mode .log-entry {
+            border-bottom-color: #334155;
         }
         .log-type {
             padding: 2px 8px;
@@ -351,8 +693,10 @@
         .search-input {
             flex: 1;
             padding: 0.75rem;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
         }
         .table-container {
             overflow-x: auto;
@@ -377,10 +721,9 @@
             opacity: 0.5;
         }
 
-        /* Abas de navegação */
         .abas-navegacao {
             display: flex;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
             margin-bottom: 1.5rem;
         }
         .aba {
@@ -397,6 +740,9 @@
         .aba:hover {
             background-color: #f8f9fa;
         }
+        body.dark-mode .aba:hover {
+            background-color: #334155;
+        }
         .conteudo-aba {
             display: none;
         }
@@ -411,6 +757,10 @@
             background-color: #fff3cd !important;
             border-left: 4px solid #ffc107;
             font-weight: bold;
+        }
+        body.dark-mode .destaque-pesquisa {
+            background-color: #4a3f1a !important;
+            border-left-color: #fbbf24;
         }
         .pagination {
             display: flex;
@@ -475,10 +825,21 @@
         .search-input-coordenadas {
             padding-left: 35px;
             width: 100%;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
         }
         .categoria-select {
             min-width: 220px;
             flex: 1;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.75rem;
         }
         .btn-limpar {
             min-width: 100px;
@@ -521,11 +882,9 @@
             background-color: var(--danger);
         }
 
-
-        /* Formulários no padrão visual geral do site */
         .formularios-page-card {
-            background: var(--card-bg, #ffffff);
-            border: 1px solid var(--border-color, #e5e7eb);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
@@ -538,8 +897,6 @@
             .formularios-page-card { padding: 1rem; }
         }
 
-
-        /* Agrupamento visual dos formulários */
         .formularios-grupo {
             grid-column: 1 / -1;
             min-width: 0;
@@ -556,6 +913,11 @@
             font-size: 1.05rem;
             font-weight: 600;
         }
+        body.dark-mode .formularios-grupo-title {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-bottom-color: #334155;
+        }
         .formularios-grupo-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -565,8 +927,8 @@
             .formularios-grupo-grid { grid-template-columns: 1fr; }
         }
 
-        /* Central de Formulários */
         .formularios-intro { margin-bottom: 1.5rem; color: #5f6b76; }
+        body.dark-mode .formularios-intro { color: #94a3b8; }
         .formularios-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
         .formulario-card { display: flex; flex-direction: column; min-height: 230px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: hidden; transition: transform .2s ease, box-shadow .2s ease; }
         .formulario-card:hover { transform: translateY(-2px); box-shadow: 0 5px 16px rgba(0,0,0,.14); }
@@ -584,7 +946,6 @@
         .formulario-incorporado iframe { display: block; width: 100%; height: 1020px; min-height: 1020px; border: 0; background: transparent; }
         @media (max-width: 760px) { .formulario-incorporado iframe { height: 1060px; min-height: 1060px; } }
 
-        /* Sistema de Materiais */
         .tabs-materiais {
             display: flex;
             margin: 20px 0;
@@ -808,13 +1169,12 @@
             gap: 5px;
         }
 
-        /* Sistema de Caixas */
         .caixa-item {
             padding: 1rem;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             margin-bottom: 0.5rem;
-            background-color: #f8f9fa;
+            background-color: var(--light);
         }
         .caixa-header {
             display: flex;
@@ -871,7 +1231,6 @@
             margin-top: 0.5rem;
         }
 
-        /* Sistema de Solicitação */
         .selection-controls {
             display: flex;
             justify-content: space-between;
@@ -993,7 +1352,6 @@
             gap: 5px;
         }
 
-        /* Modais */
         .modal {
             display: none;
             position: fixed;
@@ -1007,7 +1365,7 @@
             justify-content: center;
         }
         .modal-content {
-            background-color: white;
+            background-color: var(--card-bg);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -1022,12 +1380,15 @@
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
         }
         .modal-title {
             margin: 0;
             font-size: 1.25rem;
             color: var(--primary);
+        }
+        body.dark-mode .modal-title {
+            color: #e2e8f0;
         }
         .close-modal {
             background: none;
@@ -1045,20 +1406,19 @@
             gap: 10px;
             margin-top: 20px;
             padding-top: 15px;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid var(--border-color);
         }
 
-        /* Logs */
         .logs-container {
             max-height: 500px;
             overflow-y: auto;
-            border: 1px solid #eee;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 10px;
         }
         .log-item {
             padding: 12px 15px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
         }
         .log-item:last-child {
             border-bottom: none;
@@ -1108,7 +1468,6 @@
             gap: 10px;
         }
 
-        /* Perfil e Links */
         .remember-me {
             display: flex;
             align-items: center;
@@ -1171,6 +1530,9 @@
             margin-bottom: 5px;
             color: var(--primary);
         }
+        body.dark-mode .profile-info h3 {
+            color: #e2e8f0;
+        }
         .profile-info p {
             color: #6c757d;
             margin-bottom: 5px;
@@ -1184,6 +1546,9 @@
             padding: 15px;
             margin-top: 20px;
             border-left: 4px solid var(--info);
+        }
+        body.dark-mode .password-requirements {
+            background-color: #1e293b;
         }
         .password-requirements h4 {
             margin-bottom: 10px;
@@ -1215,7 +1580,7 @@
             margin-top: 20px;
         }
         .link-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
@@ -1275,14 +1640,13 @@
             border-bottom: 2px solid var(--secondary);
         }
 
-        /* Utilitários */
         .form-control {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 1rem;
-            background-color: white;
+            background-color: var(--card-bg);
             color: var(--text-color);
         }
         .formato-tabela {
@@ -1349,6 +1713,10 @@
             align-items: center;
             gap: 10px;
         }
+        body.dark-mode .ultima-importacao-info {
+            background-color: #1e3a5f;
+            color: #e2e8f0;
+        }
         .ultima-importacao-info i {
             color: var(--info);
             font-size: 1.2rem;
@@ -1389,13 +1757,15 @@
             font-weight: 500;
         }
 
-        /* FTTH */
         .ftth-container {
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             margin-bottom: 20px;
+        }
+        body.dark-mode .ftth-container {
+            background: var(--card-bg);
         }
         .ftth-info-bar {
             background: #f8f9fa;
@@ -1405,6 +1775,10 @@
             border-radius: 5px;
             font-size: 14px;
             color: #666;
+        }
+        body.dark-mode .ftth-info-bar {
+            background: #1e293b;
+            color: #94a3b8;
         }
         .ftth-grid {
             display: grid;
@@ -1419,12 +1793,19 @@
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
+        body.dark-mode .ftth-card {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
         .ftth-card h3 {
             margin: 0 0 20px 0;
             color: #2c3e50;
             font-size: 18px;
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
+        }
+        body.dark-mode .ftth-card h3 {
+            color: #e2e8f0;
         }
         .ftth-param-group {
             margin-bottom: 15px;
@@ -1436,6 +1817,9 @@
             font-weight: 500;
             font-size: 14px;
         }
+        body.dark-mode .ftth-param-group label {
+            color: #94a3b8;
+        }
         .ftth-param-group input,
         .ftth-param-group select {
             width: 100%;
@@ -1444,6 +1828,8 @@
             border-radius: 5px;
             font-size: 14px;
             transition: border 0.3s;
+            background-color: var(--card-bg);
+            color: var(--text-color);
         }
         .ftth-param-group input:focus,
         .ftth-param-group select:focus {
@@ -1462,16 +1848,25 @@
             padding: 20px;
             text-align: center;
         }
+        body.dark-mode .ftth-result-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+        }
         .ftth-result-card h4 {
             margin: 0 0 15px 0;
             color: #2c3e50;
             font-size: 16px;
+        }
+        body.dark-mode .ftth-result-card h4 {
+            color: #e2e8f0;
         }
         .ftth-result-value {
             font-size: 32px;
             font-weight: bold;
             color: #2c3e50;
             margin-bottom: 10px;
+        }
+        body.dark-mode .ftth-result-value {
+            color: #e2e8f0;
         }
         .ftth-result-unit {
             font-size: 14px;
@@ -1519,6 +1914,9 @@
             padding: 10px 12px;
             border-bottom: 1px solid #ddd;
         }
+        body.dark-mode .ftth-table-container td {
+            border-bottom-color: #334155;
+        }
         .ftth-table-container td:nth-child(2),
         .ftth-table-container td:nth-child(3) {
             text-align: right;
@@ -1528,6 +1926,9 @@
         .ftth-table-container tr:hover {
             background: #f5f5f5;
         }
+        body.dark-mode .ftth-table-container tr:hover {
+            background: #334155;
+        }
         .ftth-footer {
             background: #f8f9fa;
             padding: 20px;
@@ -1535,6 +1936,10 @@
             border-top: 1px solid #e0e0e0;
             font-size: 13px;
             color: #666;
+        }
+        body.dark-mode .ftth-footer {
+            background: #1e293b;
+            color: #94a3b8;
         }
         .ftth-warning {
             background: #fff3cd;
@@ -1544,6 +1949,11 @@
             border-radius: 5px;
             margin: 20px;
             font-size: 14px;
+        }
+        body.dark-mode .ftth-warning {
+            background: #4a3f1a;
+            border-color: #fbbf24;
+            color: #fbbf24;
         }
         .ftth-button {
             background: #3498db;
@@ -1597,10 +2007,17 @@
             background: #f8f9fa;
             font-size: 13px;
         }
+        body.dark-mode .ftth-analysis-section {
+            background: #1e293b;
+            border-color: var(--border-color);
+        }
         .ftth-analysis-section h3 {
             font-size: 16px;
             margin: 0 0 15px 0;
             color: #2c3e50;
+        }
+        body.dark-mode .ftth-analysis-section h3 {
+            color: #e2e8f0;
         }
         .ftth-margin-box {
             flex: 1;
@@ -1610,6 +2027,9 @@
             border-radius: 6px;
             margin: 0 5px;
             font-size: 12px;
+        }
+        body.dark-mode .ftth-margin-box {
+            background: var(--card-bg);
         }
         .ftth-margin-box span {
             font-size: 18px;
@@ -1621,6 +2041,9 @@
             border-radius: 6px;
             margin: 15px 0;
             font-size: 12px;
+        }
+        body.dark-mode .ftth-distancia-box {
+            background: var(--card-bg);
         }
         .ftth-distancia-box span {
             font-size: 16px;
@@ -1644,6 +2067,9 @@
             background-color: #e9ecef;
             border-radius: 4px;
             overflow: hidden;
+        }
+        body.dark-mode .ftth-margin-bar {
+            background-color: #334155;
         }
         .ftth-margin-fill {
             height: 100%;
@@ -1819,6 +2245,10 @@
                 <div class="logo"><span>🌐</span><h1>Gestão de Redes</h1></div>
                 <nav><ul id="main-navigation"></ul></nav>
                 <div class="user-info">
+                    <button class="theme-toggle" id="theme-toggle-btn" title="Alternar modo noturno">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                        <span class="theme-label" id="theme-label">Escuro</span>
+                    </button>
                     <div class="user-avatar" id="user-avatar">A</div>
                     <span id="user-name">Administrador</span>
                     <span class="role-badge" id="user-role">Administrador</span>
@@ -1949,7 +2379,6 @@
                     </div>
                 </div>
                 <div id="conteudo-caixas" class="conteudo-aba">
-                    <!-- Modais de caixas (mantidos iguais) -->
                     <div id="modal-retornar-caixa" class="modal">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -2355,9 +2784,7 @@
                 </div>
             </section>
 
-            <!-- Página FTTH removida do menu principal, mantida apenas para referência interna, mas não acessível via navegação -->
             <section id="page-ftth" class="page-content" style="display:none;">
-                <!-- Conteúdo FTTH removido para não ser exibido no menu -->
             </section>
 
             <section id="page-logs" class="page-content">
@@ -2594,7 +3021,6 @@
             font-size: 10px;
         }
 
-        /* Scrollbar personalizada */
         .checkbox-group::-webkit-scrollbar {
             width: 4px;
         }
@@ -2609,7 +3035,6 @@
             border-radius: 2px;
         }
 
-        /* Estilos para as checkboxes - EQUIPE */
         .equipe-checkbox-group {
             border: 1.5px solid var(--border-color);
             border-radius: 6px;
@@ -2653,7 +3078,6 @@
             line-height: 1.2;
         }
 
-        /* Estilos para as checkboxes - CABOS */
         .cabos-checkbox-group {
             border: 1.5px solid var(--border-color);
             border-radius: 6px;
@@ -2697,7 +3121,6 @@
             line-height: 1.2;
         }
 
-        /* Estilos para a seção de Assinatura CM */
         .assinatura-section {
             margin-top: 15px;
             border-top: 1px solid var(--border-color);
@@ -2725,7 +3148,6 @@
             margin-bottom: 0;
         }
 
-        /* Ajustes para telas muito pequenas */
         @media (max-height: 600px) {
             .container {
                 max-height: 96vh;
@@ -2768,7 +3190,6 @@
                 &lt;textarea id=&quot;solucao&quot; placeholder=&quot;Descreva a solução aplicada...&quot;&gt;&lt;/textarea&gt;
             &lt;/div&gt;
 
-            &lt;!-- Equipe com checkboxes --&gt;
             &lt;div class=&quot;form-group&quot;&gt;
                 &lt;label for=&quot;equipe&quot; class=&quot;required&quot;&gt;Equipe:&lt;/label&gt;
                 &lt;div class=&quot;equipe-checkbox-group&quot; id=&quot;equipeCheckboxGroup&quot;&gt;
@@ -2849,13 +3270,11 @@
                 &lt;/select&gt;
             &lt;/div&gt;
 
-            &lt;!-- Campo Observação --&gt;
             &lt;div class=&quot;form-group&quot;&gt;
                 &lt;label for=&quot;observacao&quot;&gt;Observação:&lt;/label&gt;
                 &lt;textarea id=&quot;observacao&quot; placeholder=&quot;Observações adicionais...&quot;&gt;&lt;/textarea&gt;
             &lt;/div&gt;
 
-            &lt;!-- Campo Tipo de Cabo com checkboxes --&gt;
             &lt;div class=&quot;form-group&quot;&gt;
                 &lt;label for=&quot;tipoCabo&quot;&gt;Tipo de cabo:&lt;/label&gt;
                 &lt;div class=&quot;cabos-checkbox-group&quot; id=&quot;cabosCheckboxGroup&quot;&gt;
@@ -2911,7 +3330,6 @@
                 &lt;small&gt;Selecione um ou mais tipos de cabos&lt;/small&gt;
             &lt;/div&gt;
 
-            &lt;!-- Seção de Assinatura CM incorporada --&gt;
             &lt;div class=&quot;assinatura-section&quot;&gt;
                 &lt;div class=&quot;assinatura-header&quot;&gt;
                     &lt;span class=&quot;assinatura-title&quot;&gt;Assinatura CM&lt;/span&gt;
@@ -2938,110 +3356,54 @@
     &lt;/div&gt;
 
     &lt;script&gt;
-        // Funções para o formulário principal
         function limparCampos() {
-            // Limpar campos principais
             document.getElementById(&#x27;problema&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;solucao&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;localizacao&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;observacao&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;afetouOperadoras&#x27;).value = &#x27;Não&#x27;;
-            
-            // Limpar checkboxes de equipe
             const equipeCheckboxes = document.querySelectorAll(&#x27;#equipeCheckboxGroup input[type=&quot;checkbox&quot;]&#x27;);
-            equipeCheckboxes.forEach(checkbox =&gt; {
-                checkbox.checked = false;
-            });
-            
-            // Limpar checkboxes de tipo de cabo
+            equipeCheckboxes.forEach(checkbox =&gt; { checkbox.checked = false; });
             const cabosCheckboxes = document.querySelectorAll(&#x27;#cabosCheckboxGroup input[type=&quot;checkbox&quot;]&#x27;);
-            cabosCheckboxes.forEach(checkbox =&gt; {
-                checkbox.checked = false;
-            });
-            
-            // Limpar seleção de usuário
+            cabosCheckboxes.forEach(checkbox =&gt; { checkbox.checked = false; });
             document.getElementById(&#x27;usuario&#x27;).value = &#x27;&#x27;;
         }
 
         function gerarTexto() {
-            // Campos principais
             const problema = document.getElementById(&#x27;problema&#x27;).value.trim();
             const solucao = document.getElementById(&#x27;solucao&#x27;).value.trim();
             const localizacao = document.getElementById(&#x27;localizacao&#x27;).value.trim();
             const afetouOperadoras = document.getElementById(&#x27;afetouOperadoras&#x27;).value;
             const observacao = document.getElementById(&#x27;observacao&#x27;).value.trim();
-            
-            // Obter checkboxes de equipe selecionadas
             const equipeCheckboxes = document.querySelectorAll(&#x27;#equipeCheckboxGroup input[type=&quot;checkbox&quot;]:checked&#x27;);
             const equipesSelecionadas = Array.from(equipeCheckboxes).map(checkbox =&gt; checkbox.value);
-            
-            // Obter checkboxes de cabos selecionadas
             const cabosCheckboxes = document.querySelectorAll(&#x27;#cabosCheckboxGroup input[type=&quot;checkbox&quot;]:checked&#x27;);
             const tiposCabosSelecionados = Array.from(cabosCheckboxes).map(checkbox =&gt; checkbox.value);
-            
-            // Obter usuário selecionado
             const usuario = document.getElementById(&#x27;usuario&#x27;).value;
-            
-            // Validações principais
-            if (!problema) {
-                alert(&#x27;Por favor, descreva o problema.&#x27;);
-                return;
-            }
-            
-            if (!solucao) {
-                alert(&#x27;Por favor, descreva a solução.&#x27;);
-                return;
-            }
-            
-            if (equipesSelecionadas.length === 0) {
-                alert(&#x27;Por favor, selecione pelo menos uma equipe.&#x27;);
-                return;
-            }
-            
-            if (!localizacao) {
-                alert(&#x27;Por favor, informe a localização.&#x27;);
-                return;
-            }
-            
-            if (!usuario) {
-                alert(&#x27;Por favor, selecione um usuário para a assinatura.&#x27;);
-                return;
-            }
-            
-            // Construir texto
+            if (!problema) { alert(&#x27;Por favor, descreva o problema.&#x27;); return; }
+            if (!solucao) { alert(&#x27;Por favor, descreva a solução.&#x27;); return; }
+            if (equipesSelecionadas.length === 0) { alert(&#x27;Por favor, selecione pelo menos uma equipe.&#x27;); return; }
+            if (!localizacao) { alert(&#x27;Por favor, informe a localização.&#x27;); return; }
+            if (!usuario) { alert(&#x27;Por favor, selecione um usuário para a assinatura.&#x27;); return; }
             let texto = `*Qual foi o problema?* ${problema}\n` +
                        `*Qual foi a solução?* ${solucao}\n` +
                        `*Equipe:* ${equipesSelecionadas.join(&#x27;; &#x27;)}\n` +
                        `*Localizacao:* ${localizacao}\n` +
                        `*Afetou outras operadoras?* ${afetouOperadoras}`;
-            
-            // Adicionar observação se existir
-            if (observacao) {
-                texto += `\n*Observacao:* ${observacao}`;
-            }
-            
-            // Adicionar informações de cabos se selecionadas
+            if (observacao) { texto += `\n*Observacao:* ${observacao}`; }
             if (tiposCabosSelecionados.length &gt; 0) {
                 texto += `\n*Cabos utilizados:*`;
-                // Cada cabo em uma linha separada
-                tiposCabosSelecionados.forEach(cabo =&gt; {
-                    texto += `\n${cabo}`;
-                });
+                tiposCabosSelecionados.forEach(cabo =&gt; { texto += `\n${cabo}`; });
             }
-            
-            // Adicionar assinatura no final
             const assinatura = gerarAssinatura(usuario);
             texto += `\n${assinatura}`;
-            
             copiarParaAreaTransferencia(texto);
         }
 
-        // Funções para a Assinatura CM
         function gerarAssinatura(usuario) {
             const agora = new Date();
             const dataAtual = formatarData(agora);
             const horaAtual = formatarHora(agora);
-            
             return `(${usuario} - ${dataAtual} - ${horaAtual}h).`;
         }
 
@@ -3058,7 +3420,6 @@
             return `${horas}:${minutos}`;
         }
 
-        // Funções compartilhadas
         async function copiarParaAreaTransferencia(texto) {
             try {
                 await navigator.clipboard.writeText(texto);
@@ -3078,7 +3439,6 @@
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            
             try {
                 const successful = document.execCommand(&#x27;copy&#x27;);
                 if (successful) {
@@ -3090,7 +3450,6 @@
             } catch (err) {
                 mostrarTooltip(&#x27;Texto gerado! Use Ctrl+V para colar.&#x27;, true);
             }
-            
             document.body.removeChild(textArea);
         }
 
@@ -3098,11 +3457,7 @@
             document.body.focus();
             try {
                 const pasteEvent = new KeyboardEvent(&#x27;keydown&#x27;, {
-                    key: &#x27;v&#x27;,
-                    code: &#x27;KeyV&#x27;,
-                    ctrlKey: true,
-                    bubbles: true,
-                    cancelable: true
+                    key: &#x27;v&#x27;, code: &#x27;KeyV&#x27;, ctrlKey: true, bubbles: true, cancelable: true
                 });
                 document.dispatchEvent(pasteEvent);
                 mostrarTooltip(&#x27;Texto copiado! Pressione Ctrl+V para colar.&#x27;);
@@ -3113,38 +3468,23 @@
 
         function mostrarTooltip(mensagem, isWarning = false) {
             const tooltipAnterior = document.querySelector(&#x27;.tooltip&#x27;);
-            if (tooltipAnterior) {
-                tooltipAnterior.remove();
-            }
-            
+            if (tooltipAnterior) { tooltipAnterior.remove(); }
             const tooltip = document.createElement(&#x27;div&#x27;);
             tooltip.className = &#x27;tooltip&#x27;;
             tooltip.textContent = mensagem;
             tooltip.style.background = isWarning ? &#x27;var(--tooltip-warning)&#x27; : &#x27;var(--tooltip-success)&#x27;;
-            
             document.body.appendChild(tooltip);
-            
             setTimeout(() =&gt; {
-                if (tooltip.parentNode) {
-                    tooltip.parentNode.removeChild(tooltip);
-                }
+                if (tooltip.parentNode) { tooltip.parentNode.removeChild(tooltip); }
             }, 3000);
         }
 
-        // Event listeners
         document.addEventListener(&#x27;keydown&#x27;, function(event) {
-            if (event.key === &#x27;F2&#x27;) {
-                event.preventDefault();
-                document.getElementById(&#x27;problema&#x27;).focus();
-            }
+            if (event.key === &#x27;F2&#x27;) { event.preventDefault(); document.getElementById(&#x27;problema&#x27;).focus(); }
         });
 
-        // Focar no primeiro campo ao carregar
-        window.addEventListener(&#x27;load&#x27;, function() {
-            document.getElementById(&#x27;problema&#x27;).focus();
-        });
+        window.addEventListener(&#x27;load&#x27;, function() { document.getElementById(&#x27;problema&#x27;).focus(); });
 
-        // Recebe a lista dinâmica da tabela equipes do sistema principal.
         window.addEventListener(&#x27;message&#x27;, function(event) {
             if (event.source !== window.parent || !event.data || event.data.type !== &#x27;equipes-banco&#x27;) return;
             const nomes = Array.isArray(event.data.equipes) ? event.data.equipes : [];
@@ -3193,9 +3533,7 @@
                 campo.replaceWith(select);
             });
         });
-
     &lt;/script&gt;
-
 &lt;/body&gt;
 &lt;/html&gt;"></iframe></article>
                     <article class="formulario-incorporado"><iframe title="Encerramento NOC" srcdoc="&lt;!DOCTYPE html&gt;
@@ -3305,7 +3643,6 @@
             font-weight: 600;
             cursor: pointer;
             font-family: inherit;
-            transition: background-color 0.2s;
         }
 
         .btn-primary {
@@ -3363,7 +3700,6 @@
             font-size: 10px;
         }
 
-        /* Scrollbar personalizada */
         .equipe-checkbox-group::-webkit-scrollbar {
             width: 4px;
         }
@@ -3378,7 +3714,6 @@
             border-radius: 2px;
         }
 
-        /* Estilos para as checkboxes - EQUIPE */
         .equipe-checkbox-group {
             border: 1.5px solid #333333;
             border-radius: 6px;
@@ -3423,7 +3758,6 @@
             color: #e2e8f0;
         }
 
-        /* Ajustes para telas muito pequenas */
         @media (max-height: 600px) {
             .container {
                 max-height: 96vh;
@@ -3465,7 +3799,6 @@
                 &lt;textarea id=&quot;solucao&quot; placeholder=&quot;Descreva a solução aplicada...&quot;&gt;&lt;/textarea&gt;
             &lt;/div&gt;
 
-            &lt;!-- Equipe com checkboxes --&gt;
             &lt;div class=&quot;form-group&quot;&gt;
                 &lt;label for=&quot;equipe&quot; class=&quot;required&quot;&gt;Equipe:&lt;/label&gt;
                 &lt;div class=&quot;equipe-checkbox-group&quot; id=&quot;equipeCheckboxGroup&quot;&gt;
@@ -3546,7 +3879,6 @@
                 &lt;/select&gt;
             &lt;/div&gt;
 
-            &lt;!-- Campo Observação --&gt;
             &lt;div class=&quot;form-group&quot;&gt;
                 &lt;label for=&quot;observacao&quot;&gt;Observação:&lt;/label&gt;
                 &lt;textarea id=&quot;observacao&quot; placeholder=&quot;Observações adicionais...&quot;&gt;&lt;/textarea&gt;
@@ -3560,83 +3892,43 @@
     &lt;/div&gt;
 
     &lt;script&gt;
-        // Garantir que as funções estejam no escopo global
         window.limparCampos = function() {
-            // Limpar campos principais
             document.getElementById(&#x27;problema&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;solucao&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;localizacao&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;observacao&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;afetouOperadoras&#x27;).value = &#x27;Não&#x27;;
-            
-            // Limpar checkboxes de equipe
             const equipeCheckboxes = document.querySelectorAll(&#x27;#equipeCheckboxGroup input[type=&quot;checkbox&quot;]&#x27;);
-            equipeCheckboxes.forEach(checkbox =&gt; {
-                checkbox.checked = false;
-            });
+            equipeCheckboxes.forEach(checkbox =&gt; { checkbox.checked = false; });
         };
 
         window.gerarTexto = function() {
-            console.log(&#x27;Função gerarTexto foi chamada&#x27;); // Para debug
-            
-            // Campos principais
             const problema = document.getElementById(&#x27;problema&#x27;).value.trim();
             const solucao = document.getElementById(&#x27;solucao&#x27;).value.trim();
             const localizacao = document.getElementById(&#x27;localizacao&#x27;).value.trim();
             const afetouOperadoras = document.getElementById(&#x27;afetouOperadoras&#x27;).value;
             const observacao = document.getElementById(&#x27;observacao&#x27;).value.trim();
-            
-            // Obter checkboxes de equipe selecionadas
             const equipeCheckboxes = document.querySelectorAll(&#x27;#equipeCheckboxGroup input[type=&quot;checkbox&quot;]:checked&#x27;);
             const equipesSelecionadas = Array.from(equipeCheckboxes).map(checkbox =&gt; checkbox.value);
-            
-            console.log(&#x27;Equipes selecionadas:&#x27;, equipesSelecionadas); // Para debug
-            
-            // Validações principais
-            if (!problema) {
-                alert(&#x27;Por favor, descreva o problema.&#x27;);
-                return;
-            }
-            
-            if (!solucao) {
-                alert(&#x27;Por favor, descreva a solução.&#x27;);
-                return;
-            }
-            
-            if (equipesSelecionadas.length === 0) {
-                alert(&#x27;Por favor, selecione pelo menos uma equipe.&#x27;);
-                return;
-            }
-            
-            if (!localizacao) {
-                alert(&#x27;Por favor, informe a localização.&#x27;);
-                return;
-            }
-            
-            // Construir texto
+            if (!problema) { alert(&#x27;Por favor, descreva o problema.&#x27;); return; }
+            if (!solucao) { alert(&#x27;Por favor, descreva a solução.&#x27;); return; }
+            if (equipesSelecionadas.length === 0) { alert(&#x27;Por favor, selecione pelo menos uma equipe.&#x27;); return; }
+            if (!localizacao) { alert(&#x27;Por favor, informe a localização.&#x27;); return; }
             let texto = `*Qual foi o problema?* ${problema}\n` +
                        `*Qual foi a solução?* ${solucao}\n` +
                        `*Equipe:* ${equipesSelecionadas.join(&#x27;; &#x27;)}\n` +
-                       `*Localização:* ${localizacao}\n` +  // Corrigido acento
+                       `*Localização:* ${localizacao}\n` +
                        `*Afetou outras operadoras?* ${afetouOperadoras}`;
-            
-            // Adicionar observação se existir
-            if (observacao) {
-                texto += `\n*Observação:* ${observacao}`;  // Corrigido acento
-            }
-            
-            console.log(&#x27;Texto gerado:&#x27;, texto); // Para debug
+            if (observacao) { texto += `\n*Observação:* ${observacao}`; }
             copiarParaAreaTransferencia(texto);
         };
 
-        // Funções compartilhadas
         async function copiarParaAreaTransferencia(texto) {
             try {
                 await navigator.clipboard.writeText(texto);
                 mostrarTooltip(&#x27;Texto copiado para a área de transferência!&#x27;);
                 setTimeout(tentarColarAutomaticamente, 300);
             } catch (err) {
-                console.log(&#x27;Erro ao copiar com clipboard API, usando fallback:&#x27;, err);
                 fallbackCopyTextToClipboard(texto);
             }
         }
@@ -3651,7 +3943,6 @@
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            
             try {
                 const successful = document.execCommand(&#x27;copy&#x27;);
                 if (successful) {
@@ -3661,57 +3952,35 @@
                     mostrarTooltip(&#x27;Texto gerado! Use Ctrl+V para colar.&#x27;, true);
                 }
             } catch (err) {
-                console.log(&#x27;Erro no fallback copy:&#x27;, err);
                 mostrarTooltip(&#x27;Texto gerado! Use Ctrl+V para colar.&#x27;, true);
             }
-            
             document.body.removeChild(textArea);
         }
 
         function tentarColarAutomaticamente() {
             document.body.focus();
-            // Não tenta simular evento de tecla, apenas mostra mensagem
             mostrarTooltip(&#x27;Texto copiado! Pressione Ctrl+V para colar.&#x27;);
         }
 
         function mostrarTooltip(mensagem, isWarning = false) {
             const tooltipAnterior = document.querySelector(&#x27;.tooltip&#x27;);
-            if (tooltipAnterior) {
-                tooltipAnterior.remove();
-            }
-            
+            if (tooltipAnterior) { tooltipAnterior.remove(); }
             const tooltip = document.createElement(&#x27;div&#x27;);
             tooltip.className = &#x27;tooltip&#x27;;
             tooltip.textContent = mensagem;
             tooltip.style.background = isWarning ? &#x27;#fc8181&#x27; : &#x27;#38a169&#x27;;
-            
             document.body.appendChild(tooltip);
-            
             setTimeout(() =&gt; {
-                if (tooltip.parentNode) {
-                    tooltip.parentNode.removeChild(tooltip);
-                }
+                if (tooltip.parentNode) { tooltip.parentNode.removeChild(tooltip); }
             }, 3000);
         }
 
-        // Event listeners
         document.addEventListener(&#x27;keydown&#x27;, function(event) {
-            if (event.key === &#x27;F2&#x27;) {
-                event.preventDefault();
-                document.getElementById(&#x27;problema&#x27;).focus();
-            }
+            if (event.key === &#x27;F2&#x27;) { event.preventDefault(); document.getElementById(&#x27;problema&#x27;).focus(); }
         });
 
-        // Focar no primeiro campo ao carregar
-        window.addEventListener(&#x27;load&#x27;, function() {
-            console.log(&#x27;Página carregada&#x27;); // Para debug
-            document.getElementById(&#x27;problema&#x27;).focus();
-            
-            // Verificar se os elementos existem
-            console.log(&#x27;Botão Gerar Texto:&#x27;, document.querySelector(&#x27;.btn-primary&#x27;));
-        });
+        window.addEventListener(&#x27;load&#x27;, function() { document.getElementById(&#x27;problema&#x27;).focus(); });
 
-        // Recebe a lista dinâmica da tabela equipes do sistema principal.
         window.addEventListener(&#x27;message&#x27;, function(event) {
             if (event.source !== window.parent || !event.data || event.data.type !== &#x27;equipes-banco&#x27;) return;
             const nomes = Array.isArray(event.data.equipes) ? event.data.equipes : [];
@@ -3760,9 +4029,7 @@
                 campo.replaceWith(select);
             });
         });
-
     &lt;/script&gt;
-
 &lt;/body&gt;
 &lt;/html&gt;"></iframe></article>
                         </div>
@@ -3928,7 +4195,6 @@
             }
         }
 
-        /* Ajustes para telas muito pequenas */
         @media (max-height: 600px) {
             .container {
                 max-height: 96vh;
@@ -3974,32 +4240,23 @@
     &lt;/div&gt;
 
     &lt;script&gt;
-        // Obter usuário selecionado
         function obterUsuarioSelecionado() {
             const select = document.getElementById(&#x27;usuario&#x27;);
             return select.value;
         }
 
-        // Habilitar/desabilitar botão baseado na seleção
         function atualizarEstadoBotao() {
             const usuario = obterUsuarioSelecionado();
             const botao = document.getElementById(&#x27;gerarBtn&#x27;);
-            
-            if (usuario) {
-                botao.disabled = false;
-            } else {
-                botao.disabled = true;
-            }
+            if (usuario) { botao.disabled = false; } else { botao.disabled = true; }
         }
 
-        // Limpar campos
         function limparCampos() {
             document.getElementById(&#x27;usuario&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;gerarBtn&#x27;).disabled = true;
             document.getElementById(&#x27;usuario&#x27;).focus();
         }
 
-        // Formatadores de data/hora
         function formatarData(data) {
             const dia = String(data.getDate()).padStart(2, &#x27;0&#x27;);
             const mes = String(data.getMonth() + 1).padStart(2, &#x27;0&#x27;);
@@ -4013,25 +4270,16 @@
             return `${horas}:${minutos}`;
         }
 
-        // Gerar texto formatado
         function gerarTexto() {
             const usuario = obterUsuarioSelecionado();
-            
-            if (!usuario) {
-                mostrarTooltip(&#x27;Por favor, selecione um usuário.&#x27;, true);
-                return;
-            }
-            
+            if (!usuario) { mostrarTooltip(&#x27;Por favor, selecione um usuário.&#x27;, true); return; }
             const agora = new Date();
             const dataAtual = formatarData(agora);
             const horaAtual = formatarHora(agora);
-            
             const texto = `(${usuario} - ${dataAtual} - ${horaAtual}h).`;
-            
             copiarParaAreaTransferencia(texto);
         }
 
-        // Copiar para área de transferência
         async function copiarParaAreaTransferencia(texto) {
             try {
                 await navigator.clipboard.writeText(texto);
@@ -4050,11 +4298,9 @@
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            
             try {
                 const successful = document.execCommand(&#x27;copy&#x27;);
                 document.body.removeChild(textArea);
-                
                 if (successful) {
                     mostrarTooltip(&#x27;Assinatura copiada para a área de transferência!&#x27;);
                 } else {
@@ -4068,43 +4314,26 @@
 
         function mostrarTooltip(mensagem, isWarning = false) {
             const tooltipAnterior = document.querySelector(&#x27;.tooltip&#x27;);
-            if (tooltipAnterior) {
-                tooltipAnterior.remove();
-            }
-            
+            if (tooltipAnterior) { tooltipAnterior.remove(); }
             const tooltip = document.createElement(&#x27;div&#x27;);
             tooltip.className = &#x27;tooltip&#x27;;
             tooltip.textContent = mensagem;
             tooltip.style.background = isWarning ? &#x27;#fc8181&#x27; : &#x27;#38a169&#x27;;
-            
             document.body.appendChild(tooltip);
-            
             setTimeout(() =&gt; {
-                if (tooltip.parentNode) {
-                    tooltip.parentNode.removeChild(tooltip);
-                }
+                if (tooltip.parentNode) { tooltip.parentNode.removeChild(tooltip); }
             }, 3000);
         }
 
-        // Atalhos de teclado
         document.addEventListener(&#x27;keydown&#x27;, function(event) {
-            // F2 - Gerar Texto
-            if (event.key === &#x27;F2&#x27;) {
-                event.preventDefault();
-                gerarTexto();
-            }
+            if (event.key === &#x27;F2&#x27;) { event.preventDefault(); gerarTexto(); }
         });
 
-        // Inicialização
         window.addEventListener(&#x27;load&#x27;, function() {
-            // Atualizar estado do botão quando o usuário mudar
             document.getElementById(&#x27;usuario&#x27;).addEventListener(&#x27;change&#x27;, atualizarEstadoBotao);
-            
-            // Focar na seleção ao carregar
             document.getElementById(&#x27;usuario&#x27;).focus();
         });
 
-        // Recebe a lista dinâmica da tabela equipes do sistema principal.
         window.addEventListener(&#x27;message&#x27;, function(event) {
             if (event.source !== window.parent || !event.data || event.data.type !== &#x27;equipes-banco&#x27;) return;
             const nomes = Array.isArray(event.data.equipes) ? event.data.equipes : [];
@@ -4153,9 +4382,7 @@
                 campo.replaceWith(select);
             });
         });
-
     &lt;/script&gt;
-
 &lt;/body&gt;
 &lt;/html&gt;"></iframe></article>
                     <article class="formulario-incorporado"><iframe title="Manutenção Programada" srcdoc="&lt;!DOCTYPE html&gt;
@@ -4344,7 +4571,6 @@
             margin-top: 3px;
         }
 
-        /* Ajustes para telas muito pequenas */
         @media (max-height: 600px) {
             .container {
                 max-height: 96vh;
@@ -4435,57 +4661,33 @@
     &lt;/div&gt;
 
     &lt;script&gt;
-        // Função para converter tempo em formato HH:MM para minutos
         function converterTempoParaMinutos(tempo) {
             if (!tempo) return 0;
-            
-            // Tempo já está no formato HH:MM
             const [horas, minutos] = tempo.split(&#x27;:&#x27;).map(Number);
             return (horas * 60) + minutos;
         }
 
-        // Função para formatar hora no formato HH:MM
         function formatarHora(horas, minutos) {
             return `${horas.toString().padStart(2, &#x27;0&#x27;)}:${minutos.toString().padStart(2, &#x27;0&#x27;)}`;
         }
 
-        // Função para calcular o tempo final automaticamente
         function calcularTempoFinal() {
             const tempoInicial = document.getElementById(&#x27;tempoInicial&#x27;).value;
             const tempoTotal = document.getElementById(&#x27;tempoTotal&#x27;).value;
-            
-            if (!tempoInicial || !tempoTotal) {
-                return;
-            }
-            
-            // Converter tempo total para minutos
+            if (!tempoInicial || !tempoTotal) { return; }
             const minutosTotais = converterTempoParaMinutos(tempoTotal);
-            
-            if (minutosTotais === 0) {
-                return;
-            }
-            
-            // Converter tempo inicial para minutos desde meia-noite
+            if (minutosTotais === 0) { return; }
             const [horasInicio, minutosInicio] = tempoInicial.split(&#x27;:&#x27;).map(Number);
             const minutosDesdeMeiaNoite = (horasInicio * 60) + minutosInicio;
-            
-            // Calcular tempo final em minutos
             const minutosFim = minutosDesdeMeiaNoite + minutosTotais;
-            
-            // Converter de volta para horas:minutos
             const horasFim = Math.floor(minutosFim / 60) % 24;
             const minutosRestantes = minutosFim % 60;
-            
-            // Atualizar o campo tempo final
             document.getElementById(&#x27;tempoFinal&#x27;).value = formatarHora(horasFim, minutosRestantes);
         }
 
-        // Função para formatar tempo total para exibição no texto
         function formatarTempoTotalParaTexto(tempoTotal) {
             if (!tempoTotal) return &#x27;&#x27;;
-            
             const [horas, minutos] = tempoTotal.split(&#x27;:&#x27;).map(Number);
-            
             if (horas &gt; 0 &amp;&amp; minutos &gt; 0) {
                 return `${horas}h${minutos.toString().padStart(2, &#x27;0&#x27;)}`;
             } else if (horas &gt; 0) {
@@ -4497,32 +4699,22 @@
             }
         }
 
-        // Função para formatar data CORRETAMENTE sem problemas de fuso horário
         function formatarData(dataString) {
             if (!dataString) return &#x27;&#x27;;
-            
-            // Dividir a data no formato YYYY-MM-DD
             const [ano, mes, dia] = dataString.split(&#x27;-&#x27;).map(Number);
-            
-            // Retornar no formato DD/MM/YYYY
             return `${dia.toString().padStart(2, &#x27;0&#x27;)}/${mes.toString().padStart(2, &#x27;0&#x27;)}/${ano}`;
         }
 
-        // Função para obter apenas a primeira linha da área afetada
         function obterPrimeiraLinhaAreaAfetada() {
             const areaAfetada = document.getElementById(&#x27;areaAfetada&#x27;).value.trim();
             if (!areaAfetada) return &#x27;&#x27;;
-            
-            // Pegar apenas a primeira linha
             const primeiraLinha = areaAfetada.split(&#x27;\n&#x27;)[0].trim();
             return primeiraLinha;
         }
 
-        // Função para obter saudação baseada no horário
         function obterSaudacao() {
             const agora = new Date();
             const hora = agora.getHours();
-            
             if (hora &gt;= 6 &amp;&amp; hora &lt; 12) {
                 return &quot;Bom dia,&quot;;
             } else if (hora &gt;= 12 &amp;&amp; hora &lt; 18) {
@@ -4532,10 +4724,8 @@
             }
         }
 
-        // Funções para o formulário principal
         function limparCampos() {
-            // Limpar campos principais
-            document.getElementById(&#x27;afetaClientes&#x27;).value = &#x27;Sim&#x27;; // Padrão SIM
+            document.getElementById(&#x27;afetaClientes&#x27;).value = &#x27;Sim&#x27;;
             document.getElementById(&#x27;areaAfetada&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;data&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;tempoTotal&#x27;).value = &#x27;&#x27;;
@@ -4546,52 +4736,23 @@
         }
 
         function validarCampos() {
-            // Campos principais
             const areaAfetada = document.getElementById(&#x27;areaAfetada&#x27;).value.trim();
             const data = document.getElementById(&#x27;data&#x27;).value;
             const tempoTotal = document.getElementById(&#x27;tempoTotal&#x27;).value;
             const tempoInicial = document.getElementById(&#x27;tempoInicial&#x27;).value;
             const tempoFinal = document.getElementById(&#x27;tempoFinal&#x27;).value;
             const descricaoServico = document.getElementById(&#x27;descricaoServico&#x27;).value.trim();
-            
-            // Validações principais
-            if (!areaAfetada) {
-                alert(&#x27;Por favor, informe a área afetada.&#x27;);
-                return false;
-            }
-            
-            if (!data) {
-                alert(&#x27;Por favor, selecione a data.&#x27;);
-                return false;
-            }
-            
-            if (!tempoTotal) {
-                alert(&#x27;Por favor, informe o tempo total da manutenção.&#x27;);
-                return false;
-            }
-            
-            if (!tempoInicial) {
-                alert(&#x27;Por favor, informe o tempo inicial da indisponibilidade.&#x27;);
-                return false;
-            }
-            
-            if (!tempoFinal) {
-                alert(&#x27;Por favor, informe o tempo final da indisponibilidade.&#x27;);
-                return false;
-            }
-            
-            if (!descricaoServico) {
-                alert(&#x27;Por favor, descreva o serviço.&#x27;);
-                return false;
-            }
-            
+            if (!areaAfetada) { alert(&#x27;Por favor, informe a área afetada.&#x27;); return false; }
+            if (!data) { alert(&#x27;Por favor, selecione a data.&#x27;); return false; }
+            if (!tempoTotal) { alert(&#x27;Por favor, informe o tempo total da manutenção.&#x27;); return false; }
+            if (!tempoInicial) { alert(&#x27;Por favor, informe o tempo inicial da indisponibilidade.&#x27;); return false; }
+            if (!tempoFinal) { alert(&#x27;Por favor, informe o tempo final da indisponibilidade.&#x27;); return false; }
+            if (!descricaoServico) { alert(&#x27;Por favor, descreva o serviço.&#x27;); return false; }
             return true;
         }
 
         function gerarTexto() {
             if (!validarCampos()) return;
-            
-            // Campos principais
             const afetaClientes = document.getElementById(&#x27;afetaClientes&#x27;).value;
             const areaAfetada = document.getElementById(&#x27;areaAfetada&#x27;).value.trim();
             const data = document.getElementById(&#x27;data&#x27;).value;
@@ -4601,14 +4762,8 @@
             const equipeResponsavel = document.getElementById(&#x27;equipeResponsavel&#x27;).value;
             const descricaoServico = document.getElementById(&#x27;descricaoServico&#x27;).value.trim();
             const observacao = document.getElementById(&#x27;observacao&#x27;).value.trim();
-            
-            // Formatar data para o padrão brasileiro (CORRIGIDO)
             const dataFormatada = formatarData(data);
-            
-            // Formatar tempo total para exibição amigável
             const tempoTotalFormatado = formatarTempoTotalParaTexto(tempoTotal);
-            
-            // Construir texto
             let texto = `*MANUTENÇÃO PROGRAMADA*\n\n` +
                        `*Afeta clientes?* ${afetaClientes}\n` +
                        `*Área Afetada:* ${areaAfetada}\n` +
@@ -4618,22 +4773,13 @@
                        `*Tempo final da indisponibilidade:* ${tempoFinal}\n` +
                        `*Equipe responsável:* ${equipeResponsavel}\n` +
                        `*Descrição do Serviço:* ${descricaoServico}`;
-            
-            // Adicionar observação se existir
-            if (observacao) {
-                texto += `\n*Observação:* ${observacao}`;
-            }
-            
+            if (observacao) { texto += `\n*Observação:* ${observacao}`; }
             copiarParaAreaTransferencia(texto);
         }
 
         function enviarEmail() {
             if (!validarCampos()) return;
-            
-            // Obter saudação baseada no horário
             const saudacao = obterSaudacao();
-            
-            // Campos principais
             const afetaClientes = document.getElementById(&#x27;afetaClientes&#x27;).value;
             const areaAfetada = document.getElementById(&#x27;areaAfetada&#x27;).value.trim();
             const data = document.getElementById(&#x27;data&#x27;).value;
@@ -4643,20 +4789,10 @@
             const equipeResponsavel = document.getElementById(&#x27;equipeResponsavel&#x27;).value;
             const descricaoServico = document.getElementById(&#x27;descricaoServico&#x27;).value.trim();
             const observacao = document.getElementById(&#x27;observacao&#x27;).value.trim();
-            
-            // Formatar data para o padrão brasileiro (CORRIGIDO)
             const dataFormatada = formatarData(data);
-            
-            // Obter apenas a primeira linha da área afetada para o assunto
             const primeiraLinhaAreaAfetada = obterPrimeiraLinhaAreaAfetada();
-            
-            // Formatar tempo total para exibição amigável
             const tempoTotalFormatado = formatarTempoTotalParaTexto(tempoTotal);
-            
-            // Construir assunto do email - APENAS PRIMEIRA LINHA
             const assunto = `MANUTENÇÃO PROGRAMADA - Área afetada: ${primeiraLinhaAreaAfetada}`;
-            
-            // Construir corpo do email no formato correto com saudação
             let corpo = `${saudacao}\n\n` +
                        `*MANUTENÇÃO PROGRAMADA*\n\n` +
                        `*Afeta clientes?* ${afetaClientes}\n` +
@@ -4667,74 +4803,48 @@
                        `*Tempo final da indisponibilidade:* ${tempoFinal}\n` +
                        `*Equipe responsável:* ${equipeResponsavel}\n` +
                        `*Descrição do Serviço:* ${descricaoServico}`;
-            
-            // Adicionar observação se existir
-            if (observacao) {
-                corpo += `\n*Observação:* ${observacao}`;
-            }
-            
-            // Enviar email via Outlook
+            if (observacao) { corpo += `\n*Observação:* ${observacao}`; }
             enviarEmailOutlook(assunto, corpo);
         }
 
         function enviarEmailOutlook(assunto, corpo) {
             try {
-                // Verificar se o Outlook está disponível
                 if (typeof ActiveXObject !== &#x27;undefined&#x27; || &#x27;ActiveXObject&#x27; in window) {
-                    // Para Internet Explorer/Edge (modo legado)
                     const outlookApp = new ActiveXObject(&#x27;Outlook.Application&#x27;);
-                    const mailItem = outlookApp.CreateItem(0); // 0 = olMailItem
-                    
+                    const mailItem = outlookApp.CreateItem(0);
                     mailItem.Subject = assunto;
                     mailItem.To = &#x27;noc@sodobrasil.net.br&#x27;;
                     mailItem.CC = &#x27;construcao@sodobrasil.net.br&#x27;;
-                    
-                    // SOLUÇÃO DEFINITIVA: Criar email vazio primeiro para forçar a assinatura
-                    mailItem.Body = &quot;&quot;; // Começar com corpo vazio
-                    mailItem.Display(); // Exibir o email vazio
-                    
-                    // Aguardar um pouco para o Outlook aplicar a assinatura
+                    mailItem.Body = &quot;&quot;;
+                    mailItem.Display();
                     setTimeout(function() {
                         try {
-                            // Agora adicionar nosso conteúdo ANTES da assinatura
                             const inspector = mailItem.GetInspector;
                             if (inspector &amp;&amp; inspector.WordEditor) {
-                                // Se temos acesso ao editor do Word, podemos manipular o conteúdo
                                 const document = inspector.WordEditor;
                                 const range = document.Range(0, 0);
                                 range.Text = corpo + &quot;\n\n&quot;;
                                 range.Select();
                             } else {
-                                // Fallback: usar o método padrão
                                 mailItem.Body = corpo + &quot;\n\n&quot; + mailItem.Body;
                             }
                         } catch (e) {
-                            // Se tudo falhar, usar o método simples
                             mailItem.Body = corpo + &quot;\n\n&quot; + mailItem.Body;
                         }
                     }, 1000);
-                    
                     mostrarTooltip(&#x27;Email aberto no Outlook. A assinatura foi aplicada automaticamente.&#x27;);
-                    
                 } else {
-                    // Para navegadores modernos - usar mailto com fallback
                     const mailtoLink = `mailto:noc@sodobrasil.net.br?cc=construcao@sodobrasil.net.br&amp;subject=${encodeURIComponent(assunto)}&amp;body=${encodeURIComponent(corpo)}`;
-                    
                     window.location.href = mailtoLink;
                     mostrarTooltip(&#x27;Cliente de email aberto. Complete o envio manualmente.&#x27;);
                 }
             } catch (error) {
-                console.error(&#x27;Erro ao tentar abrir o Outlook:&#x27;, error);
-                
-                // Fallback para mailto
                 const mailtoLink = `mailto:noc@sodobrasil.net.br?cc=construcao@sodobrasil.net.br&amp;subject=${encodeURIComponent(assunto)}&amp;body=${encodeURIComponent(corpo)}`;
-                
                 window.location.href = mailtoLink;
                 mostrarTooltip(&#x27;Cliente de email aberto. Complete o envio manualmente.&#x27;);
             }
         }
 
-        // Funções compartilhadas
         async function copiarParaAreaTransferencia(texto) {
             try {
                 await navigator.clipboard.writeText(texto);
@@ -4754,7 +4864,6 @@
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            
             try {
                 const successful = document.execCommand(&#x27;copy&#x27;);
                 if (successful) {
@@ -4766,7 +4875,6 @@
             } catch (err) {
                 mostrarTooltip(&#x27;Texto gerado! Use Ctrl+V para colar.&#x27;, true);
             }
-            
             document.body.removeChild(textArea);
         }
 
@@ -4774,11 +4882,7 @@
             document.body.focus();
             try {
                 const pasteEvent = new KeyboardEvent(&#x27;keydown&#x27;, {
-                    key: &#x27;v&#x27;,
-                    code: &#x27;KeyV&#x27;,
-                    ctrlKey: true,
-                    bubbles: true,
-                    cancelable: true
+                    key: &#x27;v&#x27;, code: &#x27;KeyV&#x27;, ctrlKey: true, bubbles: true, cancelable: true
                 });
                 document.dispatchEvent(pasteEvent);
                 mostrarTooltip(&#x27;Texto copiado! Pressione Ctrl+V para colar.&#x27;);
@@ -4789,38 +4893,23 @@
 
         function mostrarTooltip(mensagem, isWarning = false) {
             const tooltipAnterior = document.querySelector(&#x27;.tooltip&#x27;);
-            if (tooltipAnterior) {
-                tooltipAnterior.remove();
-            }
-            
+            if (tooltipAnterior) { tooltipAnterior.remove(); }
             const tooltip = document.createElement(&#x27;div&#x27;);
             tooltip.className = &#x27;tooltip&#x27;;
             tooltip.textContent = mensagem;
             tooltip.style.background = isWarning ? &#x27;#fc8181&#x27; : &#x27;#38a169&#x27;;
-            
             document.body.appendChild(tooltip);
-            
             setTimeout(() =&gt; {
-                if (tooltip.parentNode) {
-                    tooltip.parentNode.removeChild(tooltip);
-                }
+                if (tooltip.parentNode) { tooltip.parentNode.removeChild(tooltip); }
             }, 3000);
         }
 
-        // Event listeners
         document.addEventListener(&#x27;keydown&#x27;, function(event) {
-            if (event.key === &#x27;F2&#x27;) {
-                event.preventDefault();
-                document.getElementById(&#x27;afetaClientes&#x27;).focus();
-            }
+            if (event.key === &#x27;F2&#x27;) { event.preventDefault(); document.getElementById(&#x27;afetaClientes&#x27;).focus(); }
         });
 
-        // Focar no primeiro campo ao carregar
-        window.addEventListener(&#x27;load&#x27;, function() {
-            document.getElementById(&#x27;afetaClientes&#x27;).focus();
-        });
+        window.addEventListener(&#x27;load&#x27;, function() { document.getElementById(&#x27;afetaClientes&#x27;).focus(); });
 
-        // Recebe a lista dinâmica da tabela equipes do sistema principal.
         window.addEventListener(&#x27;message&#x27;, function(event) {
             if (event.source !== window.parent || !event.data || event.data.type !== &#x27;equipes-banco&#x27;) return;
             const nomes = Array.isArray(event.data.equipes) ? event.data.equipes : [];
@@ -4869,9 +4958,7 @@
                 campo.replaceWith(select);
             });
         });
-
     &lt;/script&gt;
-
 &lt;/body&gt;
 &lt;/html&gt;"></iframe></article>
                         </div>
@@ -5071,7 +5158,6 @@
             flex: 1;
         }
 
-        /* Estilos para as checkboxes - COLABORADORES */
         .colaboradores-checkbox-group {
             border: 1.5px solid var(--border-color);
             border-radius: 6px;
@@ -5115,7 +5201,6 @@
             line-height: 1.2;
         }
 
-        /* Estilos para inputs de hora */
         .hora-input {
             text-align: center;
             font-family: &#x27;Courier New&#x27;, monospace;
@@ -5127,7 +5212,6 @@
             opacity: 0.6;
         }
 
-        /* Scrollbar personalizada */
         .colaboradores-checkbox-group::-webkit-scrollbar {
             width: 4px;
         }
@@ -5160,7 +5244,6 @@
             background: var(--button-primary-hover);
         }
 
-        /* Ajustes para telas muito pequenas */
         @media (max-height: 600px) {
             .container {
                 max-height: 96vh;
@@ -5351,32 +5434,20 @@
     &lt;/div&gt;
 
     &lt;script&gt;
-        // Preencher data e hora atuais
         function preencherDataHora() {
             const now = new Date();
-            
-            // Formatar data como DD/MM/YYYY
             const data = now.toLocaleDateString(&#x27;pt-BR&#x27;);
             document.getElementById(&#x27;data&#x27;).value = data;
-            
-            // Formatar hora como HH:mm
             const horas = String(now.getHours()).padStart(2, &#x27;0&#x27;);
             const minutos = String(now.getMinutes()).padStart(2, &#x27;0&#x27;);
             document.getElementById(&#x27;chegada&#x27;).value = `${horas}:${minutos}`;
         }
 
-        // Função para configurar alarme padrão baseado no tipo de estação
         function configurarAlarmePadrao() {
             const estacaoTipo = document.getElementById(&#x27;estacaoTipo&#x27;).value;
             const alarmeSelect = document.getElementById(&#x27;alarme&#x27;);
-            
-            if (estacaoTipo === &#x27;SAIDA&#x27;) {
-                // Para SAÍDA: Ativar alarme como padrão
-                alarmeSelect.value = &#x27;Ativar&#x27;;
-            } else if (estacaoTipo === &#x27;ENTRADA&#x27;) {
-                // Para ENTRADA: Desativar alarme como padrão
-                alarmeSelect.value = &#x27;Desativar&#x27;;
-            }
+            if (estacaoTipo === &#x27;SAIDA&#x27;) { alarmeSelect.value = &#x27;Ativar&#x27;; }
+            else if (estacaoTipo === &#x27;ENTRADA&#x27;) { alarmeSelect.value = &#x27;Desativar&#x27;; }
         }
 
         function atualizarHora() {
@@ -5390,99 +5461,49 @@
             document.getElementById(&#x27;porta&#x27;).value = &#x27;Nao&#x27;;
             document.getElementById(&#x27;saida&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;servico&#x27;).value = &#x27;&#x27;;
-            
-            // Limpar checkboxes de colaboradores
             const colaboradoresCheckboxes = document.querySelectorAll(&#x27;#colaboradoresCheckboxGroup input[type=&quot;checkbox&quot;]&#x27;);
-            colaboradoresCheckboxes.forEach(checkbox =&gt; {
-                checkbox.checked = false;
-            });
-            
+            colaboradoresCheckboxes.forEach(checkbox =&gt; { checkbox.checked = false; });
             preencherDataHora();
-            // Configurar alarme padrão baseado no tipo selecionado (vazio neste caso)
             configurarAlarmePadrao();
         }
 
-        // Validação de formato de hora
         function validarHora(hora) {
             const horaRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
             return horaRegex.test(hora);
         }
 
-        // Formatação automática de hora
         function formatarHora(input) {
             let value = input.value.replace(/\D/g, &#x27;&#x27;);
-            
             if (value.length &gt; 2) {
                 value = value.substring(0, 2) + &#x27;:&#x27; + value.substring(2, 4);
             } else if (value.length === 2) {
                 value = value + &#x27;:&#x27;;
             }
-            
             input.value = value;
         }
 
         function validarFormulario() {
             const estacaoTipo = document.getElementById(&#x27;estacaoTipo&#x27;).value;
             const estacao = document.getElementById(&#x27;estacao&#x27;).value;
-            
-            // Obter checkboxes de colaboradores selecionadas
             const colaboradoresCheckboxes = document.querySelectorAll(&#x27;#colaboradoresCheckboxGroup input[type=&quot;checkbox&quot;]:checked&#x27;);
             const colaboradoresSelecionados = Array.from(colaboradoresCheckboxes).map(checkbox =&gt; checkbox.value);
-            
             const data = document.getElementById(&#x27;data&#x27;).value;
             const chegada = document.getElementById(&#x27;chegada&#x27;).value;
             const saida = document.getElementById(&#x27;saida&#x27;).value;
-            
-            if (!estacaoTipo) {
-                alert(&#x27;Por favor, selecione ENTRADA ou SAÍDA.&#x27;);
-                return false;
-            }
-            
-            if (!estacao) {
-                alert(&#x27;Por favor, selecione uma Estação.&#x27;);
-                return false;
-            }
-            
-            if (colaboradoresSelecionados.length === 0) {
-                alert(&#x27;Por favor, selecione pelo menos uma pessoa da equipe.&#x27;);
-                return false;
-            }
-            
-            if (!data) {
-                alert(&#x27;Por favor, informe a data.&#x27;);
-                return false;
-            }
-            
-            if (!chegada) {
-                alert(&#x27;Por favor, informe a hora de chegada.&#x27;);
-                return false;
-            }
-            
-            // Validar formato da hora de chegada
-            if (!validarHora(chegada)) {
-                alert(&#x27;Formato de hora de chegada inválido. Use HH:mm (ex: 14:30).&#x27;);
-                return false;
-            }
-            
-            // Validar formato da hora de saída (se preenchida)
-            if (saida &amp;&amp; !validarHora(saida)) {
-                alert(&#x27;Formato de hora de saída inválido. Use HH:mm (ex: 14:30).&#x27;);
-                return false;
-            }
-            
-            // Validar formato da data
+            if (!estacaoTipo) { alert(&#x27;Por favor, selecione ENTRADA ou SAÍDA.&#x27;); return false; }
+            if (!estacao) { alert(&#x27;Por favor, selecione uma Estação.&#x27;); return false; }
+            if (colaboradoresSelecionados.length === 0) { alert(&#x27;Por favor, selecione pelo menos uma pessoa da equipe.&#x27;); return false; }
+            if (!data) { alert(&#x27;Por favor, informe a data.&#x27;); return false; }
+            if (!chegada) { alert(&#x27;Por favor, informe a hora de chegada.&#x27;); return false; }
+            if (!validarHora(chegada)) { alert(&#x27;Formato de hora de chegada inválido. Use HH:mm (ex: 14:30).&#x27;); return false; }
+            if (saida &amp;&amp; !validarHora(saida)) { alert(&#x27;Formato de hora de saída inválido. Use HH:mm (ex: 14:30).&#x27;); return false; }
             const dataRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
-            if (!dataRegex.test(data)) {
-                alert(&#x27;Formato de data inválido. Use DD/MM/YYYY.&#x27;);
-                return false;
-            }
-            
+            if (!dataRegex.test(data)) { alert(&#x27;Formato de data inválido. Use DD/MM/YYYY.&#x27;); return false; }
             return true;
         }
 
         function gerarTexto() {
             if (!validarFormulario()) return;
-            
             const estacaoTipo = document.getElementById(&#x27;estacaoTipo&#x27;).value;
             const estacao = document.getElementById(&#x27;estacao&#x27;).value;
             const alarme = document.getElementById(&#x27;alarme&#x27;).value;
@@ -5491,27 +5512,17 @@
             const chegada = document.getElementById(&#x27;chegada&#x27;).value;
             const saida = document.getElementById(&#x27;saida&#x27;).value;
             const servico = document.getElementById(&#x27;servico&#x27;).value;
-            
-            // Obter checkboxes de colaboradores selecionadas
             const colaboradoresCheckboxes = document.querySelectorAll(&#x27;#colaboradoresCheckboxGroup input[type=&quot;checkbox&quot;]:checked&#x27;);
             const colaboradoresSelecionados = Array.from(colaboradoresCheckboxes).map(checkbox =&gt; checkbox.value);
-            
-            // Lógica para alarme - INVERTIDA quando for SAÍDA
             let alarmeLabel, alarmeTexto;
-            
             if (estacaoTipo === &#x27;SAIDA&#x27;) {
-                // Para SAÍDA: &quot;ATIVAR alarme&quot; e valores invertidos
                 alarmeLabel = &#x27;ATIVAR alarme&#x27;;
-                alarmeTexto = alarme === &#x27;Desativar&#x27; ? &#x27;NÃO&#x27; : &#x27;SIM&#x27;; // Invertido
+                alarmeTexto = alarme === &#x27;Desativar&#x27; ? &#x27;NÃO&#x27; : &#x27;SIM&#x27;;
             } else {
-                // Para ENTRADA: mantém o padrão original
                 alarmeLabel = &#x27;Desativar alarme&#x27;;
                 alarmeTexto = alarme === &#x27;Desativar&#x27; ? &#x27;SIM&#x27; : &#x27;NÃO&#x27;;
             }
-            
             const portaTexto = porta === &#x27;Sim&#x27; ? &#x27;SIM&#x27; : &#x27;NÃO&#x27;;
-            
-            // Gerar texto final COM QUEBRAS DE LINHA
             let texto = `*ESTACAO (${estacaoTipo})*\n` +
                        `*Estacao:* ${estacao}\n` +
                        `*Equipe:* ${colaboradoresSelecionados.join(&#x27;; &#x27;)}\n` +
@@ -5521,17 +5532,12 @@
                        `*Chegada:* ${chegada}\n` +
                        `*Saida:* ${saida}\n` +
                        `*Servico:* ${servico}\n\n`;
-            
-            // Adicionar repetição dos campos conforme regras
             if (porta === &#x27;Sim&#x27;) {
-                // Se porta for SIM, repetir ambos os campos
                 texto += `*${alarmeLabel}:* ${alarmeTexto}\n` +
                         `*Abertura remota da porta:* ${portaTexto}`;
             } else {
-                // Se porta for NÃO, repetir apenas o alarme
                 texto += `*${alarmeLabel}:* ${alarmeTexto}`;
             }
-            
             copiarParaAreaTransferencia(texto);
         }
 
@@ -5554,7 +5560,6 @@
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            
             try {
                 const successful = document.execCommand(&#x27;copy&#x27;);
                 if (successful) {
@@ -5566,91 +5571,52 @@
             } catch (err) {
                 mostrarTooltip(&#x27;Texto gerado! Use Ctrl+V para colar.&#x27;, true);
             }
-            
             document.body.removeChild(textArea);
         }
 
         function tentarColarAutomaticamente() {
-            // Focar no body para garantir que podemos disparar eventos
             document.body.focus();
-            
             try {
-                // Disparar evento de teclado Ctrl+V
                 const pasteEvent = new KeyboardEvent(&#x27;keydown&#x27;, {
-                    key: &#x27;v&#x27;,
-                    code: &#x27;KeyV&#x27;,
-                    ctrlKey: true,
-                    bubbles: true,
-                    cancelable: true
+                    key: &#x27;v&#x27;, code: &#x27;KeyV&#x27;, ctrlKey: true, bubbles: true, cancelable: true
                 });
-                
                 document.dispatchEvent(pasteEvent);
-                
-                // Tentar colar usando execCommand (para navegadores mais antigos)
                 document.execCommand(&#x27;paste&#x27;);
-                
             } catch (e) {
-                // Se não conseguir colar automaticamente, apenas informar
                 mostrarTooltip(&#x27;Texto copiado! Pressione Ctrl+V para colar.&#x27;);
             }
         }
 
         function mostrarTooltip(mensagem, isWarning = false) {
             const tooltipAnterior = document.querySelector(&#x27;.tooltip&#x27;);
-            if (tooltipAnterior) {
-                tooltipAnterior.remove();
-            }
-            
+            if (tooltipAnterior) { tooltipAnterior.remove(); }
             const tooltip = document.createElement(&#x27;div&#x27;);
             tooltip.className = &#x27;tooltip&#x27;;
             tooltip.textContent = mensagem;
             tooltip.style.background = isWarning ? &#x27;var(--tooltip-warning)&#x27; : &#x27;var(--tooltip-success)&#x27;;
-            
             document.body.appendChild(tooltip);
-            
             setTimeout(() =&gt; {
-                if (tooltip.parentNode) {
-                    tooltip.parentNode.removeChild(tooltip);
-                }
+                if (tooltip.parentNode) { tooltip.parentNode.removeChild(tooltip); }
             }, 3000);
         }
 
-        // Event listeners
         document.addEventListener(&#x27;keydown&#x27;, function(event) {
-            // F1 para abrir/focar no formulário (simulação)
-            if (event.key === &#x27;F1&#x27;) {
-                event.preventDefault();
-                document.getElementById(&#x27;estacaoTipo&#x27;).focus();
-            }
-            
-            // F5 para atualizar data/hora
-            if (event.key === &#x27;F5&#x27;) {
-                event.preventDefault();
-                atualizarHora();
-            }
+            if (event.key === &#x27;F1&#x27;) { event.preventDefault(); document.getElementById(&#x27;estacaoTipo&#x27;).focus(); }
+            if (event.key === &#x27;F5&#x27;) { event.preventDefault(); atualizarHora(); }
         });
 
-        // Event listener para mudança no tipo de estação
         document.getElementById(&#x27;estacaoTipo&#x27;).addEventListener(&#x27;change&#x27;, function() {
             configurarAlarmePadrao();
         });
 
-        // Event listeners para formatação automática de hora
-        document.getElementById(&#x27;chegada&#x27;).addEventListener(&#x27;input&#x27;, function() {
-            formatarHora(this);
-        });
+        document.getElementById(&#x27;chegada&#x27;).addEventListener(&#x27;input&#x27;, function() { formatarHora(this); });
+        document.getElementById(&#x27;saida&#x27;).addEventListener(&#x27;input&#x27;, function() { formatarHora(this); });
 
-        document.getElementById(&#x27;saida&#x27;).addEventListener(&#x27;input&#x27;, function() {
-            formatarHora(this);
-        });
-
-        // Inicialização
         window.addEventListener(&#x27;load&#x27;, function() {
             preencherDataHora();
             document.getElementById(&#x27;estacaoTipo&#x27;).focus();
         });
 
-        // Recebe a lista dinâmica da tabela equipes do sistema principal.
         window.addEventListener(&#x27;message&#x27;, function(event) {
             if (event.source !== window.parent || !event.data || event.data.type !== &#x27;equipes-banco&#x27;) return;
             const nomes = Array.isArray(event.data.equipes) ? event.data.equipes : [];
@@ -5699,9 +5665,7 @@
                 campo.replaceWith(select);
             });
         });
-
     &lt;/script&gt;
-
 &lt;/body&gt;
 &lt;/html&gt;"></iframe></article>
                     <article class="formulario-incorporado"><iframe title="Comunicado de Acesso à Estação" srcdoc="&lt;!DOCTYPE html&gt;
@@ -5896,7 +5860,6 @@
             flex: 1;
         }
 
-        /* Estilos para as checkboxes - COLABORADORES */
         .colaboradores-checkbox-group {
             border: 1.5px solid var(--border-color);
             border-radius: 6px;
@@ -5940,7 +5903,6 @@
             line-height: 1.2;
         }
 
-        /* Estilos para inputs de hora */
         .hora-input {
             text-align: center;
             font-family: &#x27;Courier New&#x27;, monospace;
@@ -5952,7 +5914,6 @@
             opacity: 0.6;
         }
 
-        /* Scrollbar personalizada */
         .colaboradores-checkbox-group::-webkit-scrollbar {
             width: 4px;
         }
@@ -5985,7 +5946,6 @@
             background: var(--button-primary-hover);
         }
 
-        /* Ajustes para telas muito pequenas */
         @media (max-height: 600px) {
             .container {
                 max-height: 96vh;
@@ -6151,7 +6111,6 @@
                 &lt;textarea id=&quot;servico&quot; placeholder=&quot;Descreva o serviço realizado...&quot;&gt;&lt;/textarea&gt;
             &lt;/div&gt;
 
-            &lt;!-- NOVO CAMPO OBSERVAÇÃO --&gt;
             &lt;div class=&quot;form-group&quot;&gt;
                 &lt;label for=&quot;observacao&quot;&gt;Observação:&lt;/label&gt;
                 &lt;textarea id=&quot;observacao&quot; placeholder=&quot;Observações adicionais...&quot;&gt;*Alarme e abertura de porta será realizado por crachá / biometria.*&lt;/textarea&gt;
@@ -6166,15 +6125,10 @@
     &lt;/div&gt;
 
     &lt;script&gt;
-        // Preencher data e hora atuais
         function preencherDataHora() {
             const now = new Date();
-            
-            // Formatar data como DD/MM/YYYY
             const data = now.toLocaleDateString(&#x27;pt-BR&#x27;);
             document.getElementById(&#x27;data&#x27;).value = data;
-            
-            // Formatar hora como HH:mm
             const horas = String(now.getHours()).padStart(2, &#x27;0&#x27;);
             const minutos = String(now.getMinutes()).padStart(2, &#x27;0&#x27;);
             document.getElementById(&#x27;chegada&#x27;).value = `${horas}:${minutos}`;
@@ -6190,100 +6144,49 @@
             document.getElementById(&#x27;estacao&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;saida&#x27;).value = &#x27;&#x27;;
             document.getElementById(&#x27;servico&#x27;).value = &#x27;&#x27;;
-            
-            // Restaurar texto padrão da observação
             document.getElementById(&#x27;observacao&#x27;).value = &#x27;*Alarme e abertura de porta será realizado por crachá / biometria.*&#x27;;
-            
-            // Limpar checkboxes de colaboradores
             const colaboradoresCheckboxes = document.querySelectorAll(&#x27;#colaboradoresCheckboxGroup input[type=&quot;checkbox&quot;]&#x27;);
-            colaboradoresCheckboxes.forEach(checkbox =&gt; {
-                checkbox.checked = false;
-            });
-            
+            colaboradoresCheckboxes.forEach(checkbox =&gt; { checkbox.checked = false; });
             preencherDataHora();
         }
 
-        // Validação de formato de hora
         function validarHora(hora) {
             const horaRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
             return horaRegex.test(hora);
         }
 
-        // Formatação automática de hora
         function formatarHora(input) {
             let value = input.value.replace(/\D/g, &#x27;&#x27;);
-            
             if (value.length &gt; 2) {
                 value = value.substring(0, 2) + &#x27;:&#x27; + value.substring(2, 4);
             } else if (value.length === 2) {
                 value = value + &#x27;:&#x27;;
             }
-            
             input.value = value;
         }
 
         function validarFormulario() {
             const estacaoTipo = document.getElementById(&#x27;estacaoTipo&#x27;).value;
             const estacao = document.getElementById(&#x27;estacao&#x27;).value;
-            
-            // Obter checkboxes de colaboradores selecionadas
             const colaboradoresCheckboxes = document.querySelectorAll(&#x27;#colaboradoresCheckboxGroup input[type=&quot;checkbox&quot;]:checked&#x27;);
             const colaboradoresSelecionados = Array.from(colaboradoresCheckboxes).map(checkbox =&gt; checkbox.value);
-            
             const data = document.getElementById(&#x27;data&#x27;).value;
             const chegada = document.getElementById(&#x27;chegada&#x27;).value;
             const saida = document.getElementById(&#x27;saida&#x27;).value;
-            
-            if (!estacaoTipo) {
-                alert(&#x27;Por favor, selecione ENTRADA ou SAÍDA.&#x27;);
-                return false;
-            }
-            
-            if (!estacao) {
-                alert(&#x27;Por favor, selecione uma Estação.&#x27;);
-                return false;
-            }
-            
-            if (colaboradoresSelecionados.length === 0) {
-                alert(&#x27;Por favor, selecione pelo menos uma pessoa da equipe.&#x27;);
-                return false;
-            }
-            
-            if (!data) {
-                alert(&#x27;Por favor, informe a data.&#x27;);
-                return false;
-            }
-            
-            if (!chegada) {
-                alert(&#x27;Por favor, informe a hora de chegada.&#x27;);
-                return false;
-            }
-            
-            // Validar formato da hora de chegada
-            if (!validarHora(chegada)) {
-                alert(&#x27;Formato de hora de chegada inválido. Use HH:mm (ex: 14:30).&#x27;);
-                return false;
-            }
-            
-            // Validar formato da hora de saída (se preenchida)
-            if (saida &amp;&amp; !validarHora(saida)) {
-                alert(&#x27;Formato de hora de saída inválido. Use HH:mm (ex: 14:30).&#x27;);
-                return false;
-            }
-            
-            // Validar formato da data
+            if (!estacaoTipo) { alert(&#x27;Por favor, selecione ENTRADA ou SAÍDA.&#x27;); return false; }
+            if (!estacao) { alert(&#x27;Por favor, selecione uma Estação.&#x27;); return false; }
+            if (colaboradoresSelecionados.length === 0) { alert(&#x27;Por favor, selecione pelo menos uma pessoa da equipe.&#x27;); return false; }
+            if (!data) { alert(&#x27;Por favor, informe a data.&#x27;); return false; }
+            if (!chegada) { alert(&#x27;Por favor, informe a hora de chegada.&#x27;); return false; }
+            if (!validarHora(chegada)) { alert(&#x27;Formato de hora de chegada inválido. Use HH:mm (ex: 14:30).&#x27;); return false; }
+            if (saida &amp;&amp; !validarHora(saida)) { alert(&#x27;Formato de hora de saída inválido. Use HH:mm (ex: 14:30).&#x27;); return false; }
             const dataRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
-            if (!dataRegex.test(data)) {
-                alert(&#x27;Formato de data inválido. Use DD/MM/YYYY.&#x27;);
-                return false;
-            }
-            
+            if (!dataRegex.test(data)) { alert(&#x27;Formato de data inválido. Use DD/MM/YYYY.&#x27;); return false; }
             return true;
         }
 
         function gerarTexto() {
             if (!validarFormulario()) return;
-            
             const estacaoTipo = document.getElementById(&#x27;estacaoTipo&#x27;).value;
             const estacao = document.getElementById(&#x27;estacao&#x27;).value;
             const data = document.getElementById(&#x27;data&#x27;).value;
@@ -6291,12 +6194,8 @@
             const saida = document.getElementById(&#x27;saida&#x27;).value;
             const servico = document.getElementById(&#x27;servico&#x27;).value;
             const observacao = document.getElementById(&#x27;observacao&#x27;).value.trim();
-            
-            // Obter checkboxes de colaboradores selecionadas
             const colaboradoresCheckboxes = document.querySelectorAll(&#x27;#colaboradoresCheckboxGroup input[type=&quot;checkbox&quot;]:checked&#x27;);
             const colaboradoresSelecionados = Array.from(colaboradoresCheckboxes).map(checkbox =&gt; checkbox.value);
-            
-            // Gerar texto final COM QUEBRAS DE LINHA
             let texto = `*Comunicado de acesso a ESTACAO (${estacaoTipo})*\n` +
                        `*Estacao:* ${estacao}\n` +
                        `*Equipe:* ${colaboradoresSelecionados.join(&#x27;; &#x27;)}\n` +
@@ -6304,12 +6203,7 @@
                        `*Chegada:* ${chegada}\n` +
                        `*Saida:* ${saida}\n` +
                        `*Servico:* ${servico}`;
-            
-            // Adicionar observação se não estiver vazia
-            if (observacao) {
-                texto += `\n*Observacao:* ${observacao}`;
-            }
-            
+            if (observacao) { texto += `\n*Observacao:* ${observacao}`; }
             copiarParaAreaTransferencia(texto);
         }
 
@@ -6332,7 +6226,6 @@
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            
             try {
                 const successful = document.execCommand(&#x27;copy&#x27;);
                 if (successful) {
@@ -6344,86 +6237,48 @@
             } catch (err) {
                 mostrarTooltip(&#x27;Texto gerado! Use Ctrl+V para colar.&#x27;, true);
             }
-            
             document.body.removeChild(textArea);
         }
 
         function tentarColarAutomaticamente() {
-            // Focar no body para garantir que podemos disparar eventos
             document.body.focus();
-            
             try {
-                // Disparar evento de teclado Ctrl+V
                 const pasteEvent = new KeyboardEvent(&#x27;keydown&#x27;, {
-                    key: &#x27;v&#x27;,
-                    code: &#x27;KeyV&#x27;,
-                    ctrlKey: true,
-                    bubbles: true,
-                    cancelable: true
+                    key: &#x27;v&#x27;, code: &#x27;KeyV&#x27;, ctrlKey: true, bubbles: true, cancelable: true
                 });
-                
                 document.dispatchEvent(pasteEvent);
-                
-                // Tentar colar usando execCommand (para navegadores mais antigos)
                 document.execCommand(&#x27;paste&#x27;);
-                
             } catch (e) {
-                // Se não conseguir colar automaticamente, apenas informar
                 mostrarTooltip(&#x27;Texto copiado! Pressione Ctrl+V para colar.&#x27;);
             }
         }
 
         function mostrarTooltip(mensagem, isWarning = false) {
             const tooltipAnterior = document.querySelector(&#x27;.tooltip&#x27;);
-            if (tooltipAnterior) {
-                tooltipAnterior.remove();
-            }
-            
+            if (tooltipAnterior) { tooltipAnterior.remove(); }
             const tooltip = document.createElement(&#x27;div&#x27;);
             tooltip.className = &#x27;tooltip&#x27;;
             tooltip.textContent = mensagem;
             tooltip.style.background = isWarning ? &#x27;var(--tooltip-warning)&#x27; : &#x27;var(--tooltip-success)&#x27;;
-            
             document.body.appendChild(tooltip);
-            
             setTimeout(() =&gt; {
-                if (tooltip.parentNode) {
-                    tooltip.parentNode.removeChild(tooltip);
-                }
+                if (tooltip.parentNode) { tooltip.parentNode.removeChild(tooltip); }
             }, 3000);
         }
 
-        // Event listeners
         document.addEventListener(&#x27;keydown&#x27;, function(event) {
-            // F1 para abrir/focar no formulário (simulação)
-            if (event.key === &#x27;F1&#x27;) {
-                event.preventDefault();
-                document.getElementById(&#x27;estacaoTipo&#x27;).focus();
-            }
-            
-            // F5 para atualizar data/hora
-            if (event.key === &#x27;F5&#x27;) {
-                event.preventDefault();
-                atualizarHora();
-            }
+            if (event.key === &#x27;F1&#x27;) { event.preventDefault(); document.getElementById(&#x27;estacaoTipo&#x27;).focus(); }
+            if (event.key === &#x27;F5&#x27;) { event.preventDefault(); atualizarHora(); }
         });
 
-        // Event listeners para formatação automática de hora
-        document.getElementById(&#x27;chegada&#x27;).addEventListener(&#x27;input&#x27;, function() {
-            formatarHora(this);
-        });
+        document.getElementById(&#x27;chegada&#x27;).addEventListener(&#x27;input&#x27;, function() { formatarHora(this); });
+        document.getElementById(&#x27;saida&#x27;).addEventListener(&#x27;input&#x27;, function() { formatarHora(this); });
 
-        document.getElementById(&#x27;saida&#x27;).addEventListener(&#x27;input&#x27;, function() {
-            formatarHora(this);
-        });
-
-        // Inicialização
         window.addEventListener(&#x27;load&#x27;, function() {
             preencherDataHora();
             document.getElementById(&#x27;estacaoTipo&#x27;).focus();
         });
 
-        // Recebe a lista dinâmica da tabela equipes do sistema principal.
         window.addEventListener(&#x27;message&#x27;, function(event) {
             if (event.source !== window.parent || !event.data || event.data.type !== &#x27;equipes-banco&#x27;) return;
             const nomes = Array.isArray(event.data.equipes) ? event.data.equipes : [];
@@ -6472,9 +6327,7 @@
                 campo.replaceWith(select);
             });
         });
-
     &lt;/script&gt;
-
 &lt;/body&gt;
 &lt;/html&gt;"></iframe></article>
                         </div>
@@ -6649,7 +6502,7 @@
                             <div class="link-card">
                                 <div class="link-icon"><i class="fas fa-map-marker-alt"></i></div>
                                 <div class="link-title">GPS Zamix</div>
-                                <div class="link-description">Sistema de localização GPS Zamix.<br><strong>Login:</strong> Construcao ZMX<br><strong>Senha:</strong> 2026@Const</div>
+                                <div class="link-description">Sistema de localização GPS Zamix.<br><strong>Login:</strong> Construcao ZMX<br><strong>Senha:</strong> 2026@Constr</div>
                                 <a href="https://iweb.ituran.com.br/iweb2/LoginPlus.aspx" target="_blank" rel="noopener noreferrer" class="link-button">Acessar Sistema</a>
                             </div>
 
@@ -6695,7 +6548,6 @@
         </main>
     </div>
 
-    <!-- Modal para FTTH (acessado via link) -->
     <div id="modal-ftth" class="modal">
         <div class="modal-content" style="max-width: 1200px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
@@ -6703,7 +6555,6 @@
                 <button class="close-modal" onclick="fecharModalFTTH()">&times;</button>
             </div>
             <div id="ftth-container-modal">
-                <!-- Conteúdo FTTH será injetado aqui -->
             </div>
         </div>
     </div>
@@ -6739,9 +6590,6 @@
     </script>
 
     <script>
-        // =============================================
-        // CONFIGURAÇÃO DO SUPABASE
-        // =============================================
         if (window.__GESTAO_REDES_INITIALIZED__) {
             console.warn('⚠️ Sistema já inicializado. Evitando duplicação.');
         } else {
@@ -6750,7 +6598,6 @@
             const SUPABASE_URL = 'https://tfdniuwqjqvscwiypbuo.supabase.co';
             const SUPABASE_ANON_KEY =
                 'sb_publishable_sWz1866_Wv8xFHCcjrWdgA_rnsB8FRU';
-            // A fonte padrão passou a ser a tabela coordenadas-ce.
             const TABELA_COORDENADAS = 'coordenadas-ce';
             const TABELA_CAIXAS = 'cx_disponiveis';
             const TABELA_MATERIAIS = 'materiais';
@@ -6824,11 +6671,53 @@
             ];
 
             // =============================================
-            // INICIALIZAÇÃO
+            // MODO NOTURNO
             // =============================================
+            function aplicarTemaSalvo() {
+                const temaSalvo = localStorage.getItem('tema_preferido') || 'claro';
+                if (temaSalvo === 'escuro') {
+                    document.body.classList.add('dark-mode');
+                    atualizarBotaoTema('escuro');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    atualizarBotaoTema('claro');
+                }
+            }
+
+            function alternarTema() {
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('tema_preferido', 'claro');
+                    atualizarBotaoTema('claro');
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('tema_preferido', 'escuro');
+                    atualizarBotaoTema('escuro');
+                }
+            }
+
+            function atualizarBotaoTema(tema) {
+                const icon = document.getElementById('theme-icon');
+                const label = document.getElementById('theme-label');
+                if (icon && label) {
+                    if (tema === 'escuro') {
+                        icon.className = 'fas fa-sun';
+                        label.textContent = 'Claro';
+                    } else {
+                        icon.className = 'fas fa-moon';
+                        label.textContent = 'Escuro';
+                    }
+                }
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 if (!window.__SYSTEM_INITIALIZED__) {
                     window.__SYSTEM_INITIALIZED__ = true;
+                    aplicarTemaSalvo();
+                    const themeBtn = document.getElementById('theme-toggle-btn');
+                    if (themeBtn) {
+                        themeBtn.addEventListener('click', alternarTema);
+                    }
                     inicializarSistema();
                 }
             });
@@ -6859,9 +6748,6 @@
                 } catch (error) { mostrarStatusSetup('ℹ️ Sistema pronto para uso.'); }
             }
 
-            // =============================================
-            // LOGIN
-            // =============================================
             async function fazerLogin(e) {
                 e.preventDefault();
                 const email = document.getElementById('login-email').value;
@@ -6916,9 +6802,6 @@
                 if (uci && usuarioLogado) uci.value = usuarioLogado.nome;
             }
 
-            // =============================================
-            // NAVEGAÇÃO E INTERFACE
-            // =============================================
             function gerarNavegacaoPorHierarquia() {
                 const nav = document.getElementById('main-navigation');
                 if (!nav || !usuarioLogado) return;
@@ -6975,7 +6858,6 @@
                 configurarSistemaLogs();
                 configurarSistemaPerfil();
                 carregarUsuarios();
-                // FTTH não é mais carregado automaticamente
             }
 
             function navegarParaPagina(pagina) {
@@ -7000,9 +6882,6 @@
                 if (pagina === 'logs' && verificarAcesso('VisualizarLogs')) inicializarSistemaLogs();
             }
 
-            // =============================================
-            // CONTROLE DE ACESSO POR FUNCIONALIDADE
-            // =============================================
             const FUNCIONALIDADES_SISTEMA = [
                 { chave: 'Dashboard', nome: 'Dashboard' },
                 { chave: 'GerenciarUsuarios', nome: 'Gerenciar Usuários' },
@@ -7098,9 +6977,6 @@
                 setTimeout(() => toast.classList.remove('show'), 5000);
             }
 
-            // =============================================
-            // SISTEMA DE LOGS
-            // =============================================
             async function obterIPUsuario() { try { const r = await fetch('https://api.ipify.org?format=json');
                     const d = await r.json(); return d.ip; } catch (e) { return `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`; } }
 
@@ -7211,9 +7087,6 @@
                 await carregarUsuariosFiltro();
                 exibirLogs(); }
 
-            // =============================================
-            // SISTEMA DE USUÁRIOS
-            // =============================================
             async function carregarUsuarios() {
                 try {
                     const { data: usuarios, error } = await supabase.from('usuarios').select('*').order(
@@ -7344,9 +7217,6 @@
                 }
             };
 
-            // =============================================
-            // SISTEMA DE PERFIL
-            // =============================================
             function configurarSistemaPerfil() {
                 document.getElementById('form-alterar-senha').addEventListener('submit', async function(e) {
                     e.preventDefault();
@@ -7372,9 +7242,6 @@
             function validarForcaSenha(s) { return s.length >= 8 && /[A-Z]/.test(s) && /[a-z]/.test(s) && /\d/.test(
                     s) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(s); }
 
-            // =============================================
-            // SISTEMA DE COORDENADAS
-            // =============================================
             function configurarSistemaCoordenadas() {
                 document.getElementById('aba-consulta').addEventListener('click', () => alternarAba('consulta'));
                 document.getElementById('aba-caixas').addEventListener('click', () => alternarAba('caixas'));
@@ -7473,9 +7340,6 @@
                 const tamanhoLote = 1000;
                 const erros = [];
 
-                // O Supabase/PostgREST pode limitar cada resposta a 1.000 linhas.
-                // A leitura ocorre em lotes ordenados até o último registro, inclusive
-                // para tabelas com mais de 16.000 itens.
                 for (const tabela of TODAS_TABELAS_COORDENADAS) {
                     let inicio = 0;
 
@@ -7497,9 +7361,6 @@
 
                         todas.push(...lote);
 
-                        // O tamanho de dois lotes consecutivos pode ser igual;
-                        // portanto, a paginação deve avançar sempre pelo número
-                        // efetivamente retornado, inclusive em tabelas extensas.
                         inicio += lote.length;
 
                         if (lote.length < tamanhoLote) break;
@@ -7642,7 +7503,6 @@
                     };
 
                     if (tabelaOrigem && tabelaOrigem !== tabelaDestino) {
-                        // Inserir no destino antes de apagar a origem evita perda de dados.
                         const { error } = await supabase.from(tabelaDestino).insert([dadosRegistro]);
                         if (error) throw error;
                         const { error: erroExclusao } = await supabase.from(tabelaOrigem).delete().eq('Nome', nomeOriginal);
@@ -7839,10 +7699,6 @@
             async function atualizarTabela(termo = '') {
                 document.getElementById('loading-coordenadas').classList.remove('hidden');
                 document.getElementById('tabela-coordenadas').classList.add('hidden');
-                // Para uma pesquisa textual, consulta diretamente o campo Nome no
-                // banco. Isso evita depender da janela de registros previamente
-                // carregada e garante a localização de códigos em qualquer posição
-                // da tabela, como ZMX/L2-02673.
                 const coords = termo ? await obterCoordenadasParaPesquisa(termo) : await obterTodasCoordenadas();
                 const tipoSel = document.getElementById('tipo-local-select').value;
                 coordenadasFiltradas = coords;
@@ -7892,9 +7748,6 @@
             window.mudarPagina = function(p) { paginaAtual = p;
                 renderizarPagina(); };
 
-            // =============================================
-            // IMPORTAÇÃO CSV
-            // =============================================
             function configurarImportacaoCSV() {
                 document.getElementById('arquivo-csv').addEventListener('change', function(e) {
                     const f = e.target.files[0];
@@ -8048,9 +7901,6 @@
                 el.style.display = 'block';
             }
 
-            // =============================================
-            // SISTEMA DE CAIXAS
-            // =============================================
             function configurarSistemaCaixas() {
                 document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', function() { this
                         .closest('.modal').style.display = 'none'; }));
@@ -8197,7 +8047,6 @@
                     if (errBusca) throw errBusca;
                     if (await validarCoordenadaDuplicada(caixa.nome, lat, lng)) return false;
                     const tipoLocal = caixa.categoria || 'Caixa CE';
-                    // Ao confirmar o movimento, a caixa deve entrar sempre em coordenadas-ce.
                     const tabelaDestino = 'coordenadas-ce';
                     const dadosRegistro = {
                         Nome: caixa.nome,
@@ -8206,8 +8055,6 @@
                         X: normalizarCoordenada(lng),
                         'Status': 'Em Operação'
                     };
-                                        // A inclusão deve ocorrer antes da exclusão da caixa disponível.
-                    // Assim, uma falha de RLS não causa perda do registro de origem.
                     const { error: errIns } = await supabase.from(tabelaDestino).insert([dadosRegistro]);
                     if (errIns) throw errIns;
                     const { error: errDel } = await supabase.from(TABELA_CAIXAS).delete().eq('id', id);
@@ -8217,7 +8064,7 @@
                     mostrarToast('Caixa movida!');
                     atualizarListaCaixas();
                     return true;
-                                } catch (error) { mostrarToast('Erro: ' + obterMensagemErroBanco(error), 'erro'); return false; }
+                } catch (error) { mostrarToast('Erro: ' + obterMensagemErroBanco(error), 'erro'); return false; }
             }
             async function atualizarListaCaixas() {
                 const caixas = await obterCaixas();
@@ -8276,9 +8123,6 @@
                         'block' : 'none'; } else container.classList.add('hidden');
             }
 
-            // =============================================
-            // SISTEMA DE MATERIAIS
-            // =============================================
             function configurarSistemaMateriais() {
                 document.querySelectorAll('.tab-materiais').forEach(t => t.addEventListener('click', function() {
                     alternarTabMateriais(this.getAttribute('data-tab')); }));
@@ -8623,9 +8467,6 @@
                 mostrarStatusMateriais('Email aberto no Outlook!', 'info');
             }
 
-            // =============================================
-            // FTTH - Movido para modal acessado via link em Ferramentas de Suporte
-            // =============================================
             const PERDA_FIBRA_1490 = 0.25,
                 PERDA_FIBRA_1310 = 0.35,
                 PERDA_CONEXAO = 0.3,
@@ -8640,7 +8481,7 @@
             function getPerdaSplitterFTTH(v) { return v === '1x8' ? PERDA_SPLITTER_1X8 : PERDA_SPLITTER_1X16; }
 
             function ftthToggleAnalysis() {
-                const sec = document.getElementById('ftth-analysis-section');
+                const sec = document.getElementById('ftth-analysisSection');
                 const btn = document.getElementById('ftth-toggleBtn');
                 if (sec && btn) {
                     if (sec.classList.contains('hidden')) { sec.classList.remove('hidden');
@@ -8673,7 +8514,6 @@
                 const rxOltCalc = txONU - totalUp;
                 const mDown = rxONU - rxOnuCalc;
                 const mUp = rxOLT - rxOltCalc;
-                // Atualizar elementos se existirem
                 const elRxOnu = document.getElementById('ftth-rxOnu');
                 const elRxOlt = document.getElementById('ftth-rxOlt');
                 if (elRxOnu) elRxOnu.innerText = rxOnuCalc.toFixed(2);
@@ -8773,11 +8613,9 @@
                 mostrarToast('Valores resetados!');
             }
 
-            // Função para abrir o modal FTTH
             function abrirFTTH() {
                 const modal = document.getElementById('modal-ftth');
                 const container = document.getElementById('ftth-container-modal');
-                // Injetar o HTML do FTTH no modal
                 container.innerHTML = `
                     <div class="ftth-container">
                         <div class="ftth-info-bar"><strong>ℹ️ Informação:</strong> As células em azul podem ser editadas. Valores baseados nas normas ITU-T G.984 (GPON) e G.671.</div>
@@ -8924,7 +8762,6 @@
                         </div>
                     </div>
                 `;
-                // Adicionar eventos aos inputs do FTTH
                 container.querySelectorAll('#ftth-distancia, #ftth-conexoes, #ftth-fusoes, #ftth-margem, #ftth-classeOLT, #ftth-classeONU, #ftth-splitter1, #ftth-splitter2')
                     .forEach(el => {
                         if (el) {
@@ -8933,7 +8770,6 @@
                         }
                     });
                 modal.style.display = 'flex';
-                // Calcular após injetar
                 setTimeout(ftthCalcular, 100);
             }
 
@@ -8941,7 +8777,6 @@
                 document.getElementById('modal-ftth').style.display = 'none';
             }
 
-            // Tornar funções globais acessíveis via onclick
             window.editarCategoria = editarCategoria;
             window.excluirCategoria = excluirCategoria;
             window.editarMaterial = editarMaterial;
@@ -8958,7 +8793,6 @@
         }
     </script>
     <script>
-        // Carrega equipes do banco e distribui os nomes aos formulários incorporados.
         async function carregarEquipesDosFormularios() {
             try {
                 if (!window.supabaseClientInstance) return;
