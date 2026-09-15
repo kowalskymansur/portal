@@ -100,6 +100,38 @@
   h1 small button.primario { background:#2563eb; color:#fff; border-color:#2563eb; }
   h1 small button.primario:hover { background:#1d4ed8; color:#fff; }
   h1 small button.tema { font-size: 14px; padding: 3px 8px; line-height: 1; }
+
+  /* Nome do usuário logado no topo — com lista suspensa */
+  .usuario-topo-wrap { position: relative; display: inline-flex; align-items: center; }
+  .usuario-topo {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; font-weight: 400; color: var(--text-muted);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+    background: transparent; border: 1px solid transparent;
+    padding: 3px 7px; border-radius: 6px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .usuario-topo:hover { background: var(--admin-header); border-color: var(--input-border); color: var(--text-strong); }
+  .usuario-topo strong { font-weight: 600; color: var(--text-strong); }
+  .usuario-topo .hier { font-size: 11px; color: var(--text-muted); }
+  .usuario-topo .caret { font-size: 9px; color: var(--text-muted); margin-left: 2px; }
+  .usuario-menu {
+    position: absolute; top: calc(100% + 4px); right: 0; z-index: 4000;
+    min-width: 200px; background: var(--card); border: 1px solid var(--section-border);
+    border-radius: 8px; box-shadow: var(--shadow-lg); padding: 4px; display: none;
+  }
+  .usuario-menu.visivel { display: block; }
+  .usuario-menu button {
+    width: 100%; text-align: left; border: 0; background: transparent;
+    padding: 8px 10px; font: inherit; font-size: 12px; font-weight: 600;
+    color: var(--text); border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .usuario-menu button:hover { background: var(--admin-header); color: #1d4ed8; }
+  .usuario-menu button.perigo { color: #b91c1c; }
+  .usuario-menu button.perigo:hover { background: #fef2f2; color: #b91c1c; }
+  .usuario-menu .menu-hr { height: 1px; background: var(--section-border); margin: 4px 6px; border: 0; }
+
   .secoes-lado-a-lado { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
   .section { margin-bottom: 10px; border: 1px solid var(--section-border); border-radius: 8px; overflow: hidden; background: var(--card); }
   .secoes-lado-a-lado .section { margin-bottom: 0; }
@@ -116,6 +148,7 @@
   .input-cell { text-align: right; }
   .input-group { display: flex; justify-content: flex-end; align-items: center; gap: 6px; flex-wrap: wrap; }
   input[type="text"].input-numero, select.select-cabo, select.select-equipe { width: 80px; padding: 3px 6px; border: 1px solid var(--input-border); border-radius: 4px; font-size: 12px; background-color: var(--input-bg); transition: border 0.2s, box-shadow 0.2s; text-align: right; font-variant-numeric: tabular-nums; color: var(--text); font-family: inherit; height: 24px; line-height: 16px; }
+  input[type="text"].input-numero::placeholder { color: var(--text-muted); opacity: 0.6; font-weight: 400; }
   input[type="text"].input-numero:focus, select.select-cabo:focus, select.select-equipe:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.25); }
   select.select-cabo, select.select-equipe { background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; appearance: none; -webkit-appearance: none; -moz-appearance: none; padding-right: 22px; cursor: pointer; text-align-last: right; font-weight: 500; }
   html[data-theme="dark"] select.select-cabo, html[data-theme="dark"] select.select-equipe { background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); }
@@ -251,6 +284,18 @@
   .btn-sair { border:1px solid #fecaca !important; color:#b91c1c !important; background:var(--card) !important; }
   .btn-sair:hover { background:#fef2f2 !important; border-color:#fca5a5 !important; }
 
+  /* ===== MODAL OBRIGATÓRIO DE TROCA DE SENHA (PRIMEIRO LOGIN) ===== */
+  .trocar-senha-obrigatorio {
+    display: none; position: fixed; z-index: 6000; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(460px, calc(100vw - 24px));
+    border: 1px solid var(--section-border); border-radius: 10px;
+    background: var(--card);
+    box-shadow: 0 0 0 100vmax var(--overlay), 0 18px 60px rgba(15,23,42,.35);
+  }
+  .trocar-senha-obrigatorio.visivel { display: block; }
+  .trocar-senha-obrigatorio .section-header { background: var(--admin-header); color: var(--text-strong); }
+
   /* ===== VALIDAÇÃO DE CONSUMO ===== */
   .validation-panel {
     display:none; position:fixed; z-index:1200; top:50%; left:50%; transform:translate(-50%,-50%);
@@ -279,7 +324,6 @@
   .validation-edit-actions button { border:0; border-radius:6px; padding:8px 14px; background:#2563eb; color:#fff; font:inherit; font-weight:700; cursor:pointer; }
   .validation-edit-actions button.secundario { background:var(--badge-semreg-bg); color:var(--text); }
 
-  /* ===== ABAS DE VALIDAÇÃO (ABA ATIVA = AZUL DESTACADA) ===== */
   .validation-tabs {
     display:flex; gap:4px; padding:8px 12px 0; background:var(--card);
     border-bottom:1px solid var(--section-border); position:sticky; top:40px; z-index:1;
@@ -513,7 +557,7 @@
   @media (max-width: 700px) { .dash-header { flex-direction: column; align-items: flex-start; } .dash-header-right { width: 100%; justify-content: flex-end; } .dash-kpis { grid-template-columns: 1fr; } .dash-filtros { grid-template-columns: 1fr 1fr; } .dash-chart-area { height: 300px; } .dash-chart-area.rosca { height: 260px; } .dash-chart-card { padding: 14px 14px; } .kpi { padding: 14px 16px; } .kpi-value { font-size: 18px; } .dash-datetime { width: 100%; text-align: right; } .ranking-item { grid-template-columns: 36px 1fr 70px; gap: 8px; padding: 6px 8px; } .ranking-pos { font-size: 11px; } .ranking-nome { font-size: 11px; } .ranking-valor { font-size: 12px; } .evolucao-chart-area { height: 260px; } .equipe-item { grid-template-columns: 36px 1fr 80px; gap: 8px; padding: 6px 8px; } .equipe-pos { font-size: 11px; } .equipe-nome { font-size: 11px; } .equipe-valor { font-size: 12px; } .equipe-filtros { width: 100%; } .equipe-filtros .campo { flex: 1; } .equipe-filtros .campo select { min-width: 0; width: 100%; } .heatmap-filtros { width: 100%; } .heatmap-filtros .campo { flex: 1; } .heatmap-filtros .campo select { min-width: 0; width: 100%; } table.heatmap th, table.heatmap td { padding: 8px 10px; font-size: 11px; } table.heatmap thead th:first-child, table.heatmap tbody td:first-child { min-width: 110px; } }
   @media (max-width: 500px) { .dash-filtros { grid-template-columns: 1fr; } .dash-tabs button { padding: 8px 14px; font-size: 12px; } .dash-header-text h1 { font-size: 18px; } .dash-filtros-acoes { flex-wrap: wrap; } .dash-filtros-acoes button { flex: 1; } .ranking-item { grid-template-columns: 32px 1fr 60px; gap: 6px; padding: 6px; } .evolucao-periodo { width: 100%; justify-content: space-between; } .evolucao-periodo button { flex: 1; padding: 6px 8px; } .evolucao-chart-area { height: 240px; } .equipe-item { grid-template-columns: 32px 1fr 70px; gap: 6px; padding: 6px; } table.matriz { font-size: 11px; } table.matriz th, table.matriz td { padding: 6px 8px; } table.matriz thead th:first-child { min-width: 140px; } table.heatmap th, table.heatmap td { padding: 6px 8px; font-size: 10px; border-spacing: 2px; } table.heatmap thead th:first-child, table.heatmap tbody td:first-child { min-width: 90px; } table.heatmap tbody td.celula-heat .heat-valor { font-size: 11px; } table.heatmap tbody td.celula-heat .heat-emoji { font-size: 12px; margin-right: 2px; } }
   #telaPrincipal { max-width: 1200px; margin: 0 auto; }
-  @media (max-width: 700px) { .admin-form { grid-template-columns: 1fr; } .admin-form button { width: 100%; } .admin-actions { justify-content: flex-start; flex-wrap: wrap; } .export-form { grid-template-columns: 1fr 1fr; } #painelAdminEquipes th, #painelAdminEquipes td { white-space: normal; } body { padding: 4px; } .container { padding: 10px; border-radius: 8px; } h1 { font-size: 15px; margin-bottom: 8px; } h1 small { font-size: 11px; gap: 8px; } .secoes-lado-a-lado { grid-template-columns: 1fr; gap: 6px; } .section-header { padding: 5px 10px; font-size: 12px; } th, td { padding: 3px 6px; font-size: 11px; } .item-name { width: 55%; } .input-group { flex-direction: column; align-items: flex-end; gap: 2px; } input[type="text"].input-numero, select.select-cabo { width: 70px; padding: 3px 5px; } .identificacao-grid { grid-template-columns: 1fr; gap: 6px; padding: 6px 10px; } .cabo-inputs { flex-direction: column; gap: 4px; } .cabo-inputs .field { width: 100%; justify-content: flex-end; } select.select-cabo { flex: 1; max-width: 130px; } .bottom-actions button { padding: 8px 20px; font-size: 12px; } .toast { font-size: 13px; padding: 12px 20px; top: 16px; } .permissoes-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 700px) { .admin-form { grid-template-columns: 1fr; } .admin-form button { width: 100%; } .admin-actions { justify-content: flex-start; flex-wrap: wrap; } .export-form { grid-template-columns: 1fr 1fr; } #painelAdminEquipes th, #painelAdminEquipes td { white-space: normal; } body { padding: 4px; } .container { padding: 10px; border-radius: 8px; } h1 { font-size: 15px; margin-bottom: 8px; } h1 small { font-size: 11px; gap: 8px; } .usuario-topo { font-size: 11px; } .secoes-lado-a-lado { grid-template-columns: 1fr; gap: 6px; } .section-header { padding: 5px 10px; font-size: 12px; } th, td { padding: 3px 6px; font-size: 11px; } .item-name { width: 55%; } .input-group { flex-direction: column; align-items: flex-end; gap: 2px; } input[type="text"].input-numero, select.select-cabo { width: 70px; padding: 3px 5px; } .identificacao-grid { grid-template-columns: 1fr; gap: 6px; padding: 6px 10px; } .cabo-inputs { flex-direction: column; gap: 4px; } .cabo-inputs .field { width: 100%; justify-content: flex-end; } select.select-cabo { flex: 1; max-width: 130px; } .bottom-actions button { padding: 8px 20px; font-size: 12px; } .toast { font-size: 13px; padding: 12px 20px; top: 16px; } .permissoes-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body class="auth-bloqueada">
@@ -539,6 +583,29 @@
   </div>
 </div>
 
+<!-- ================= MODAL OBRIGATÓRIO DE TROCA DE SENHA (PRIMEIRO LOGIN) ================= -->
+<div class="trocar-senha-obrigatorio" id="painelTrocarSenhaObrigatorio" role="dialog" aria-modal="true" aria-labelledby="tituloTrocarSenhaObrigatorio">
+  <div class="section-header">
+    <span id="tituloTrocarSenhaObrigatorio">🔒 Defina uma nova senha</span>
+  </div>
+  <form class="login-form" id="formTrocarSenhaObrigatorio" style="padding:16px" novalidate>
+    <p style="margin:0 0 6px;font-size:12px;color:var(--text-muted)">
+      Bem-vindo(a), <strong id="trocarSenhaObrigNome">—</strong>. Por segurança, no primeiro acesso é necessário definir uma nova senha.
+    </p>
+    <label>Nova senha
+      <input id="trocarSenhaObrigNova" type="password" minlength="4" autocomplete="new-password" required>
+    </label>
+    <label>Confirmar nova senha
+      <input id="trocarSenhaObrigConfirma" type="password" minlength="4" autocomplete="new-password" required>
+    </label>
+    <div class="auth-error" id="erroTrocarSenhaObrig" role="alert"></div>
+    <div class="login-actions">
+      <button id="btnSairTrocarSenhaObrig" class="secundario" type="button">Sair</button>
+      <button type="submit">Salvar nova senha e continuar</button>
+    </div>
+  </form>
+</div>
+
 <!-- ================= TELA PRINCIPAL ================= -->
 <div class="container" id="telaPrincipal">
   <h1>
@@ -548,9 +615,22 @@
       <button id="btnAbrirValidacao" type="button" class="primario" aria-label="Abrir validação de consumo" style="display:none">✅ Validação</button>
       <button id="btnToggleAdmin" type="button" aria-label="Abrir Admin">⚙️ Admin</button>
       <button id="btnTema" type="button" class="tema" title="Alternar modo claro/escuro" aria-label="Alternar tema">🌙</button>
+      <!-- Nome do usuário logado — lista suspensa (Sair está dentro do menu) -->
+      <span class="usuario-topo-wrap" id="usuarioTopoWrap">
+        <button type="button" class="usuario-topo" id="usuarioTopo" aria-haspopup="true" aria-expanded="false">
+          👤 <strong id="usuarioTopoNome">—</strong>
+          <span class="hier" id="usuarioTopoHier"></span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="usuario-menu" id="usuarioMenu" role="menu">
+          <button type="button" id="menuTrocarSenha" role="menuitem">🔑 Trocar senha</button>
+          <hr class="menu-hr">
+          <button type="button" class="perigo" id="menuSair" role="menuitem">🚪 Sair</button>
+        </div>
+      </span>
       <span id="dataAtual"></span>
       <span id="relogio"></span>
-      <button id="btnSair" type="button" class="btn-sair" style="display:none" aria-label="Encerrar sessão">Sair</button>
+      <!-- Botão Sair removido daqui — agora apenas no menu suspenso -->
     </small>
   </h1>
 
@@ -1193,11 +1273,13 @@
   const DURACAO_TOAST = 4000;
   const OPCOES_CABO = ['0', '200', '300'];
   const SENHA_PADRAO_NOVO_USUARIO = '1234';
-  const INTERVALO_AUTO_VALIDACAO_SEG = 30; // segundos
+  const INTERVALO_AUTO_VALIDACAO_SEG = 30;
 
   const HIERARQUIAS = ['Administração', 'Supervisão', 'Analista', 'Técnico'];
   const ROTULOS_HIERARQUIA = { 'Administração': 'Administração', 'Supervisão': 'Supervisão', 'Analista': 'Analista', 'Técnico': 'Técnico' };
   const CLASSES_HIERARQUIA = { 'Administração': 'hier-administracao', 'Supervisão': 'hier-supervisao', 'Analista': 'hier-analista', 'Técnico': 'hier-tecnico' };
+
+  const HIERARQUIAS_EXIGEM_TROCA_SENHA = ['Supervisão', 'Técnico'];
 
   const PERMISSOES_DISPONIVEIS = {
     tela_registros:  { label: 'Tela de Registros',   emoji: '📝', grupo: 'Telas' },
@@ -1214,6 +1296,7 @@
   let permissoesUsuarioLogado = null;
   let usuarioLogado = null;
   let dadosIniciaisCarregados = false;
+  let usuarioAguardandoTrocaSenha = null;
 
   function obterPermissoesPadrao() {
     const obj = {};
@@ -1298,7 +1381,7 @@
   let registroValidacaoAtual = null;
   let schemaValidacaoDisponivel = true;
   let registrosValidacaoCache = { pendentes: [], validadas: [] };
-  let intervalAutoValidacao = null;      // setInterval que roda a cada 1s
+  let intervalAutoValidacao = null;
   let segundosRestantesAutoValidacao = INTERVALO_AUTO_VALIDACAO_SEG;
 
   function formatarDataValidacao(valor) {
@@ -1306,7 +1389,6 @@
     const d = new Date(valor);
     return Number.isNaN(d.getTime()) ? String(valor) : d.toLocaleString('pt-BR');
   }
-
   function resumoConsumo(registro) {
     const partes = [];
     [...COLUNAS_ALCA, ...COLUNAS_MATERIAL].forEach(col => {
@@ -1317,14 +1399,12 @@
     });
     return partes.length ? partes.join(' · ') : 'Sem itens informados';
   }
-
   function atualizarBadgesValidacao() {
     const badgePendentes = document.getElementById('badgePendentes');
     const badgeValidadas = document.getElementById('badgeValidadas');
     if (badgePendentes) badgePendentes.textContent = registrosValidacaoCache.pendentes.length ? `(${registrosValidacaoCache.pendentes.length})` : '';
     if (badgeValidadas) badgeValidadas.textContent = registrosValidacaoCache.validadas.length ? `(${registrosValidacaoCache.validadas.length})` : '';
   }
-
   function ativarAbaValidacao(nome) {
     document.querySelectorAll('.validation-tabs button').forEach(b => b.classList.remove('ativa'));
     document.querySelectorAll('.validation-tab-conteudo').forEach(c => c.classList.remove('ativa'));
@@ -1333,7 +1413,6 @@
     if (btn) btn.classList.add('ativa');
     if (cont) cont.classList.add('ativa');
   }
-
   function renderizarLinhaValidacao(reg, modo) {
     const acoes = modo === 'pendentes'
       ? `<button type="button" data-validacao="editar" data-id="${escaparHtml(String(reg.id))}">Editar</button>
@@ -1348,7 +1427,6 @@
       <td><div class="admin-actions">${acoes}</div></td>
     </tr>`;
   }
-
   async function buscarRegistrosValidacao() {
     let { data, error } = await supabaseClient
       .from(TABELA_REGISTROS)
@@ -1356,7 +1434,7 @@
               [...COLUNAS_ALCA, ...COLUNAS_MATERIAL, ...COLUNAS_CABO].join(', '))
       .order('created_at', { ascending: true });
 
-    if (error && /column .* does not exist|status_validacao/i.test(error.message || '')) {
+    if (error && /column .* does not exist|status_validacao|validado_em|validado_por/i.test(error.message || '')) {
       schemaValidacaoDisponivel = false;
       const fb = await supabaseClient.from(TABELA_REGISTROS).select('*').order('created_at', { ascending: true });
       if (fb.error) return { error: fb.error, lista: [] };
@@ -1374,15 +1452,12 @@
     }
     return { error: null, lista };
   }
-
   async function carregarPendenciasValidacao() {
     if (!podeValidarConsumo() || !temPermissao('tela_validacao')) return;
-
     const tbodyPendentes = document.getElementById('tbodyValidacao');
     const tbodyValidadas = document.getElementById('tbodyValidadas');
     tbodyPendentes.innerHTML = '<tr><td colspan="6" class="validation-empty">Carregando registros...</td></tr>';
     tbodyValidadas.innerHTML = '<tr><td colspan="6" class="validation-empty">Carregando registros...</td></tr>';
-
     const { error, lista } = await buscarRegistrosValidacao();
     if (error) {
       tbodyPendentes.innerHTML = '<tr><td colspan="6" class="validation-empty">Não foi possível carregar a fila de validação.</td></tr>';
@@ -1390,32 +1465,32 @@
       mostrarToast('Erro ao carregar pendências: ' + error.message, true);
       return;
     }
-
     let pendentes, validadas;
     if (!schemaValidacaoDisponivel) {
       pendentes = lista;
       validadas = [];
     } else {
       pendentes = lista.filter(reg => reg.status_validacao !== 'validado');
+      pendentes.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
       validadas = lista.filter(reg => reg.status_validacao === 'validado');
+      validadas.sort((a, b) => {
+        const da = new Date(a.validado_em || a.created_at || 0).getTime();
+        const db = new Date(b.validado_em || b.created_at || 0).getTime();
+        return db - da;
+      });
     }
-
     registrosValidacaoCache.pendentes = pendentes;
     registrosValidacaoCache.validadas = validadas;
     atualizarBadgesValidacao();
-
     tbodyPendentes._registros = pendentes;
     tbodyValidadas._registros = validadas;
-
     tbodyPendentes.innerHTML = pendentes.length === 0
       ? '<tr><td colspan="6" class="validation-empty">Nenhum registro pendente de validação.</td></tr>'
       : pendentes.map(reg => renderizarLinhaValidacao(reg, 'pendentes')).join('');
-
     tbodyValidadas.innerHTML = validadas.length === 0
       ? '<tr><td colspan="6" class="validation-empty">Nenhum registro validado até o momento.</td></tr>'
       : validadas.map(reg => renderizarLinhaValidacao(reg, 'validadas')).join('');
   }
-
   function criarCampoEdicaoValidacao(label, id, valor, tipo = 'text') {
     const campo = document.createElement('label');
     campo.textContent = label;
@@ -1424,7 +1499,6 @@
     campo.appendChild(input);
     return campo;
   }
-
   function abrirEdicaoValidacao(registro) {
     registroValidacaoAtual = registro;
     const area = document.getElementById('camposEditarValidacao');
@@ -1446,12 +1520,10 @@
     });
     document.getElementById('painelEditarValidacao').classList.add('visivel');
   }
-
   function fecharEdicaoValidacao() {
     registroValidacaoAtual = null;
     document.getElementById('painelEditarValidacao').classList.remove('visivel');
   }
-
   async function salvarEdicaoValidacao(event) {
     event.preventDefault();
     if (!registroValidacaoAtual || !podeValidarConsumo() || !temPermissao('tela_validacao')) return;
@@ -1465,7 +1537,6 @@
     await carregarPendenciasValidacao();
     mostrarToast('Registro editado e mantido como pendente.', false);
   }
-
   async function validarRegistroConsumo(id) {
     if (!podeValidarConsumo() || !temPermissao('tela_validacao')) {
       return mostrarToast('A validação de consumo é exclusiva da equipe de analistas.', true);
@@ -1474,19 +1545,8 @@
       return mostrarToast('A validação exige a migração SQL (coluna status_validacao). Execute migracao-validacao-consumo.sql no Supabase.', true);
     }
     if (!window.confirm('Confirmar a validação deste consumo?')) return;
-
-    const payload = {
-      status_validacao: 'validado',
-      validado_por: (usuarioLogado && usuarioLogado.email) || null,
-      validado_em: new Date().toISOString()
-    };
-
-    let { data, error } = await supabaseClient
-      .from(TABELA_REGISTROS)
-      .update(payload)
-      .eq('id', id)
-      .select('id, status_validacao, validado_por, validado_em');
-
+    const payload = { status_validacao: 'validado', validado_por: (usuarioLogado && usuarioLogado.email) || null, validado_em: new Date().toISOString() };
+    let { data, error } = await supabaseClient.from(TABELA_REGISTROS).update(payload).eq('id', id).select('id, status_validacao, validado_por, validado_em');
     if (error) {
       if (/column .* does not exist|validado_por|validado_em|status_validacao/i.test(error.message || '')) {
         schemaValidacaoDisponivel = false;
@@ -1494,20 +1554,13 @@
       }
       return mostrarToast('Erro ao validar registro: ' + error.message, true);
     }
-
-    if (!data || data.length === 0) {
-      return mostrarToast('O UPDATE não afetou nenhuma linha. Verifique as políticas RLS de UPDATE na tabela registros.', true);
-    }
-
+    if (!data || data.length === 0) return mostrarToast('O UPDATE não afetou nenhuma linha. Verifique as políticas RLS de UPDATE na tabela registros.', true);
     const idx = registrosValidacaoCache.pendentes.findIndex(r => String(r.id) === String(id));
     if (idx >= 0) {
       const reg = registrosValidacaoCache.pendentes.splice(idx, 1)[0];
-      reg.status_validacao = 'validado';
-      reg.validado_por = payload.validado_por;
-      reg.validado_em = payload.validado_em;
+      reg.status_validacao = 'validado'; reg.validado_por = payload.validado_por; reg.validado_em = payload.validado_em;
       registrosValidacaoCache.validadas.unshift(reg);
       atualizarBadgesValidacao();
-
       const tbodyPendentes = document.getElementById('tbodyValidacao');
       const tbodyValidadas = document.getElementById('tbodyValidadas');
       tbodyPendentes._registros = registrosValidacaoCache.pendentes;
@@ -1519,106 +1572,74 @@
         ? '<tr><td colspan="6" class="validation-empty">Nenhum registro validado até o momento.</td></tr>'
         : registrosValidacaoCache.validadas.map(reg => renderizarLinhaValidacao(reg, 'validadas')).join('');
     }
-
     mostrarToast('Consumo validado com sucesso.', false);
     await carregarPendenciasValidacao();
     ativarAbaValidacao('validadas');
   }
-
   async function reabrirRegistroConsumo(id) {
     if (!podeValidarConsumo() || !temPermissao('tela_validacao')) return mostrarToast('Apenas a equipe de analistas pode reabrir um registro.', true);
     if (!schemaValidacaoDisponivel) return mostrarToast('A reabertura exige a migração SQL.', true);
     if (!window.confirm('Reabrir este registro e devolvê-lo à fila de pendentes?')) return;
-    const { data, error } = await supabaseClient.from(TABELA_REGISTROS).update({
-      status_validacao: 'pendente',
-      validado_por: null,
-      validado_em: null
-    }).eq('id', id).select('id');
+    const { data, error } = await supabaseClient.from(TABELA_REGISTROS).update({ status_validacao: 'pendente', validado_por: null, validado_em: null }).eq('id', id).select('id');
     if (error) return mostrarToast('Erro ao reabrir registro: ' + error.message, true);
     if (!data || data.length === 0) return mostrarToast('O UPDATE não afetou nenhuma linha. Verifique as políticas RLS de UPDATE na tabela registros.', true);
     await carregarPendenciasValidacao();
     mostrarToast('Registro reaberto e devolvido à fila de pendentes.', false);
     ativarAbaValidacao('pendentes');
   }
-
-  /* ===== AUTO REFRESH (30s) COM CONTADOR DECRESCENTE ===== */
   function atualizarContadorAutoValidacao() {
     const el = document.getElementById('contadorAutoValidacao');
     if (el) el.textContent = String(segundosRestantesAutoValidacao);
   }
-
   function resetarContadorAutoValidacao() {
     segundosRestantesAutoValidacao = INTERVALO_AUTO_VALIDACAO_SEG;
     atualizarContadorAutoValidacao();
   }
-
   function iniciarAutoRefreshValidacao() {
     pararAutoRefreshValidacao();
     resetarContadorAutoValidacao();
-
     intervalAutoValidacao = setInterval(async () => {
       const painelAberto = document.getElementById('painelValidacao').classList.contains('visivel');
       const editando = document.getElementById('painelEditarValidacao').classList.contains('visivel');
-
-      // Se o painel estiver fechado ou estiver editando, não conta nem recarrega
       if (!painelAberto || editando) return;
-
       segundosRestantesAutoValidacao -= 1;
       if (segundosRestantesAutoValidacao < 0) segundosRestantesAutoValidacao = 0;
       atualizarContadorAutoValidacao();
-
       if (segundosRestantesAutoValidacao <= 0) {
-        // Dispara o refresh: SEMPRE volta para a aba Pendentes
         ativarAbaValidacao('pendentes');
         await carregarPendenciasValidacao();
         resetarContadorAutoValidacao();
       }
     }, 1000);
   }
-
   function pararAutoRefreshValidacao() {
-    if (intervalAutoValidacao) {
-      clearInterval(intervalAutoValidacao);
-      intervalAutoValidacao = null;
-    }
+    if (intervalAutoValidacao) { clearInterval(intervalAutoValidacao); intervalAutoValidacao = null; }
     resetarContadorAutoValidacao();
   }
-
   function configurarValidacaoConsumo() {
     const painel = document.getElementById('painelValidacao');
     const btnAbrir = document.getElementById('btnAbrirValidacao');
-    const fechar = () => {
-      painel.classList.remove('visivel');
-      pararAutoRefreshValidacao();
-    };
+    const fechar = () => { painel.classList.remove('visivel'); pararAutoRefreshValidacao(); };
     btnAbrir.addEventListener('click', async () => {
       if (!podeValidarConsumo() || !temPermissao('tela_validacao')) return mostrarToast('A validação de consumo é exclusiva da equipe de analistas.', true);
       painel.classList.add('visivel');
-      // Sempre abre na aba Pendentes
       ativarAbaValidacao('pendentes');
       await carregarPendenciasValidacao();
       iniciarAutoRefreshValidacao();
     });
     document.getElementById('btnFecharValidacao').addEventListener('click', fechar);
-
-    // 🔄 Atualizar fila → sempre volta para Pendentes e recarrega + reseta contador
     document.getElementById('btnAtualizarValidacao').addEventListener('click', async () => {
       ativarAbaValidacao('pendentes');
       await carregarPendenciasValidacao();
       resetarContadorAutoValidacao();
       mostrarToast('Fila atualizada.', false);
     });
-
     document.getElementById('btnFecharEditarValidacao').addEventListener('click', fecharEdicaoValidacao);
     document.getElementById('btnCancelarEditarValidacao').addEventListener('click', fecharEdicaoValidacao);
     document.getElementById('formEditarValidacao').addEventListener('submit', salvarEdicaoValidacao);
-
     document.querySelectorAll('.validation-tabs button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        ativarAbaValidacao(btn.dataset.valtab);
-      });
+      btn.addEventListener('click', () => { ativarAbaValidacao(btn.dataset.valtab); });
     });
-
     function tratarCliqueValidacao(event) {
       const btn = event.target.closest('button[data-validacao]');
       if (!btn) return;
@@ -1632,15 +1653,11 @@
     }
     document.getElementById('tbodyValidacao').addEventListener('click', tratarCliqueValidacao);
     document.getElementById('tbodyValidadas').addEventListener('click', tratarCliqueValidacao);
-
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') { fecharEdicaoValidacao(); fechar(); }
     });
   }
 
-  /* ============================================================ */
-  /* ==================== PERMISSÕES NA UI ====================== */
-  /* ============================================================ */
   function aplicarPermissoesNaUI() {
     const telaPrincipal = document.getElementById('telaPrincipal');
     const telaGraficos = document.getElementById('telaGraficos');
@@ -1653,25 +1670,17 @@
 
     if (btnAbrirValidacao) btnAbrirValidacao.style.display = podeValidacao ? '' : 'none';
     if (btnAbrirGrafico) btnAbrirGrafico.style.display = podeGraficos ? '' : 'none';
-
     if (!podeRegistros) telaPrincipal.style.display = 'none';
     else telaPrincipal.style.display = '';
-
     if (telaGraficos.classList.contains('visivel') && !podeGraficos) {
       telaGraficos.classList.remove('visivel');
       if (podeRegistros) telaPrincipal.classList.remove('oculta');
     }
-
     const mapAbas = { alca: 'aba_alca', material: 'aba_material', cabo: 'aba_cabo' };
     Object.entries(mapAbas).forEach(([tab, perm]) => {
       const btn = document.querySelector(`.dash-tabs button[data-tab="${tab}"]`);
-      if (btn) {
-        const ok = temPermissao(perm);
-        btn.disabled = !ok;
-        btn.style.display = ok ? '' : 'none';
-      }
+      if (btn) { const ok = temPermissao(perm); btn.disabled = !ok; btn.style.display = ok ? '' : 'none'; }
     });
-
     const abaAtiva = document.querySelector('.dash-tabs button.ativa');
     if (abaAtiva && abaAtiva.disabled) {
       const primeiraLiberada = Array.from(document.querySelectorAll('.dash-tabs button')).find(b => !b.disabled);
@@ -1683,7 +1692,6 @@
         if (cont) cont.classList.add('ativa');
       }
     }
-
     const mapAdmin = { equipes: 'admin_equipes', usuarios: 'admin_usuarios', exportar: 'admin_exportar' };
     document.querySelectorAll('.admin-tabs button').forEach(btn => {
       const perm = mapAdmin[btn.dataset.admintab];
@@ -1692,7 +1700,6 @@
       btn.disabled = !ok;
       btn.style.display = ok ? '' : 'none';
     });
-
     const abaAdminAtiva = document.querySelector('.admin-tabs button.ativa');
     if (abaAdminAtiva && abaAdminAtiva.disabled) {
       const primeiraLiberada = Array.from(document.querySelectorAll('.admin-tabs button')).find(b => !b.disabled);
@@ -1704,7 +1711,6 @@
         if (cont) cont.classList.add('ativa');
       }
     }
-
     const btnAdmin = document.getElementById('btnToggleAdmin');
     if (btnAdmin) {
       const temAlgumaAdmin = temPermissao('admin_equipes') || temPermissao('admin_usuarios') || temPermissao('admin_exportar');
@@ -1740,9 +1746,9 @@
 
   function apenasDigitos(str) { return String(str).replace(/\D/g, ''); }
   function formatarMilhar(numero) {
-    if (numero === '' || numero === null || numero === undefined) return '0';
+    if (numero === '' || numero === null || numero === undefined) return '';
     const n = parseInt(numero, 10);
-    if (isNaN(n)) return '0';
+    if (isNaN(n)) return '';
     return n.toLocaleString('pt-BR');
   }
   function parseNumero(str) { const d = apenasDigitos(str); return d === '' ? 0 : parseInt(d, 10); }
@@ -1993,8 +1999,13 @@
         if (!resultado.data || resultado.data.length === 0) throw new Error('Nenhuma linha foi atualizada. Verifique a política RLS de UPDATE.');
       } else {
         const senhaHash = await gerarHashSenha(SENHA_PADRAO_NOVO_USUARIO);
-        resultado = await supabaseClient.from(TABELA_USUARIOS).insert([{ nome, email, hierarquia, senha: senhaHash, status: 'ativo', permissoes }]).select();
-        if (resultado.error) throw resultado.error;
+        resultado = await supabaseClient.from(TABELA_USUARIOS).insert([{ nome, email, hierarquia, senha: senhaHash, status: 'ativo', permissoes, primeira_senha: true }]).select();
+        if (resultado.error) {
+          if (/column .* primeira_senha/i.test(resultado.error.message || '')) {
+            resultado = await supabaseClient.from(TABELA_USUARIOS).insert([{ nome, email, hierarquia, senha: senhaHash, status: 'ativo', permissoes }]).select();
+          }
+          if (resultado.error) throw resultado.error;
+        }
       }
       const eraEdicao = !!usuarioEmEdicao;
       cancelarEdicaoUsuario();
@@ -2037,7 +2048,7 @@
     btn.disabled = true;
     try {
       const senhaHash = await gerarHashSenha(nova);
-      const { error } = await supabaseClient.from(TABELA_USUARIOS).update({ senha: senhaHash }).eq('email', usuarioTrocaSenha);
+      const { error } = await supabaseClient.from(TABELA_USUARIOS).update({ senha: senhaHash, primeira_senha: false }).eq('email', usuarioTrocaSenha);
       if (error) throw error;
       fecharTrocarSenha();
       mostrarToast('Senha alterada com sucesso!', false);
@@ -2413,17 +2424,112 @@
     const identidade = document.getElementById('identidadeUsuario');
     const nome = document.getElementById('nomeUsuarioLogado');
     const hierarquia = document.getElementById('hierarquiaUsuarioLogado');
-    const sair = document.getElementById('btnSair');
+    const topo = document.getElementById('usuarioTopo');
+    const topoNome = document.getElementById('usuarioTopoNome');
+    const topoHier = document.getElementById('usuarioTopoHier');
+    const topoWrap = document.getElementById('usuarioTopoWrap');
     if (!usuarioLogado) {
       if (identidade) identidade.style.display = 'none';
-      if (sair) sair.style.display = 'none';
+      if (topoWrap) topoWrap.style.display = 'none';
       return;
     }
     if (nome) nome.textContent = usuarioLogado.nome || usuarioLogado.email;
     if (hierarquia) hierarquia.textContent = `· ${usuarioLogado.hierarquia || 'Usuário'}`;
     if (identidade) identidade.style.display = 'none';
-    if (sair) sair.style.display = 'inline-flex';
+    if (topoWrap) topoWrap.style.display = 'inline-flex';
+    if (topo) {
+      if (topoNome) topoNome.textContent = usuarioLogado.nome || usuarioLogado.email;
+      if (topoHier) topoHier.textContent = usuarioLogado.hierarquia ? `· ${usuarioLogado.hierarquia}` : '';
+    }
   }
+
+  function configurarMenuUsuario() {
+    const wrap = document.getElementById('usuarioTopoWrap');
+    const btn = document.getElementById('usuarioTopo');
+    const menu = document.getElementById('usuarioMenu');
+    if (!btn || !menu) return;
+    const abrir = () => { menu.classList.add('visivel'); btn.setAttribute('aria-expanded', 'true'); };
+    const fechar = () => { menu.classList.remove('visivel'); btn.setAttribute('aria-expanded', 'false'); };
+    const alternar = () => { if (menu.classList.contains('visivel')) fechar(); else abrir(); };
+    btn.addEventListener('click', (e) => { e.stopPropagation(); alternar(); });
+    document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) fechar(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechar(); });
+    document.getElementById('menuTrocarSenha').addEventListener('click', () => {
+      fechar();
+      if (!usuarioLogado) return;
+      usuarioTrocaSenha = usuarioLogado.email;
+      document.getElementById('trocarSenhaUsuarioNome').textContent = (usuarioLogado.nome || usuarioLogado.email) + ' (' + usuarioLogado.email + ')';
+      document.getElementById('trocarSenhaNova').value = '';
+      document.getElementById('trocarSenhaConfirma').value = '';
+      document.getElementById('painelTrocarSenha').classList.add('visivel');
+      document.getElementById('trocarSenhaNova').focus();
+    });
+    document.getElementById('menuSair').addEventListener('click', () => { fechar(); encerrarSessao(); });
+  }
+
+  function hierarquiaExigeTrocaSenha(hierarquia) {
+    const h = normalizarHierarquia(hierarquia);
+    return HIERARQUIAS_EXIGEM_TROCA_SENHA.includes(h);
+  }
+  function precisaTrocarSenha(usuario) {
+    if (!usuario) return false;
+    const precisaPorFlag = (usuario.primeira_senha === true);
+    const precisaPorHierarquia = (usuario.primeira_senha === undefined) && hierarquiaExigeTrocaSenha(usuario.hierarquia);
+    return precisaPorFlag || precisaPorHierarquia;
+  }
+  function abrirModalTrocarSenhaObrigatorio(usuario, lembrar) {
+    usuarioAguardandoTrocaSenha = { usuario, lembrar };
+    document.getElementById('trocarSenhaObrigNome').textContent = usuario.nome || usuario.email;
+    document.getElementById('trocarSenhaObrigNova').value = '';
+    document.getElementById('trocarSenhaObrigConfirma').value = '';
+    const erro = document.getElementById('erroTrocarSenhaObrig');
+    erro.textContent = ''; erro.classList.remove('visivel');
+    document.getElementById('painelTrocarSenhaObrigatorio').classList.add('visivel');
+    document.body.classList.add('auth-bloqueada');
+    document.getElementById('trocarSenhaObrigNova').focus();
+  }
+  async function salvarTrocarSenhaObrigatorio(event) {
+    event.preventDefault();
+    if (!usuarioAguardandoTrocaSenha) return;
+    const nova = document.getElementById('trocarSenhaObrigNova').value;
+    const confirma = document.getElementById('trocarSenhaObrigConfirma').value;
+    const erro = document.getElementById('erroTrocarSenhaObrig');
+    erro.textContent = ''; erro.classList.remove('visivel');
+    if (nova.length < 4) { erro.textContent = 'A senha deve ter ao menos 4 caracteres.'; erro.classList.add('visivel'); return; }
+    if (nova !== confirma) { erro.textContent = 'As senhas não conferem.'; erro.classList.add('visivel'); return; }
+    if (nova === SENHA_PADRAO_NOVO_USUARIO) { erro.textContent = 'A nova senha não pode ser a senha padrão (1234).'; erro.classList.add('visivel'); return; }
+    const btn = document.querySelector('#formTrocarSenhaObrigatorio button[type="submit"]');
+    btn.disabled = true;
+    try {
+      const senhaHash = await gerarHashSenha(nova);
+      let { error } = await supabaseClient.from(TABELA_USUARIOS).update({ senha: senhaHash, primeira_senha: false }).eq('email', usuarioAguardandoTrocaSenha.usuario.email);
+      if (error && /column .* primeira_senha/i.test(error.message || '')) {
+        ({ error } = await supabaseClient.from(TABELA_USUARIOS).update({ senha: senhaHash }).eq('email', usuarioAguardandoTrocaSenha.usuario.email));
+      }
+      if (error) throw error;
+      const { usuario, lembrar } = usuarioAguardandoTrocaSenha;
+      usuario.primeira_senha = false;
+      usuarioAguardandoTrocaSenha = null;
+      document.getElementById('painelTrocarSenhaObrigatorio').classList.remove('visivel');
+      await finalizarLogin(usuario, lembrar);
+      mostrarToast('Senha alterada com sucesso! Bem-vindo(a).', false);
+    } catch (err) {
+      console.error('[Trocar senha obrigatória]', err);
+      erro.textContent = 'Erro ao salvar nova senha: ' + (err.message || 'tente novamente');
+      erro.classList.add('visivel');
+    } finally { btn.disabled = false; }
+  }
+  function configurarTrocarSenhaObrigatorio() {
+    document.getElementById('formTrocarSenhaObrigatorio').addEventListener('submit', salvarTrocarSenhaObrigatorio);
+    document.getElementById('btnSairTrocarSenhaObrig').addEventListener('click', () => {
+      usuarioAguardandoTrocaSenha = null;
+      document.getElementById('painelTrocarSenhaObrigatorio').classList.remove('visivel');
+      document.body.classList.add('auth-bloqueada');
+      document.getElementById('telaAutenticacao').classList.remove('oculta');
+      document.getElementById('loginUsuario').focus();
+    });
+  }
+
   async function carregarDadosAposLogin() {
     if (dadosIniciaisCarregados) return;
     await carregarEquipes();
@@ -2450,10 +2556,27 @@
     btn.disabled = true; btn.textContent = 'Validando...';
     try {
       const senhaHash = await gerarHashSenha(senha);
-      const { data, error } = await supabaseClient.from(TABELA_USUARIOS).select('nome, email, hierarquia, senha, status, permissoes').eq('email', login).eq('status', 'ativo').maybeSingle();
+      let { data, error } = await supabaseClient.from(TABELA_USUARIOS)
+        .select('nome, email, hierarquia, senha, status, permissoes, primeira_senha')
+        .eq('email', login).eq('status', 'ativo').maybeSingle();
+      if (error && /column .* primeira_senha/i.test(error.message || '')) {
+        ({ data, error } = await supabaseClient.from(TABELA_USUARIOS)
+          .select('nome, email, hierarquia, senha, status, permissoes')
+          .eq('email', login).eq('status', 'ativo').maybeSingle());
+      }
       if (error) throw error;
       if (!data || data.senha !== senhaHash) throw new Error('Login ou senha inválidos.');
-      await finalizarLogin({ nome: data.nome, email: data.email, hierarquia: data.hierarquia, permissoes: data.permissoes }, document.getElementById('lembrarUsuario').checked);
+
+      const usuario = { nome: data.nome, email: data.email, hierarquia: data.hierarquia, permissoes: data.permissoes, primeira_senha: data.primeira_senha };
+      const lembrar = document.getElementById('lembrarUsuario').checked;
+
+      if (precisaTrocarSenha(usuario)) {
+        document.getElementById('senhaUsuario').value = '';
+        abrirModalTrocarSenhaObrigatorio(usuario, lembrar);
+        return;
+      }
+
+      await finalizarLogin(usuario, lembrar);
       document.getElementById('senhaUsuario').value = '';
     } catch (err) {
       console.error('[Autenticação]', err);
@@ -2468,17 +2591,25 @@
       aplicarPermissoesNaUI();
       return false;
     }
+    if (precisaTrocarSenha(sessao)) {
+      document.getElementById('telaAutenticacao').classList.add('oculta');
+      abrirModalTrocarSenhaObrigatorio(sessao, !!localStorage.getItem('gestao_materiais_sessao'));
+      return false;
+    }
     await finalizarLogin(sessao, !!localStorage.getItem('gestao_materiais_sessao'));
     return true;
   }
   function encerrarSessao() {
     usuarioLogado = null; permissoesUsuarioLogado = null; dadosIniciaisCarregados = false;
+    usuarioAguardandoTrocaSenha = null;
     sessionStorage.removeItem('gestao_materiais_sessao');
     localStorage.removeItem('gestao_materiais_sessao');
     pararAutoRefreshValidacao();
     document.getElementById('painelAdminEquipes').classList.remove('visivel');
     document.getElementById('telaGraficos').classList.remove('visivel');
     document.getElementById('telaPrincipal').classList.remove('oculta');
+    document.getElementById('painelTrocarSenhaObrigatorio').classList.remove('visivel');
+    document.getElementById('usuarioMenu').classList.remove('visivel');
     document.getElementById('telaAutenticacao').classList.remove('oculta');
     document.body.classList.add('auth-bloqueada');
     atualizarIdentidadeUI(); aplicarPermissoesNaUI();
@@ -2548,6 +2679,7 @@
     document.addEventListener('keydown', event => {
       if (event.key !== 'Escape') return;
       if (document.getElementById('painelTrocarSenha').classList.contains('visivel')) return;
+      if (document.getElementById('painelTrocarSenhaObrigatorio').classList.contains('visivel')) return;
       if (loginPainel.classList.contains('visivel')) fecharLogin();
       else if (painel.classList.contains('visivel')) fecharAdmin();
     });
@@ -3228,23 +3360,30 @@
   function aplicarValidacao(input) {
     input.addEventListener('keydown', (e) => { const teclasBloqueadas = ['-', '+', 'e', 'E', ',', '.', ' ']; if (teclasBloqueadas.includes(e.key)) e.preventDefault(); });
     input.addEventListener('wheel', (e) => { e.preventDefault(); }, { passive: false });
+    input.addEventListener('focus', () => {
+      if (input.value === '0' || input.value.trim() === '') input.value = '';
+      input.select();
+    });
     input.addEventListener('paste', (e) => {
       e.preventDefault();
       const texto = (e.clipboardData || window.clipboardData).getData('text');
       let digitos = apenasDigitos(texto);
-      if (digitos === '') { input.value = '0'; return; }
+      if (digitos === '') { input.value = ''; return; }
       let numero = parseInt(digitos, 10);
       if (numero > VALOR_MAXIMO) { numero = VALOR_MAXIMO; marcarInvalido(input, true); setTimeout(() => marcarInvalido(input, false), 600); }
       input.value = formatarMilhar(numero);
     });
     input.addEventListener('input', () => {
       const digitos = apenasDigitos(input.value);
-      if (digitos === '') { input.value = '0'; marcarInvalido(input, false); return; }
+      if (digitos === '') { input.value = ''; marcarInvalido(input, false); return; }
       let numero = parseInt(digitos, 10);
       if (numero > VALOR_MAXIMO) { numero = VALOR_MAXIMO; marcarInvalido(input, true); setTimeout(() => marcarInvalido(input, false), 600); }
       input.value = formatarMilhar(numero);
     });
-    input.addEventListener('blur', () => { const numero = parseNumero(input.value); input.value = formatarMilhar(numero); marcarInvalido(input, false); });
+    input.addEventListener('blur', () => {
+      if (input.value.trim() === '') { input.value = ''; }
+      marcarInvalido(input, false);
+    });
     input.addEventListener('beforeinput', (e) => { if (e.data && /\D/.test(e.data)) e.preventDefault(); });
   }
   function aplicarValidacaoEvento(input) {
@@ -3293,7 +3432,15 @@
       const td1 = document.createElement('td'); td1.className = 'item-name'; td1.textContent = item;
       const td2 = document.createElement('td'); td2.className = 'input-cell';
       const inputGroup = document.createElement('div'); inputGroup.className = 'input-group';
-      const input = document.createElement('input'); input.type = 'text'; input.inputMode = 'numeric'; input.autocomplete = 'off'; input.maxLength = 6; input.className = 'input-numero'; input.id = `alca_${index}`; input.value = '0';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.inputMode = 'numeric';
+      input.autocomplete = 'off';
+      input.maxLength = 6;
+      input.className = 'input-numero';
+      input.id = `alca_${index}`;
+      input.placeholder = '0';
+      input.value = '';
       inputGroup.appendChild(input); td2.appendChild(inputGroup); tr.appendChild(td1); tr.appendChild(td2); tbodyAlca.appendChild(tr);
     });
     const tbodyMaterial = document.getElementById('tbodyMaterial');
@@ -3303,7 +3450,15 @@
       const td1 = document.createElement('td'); td1.className = 'item-name'; td1.textContent = item;
       const td2 = document.createElement('td'); td2.className = 'input-cell';
       const inputGroup = document.createElement('div'); inputGroup.className = 'input-group';
-      const input = document.createElement('input'); input.type = 'text'; input.inputMode = 'numeric'; input.autocomplete = 'off'; input.maxLength = 6; input.className = 'input-numero'; input.id = `material_${index}`; input.value = '0';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.inputMode = 'numeric';
+      input.autocomplete = 'off';
+      input.maxLength = 6;
+      input.className = 'input-numero';
+      input.id = `material_${index}`;
+      input.placeholder = '0';
+      input.value = '';
       inputGroup.appendChild(input); td2.appendChild(inputGroup); tr.appendChild(td1); tr.appendChild(td2); tbodyMaterial.appendChild(tr);
     });
     const tbodyCabo = document.getElementById('tbodyCabo');
@@ -3368,7 +3523,7 @@
     const regiao = document.getElementById('regiao'); regiao.value = ''; atualizarCorRegiao(regiao); marcarInvalido(regiao, false); document.getElementById('erro-regiao').classList.remove('visivel');
     preencherSelectEquipesPorRegiao(''); marcarInvalido(document.getElementById('equipe'), false); document.getElementById('erro-equipe').classList.remove('visivel');
     const evento = document.getElementById('evento'); evento.value = ''; marcarInvalido(evento, false); document.getElementById('erro-evento').classList.remove('visivel');
-    document.querySelectorAll('input.input-numero').forEach(el => { el.value = '0'; el.classList.remove('invalido'); });
+    document.querySelectorAll('input.input-numero').forEach(el => { el.value = ''; el.classList.remove('invalido'); });
     document.querySelectorAll('select.select-cabo').forEach(el => { el.value = '0'; });
     atualizarEstadoBotao();
   }
@@ -3415,8 +3570,9 @@
     configurarGrafico();
     configurarValidacaoConsumo();
     configurarCheckboxesPermissoes();
+    configurarMenuUsuario();
+    configurarTrocarSenhaObrigatorio();
     document.getElementById('formAutenticacao').addEventListener('submit', autenticarUsuario);
-    document.getElementById('btnSair').addEventListener('click', encerrarSessao);
     document.getElementById('loginUsuario').addEventListener('input', limparErroAutenticacao);
     document.getElementById('senhaUsuario').addEventListener('input', limparErroAutenticacao);
     atualizarDataHora();
