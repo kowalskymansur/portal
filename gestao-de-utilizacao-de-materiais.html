@@ -225,6 +225,9 @@
   html[data-theme="dark"] .admin-actions button.perigo { color: #fca5a5; border-color: #7f1d1d; }
   .admin-actions button.sucesso { color: #15803d; border-color: #bbf7d0; }
   html[data-theme="dark"] .admin-actions button.sucesso { color: #86efac; border-color: #14532d; }
+  .admin-actions button.whatsapp { color: #15803d; border-color: #86efac; background: #f0fdf4; }
+  .admin-actions button.whatsapp:hover { color: #166534; border-color: #22c55e; background: #dcfce7; }
+  html[data-theme="dark"] .admin-actions button.whatsapp { color: #86efac; border-color: #166534; background: #14532d; }
   .admin-actions button.aviso { color: #b45309; border-color: #fde68a; }
   html[data-theme="dark"] .admin-actions button.aviso { color: #fcd34d; border-color: #78350f; }
   .status-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; white-space: nowrap; }
@@ -1399,6 +1402,29 @@
     });
     return partes.length ? partes.join(' · ') : 'Sem itens informados';
   }
+  function montarMensagemWhatsApp(registro) {
+    const linhas = [
+      '*Consumo validado*',
+      `Região: ${registro.regiao || '—'}`,
+      `Equipe: ${registro.equipe || '—'}`,
+      `Evento: ${registro.evento || '—'}`,
+      '',
+      '*Itens validados:*'
+    ];
+    const resumo = resumoConsumo(registro);
+    if (resumo === 'Sem itens informados') linhas.push(resumo);
+    else resumo.split(' · ').forEach(item => linhas.push(`• ${item}`));
+    linhas.push('', `Enviado para validação: ${formatarDataValidacao(registro.created_at)}`, `Validado em: ${formatarDataValidacao(registro.validado_em || new Date().toISOString())}`);
+    return linhas.join('\n');
+  }
+  function compartilharRegistroWhatsApp(registro) {
+    if (!registro) return;
+    const url = `https://wa.me/?text=${encodeURIComponent(montarMensagemWhatsApp(registro))}`;
+    const janela = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!janela) {
+      mostrarToast('O navegador bloqueou a abertura do WhatsApp. Permita pop-ups e tente novamente.', true);
+    }
+  }
   function atualizarBadgesValidacao() {
     const badgePendentes = document.getElementById('badgePendentes');
     const badgeValidadas = document.getElementById('badgeValidadas');
@@ -1417,7 +1443,8 @@
     const acoes = modo === 'pendentes'
       ? `<button type="button" data-validacao="editar" data-id="${escaparHtml(String(reg.id))}">Editar</button>
          <button type="button" class="sucesso" data-validacao="validar" data-id="${escaparHtml(String(reg.id))}">Validar</button>`
-      : `<button type="button" class="aviso" data-validacao="reabrir" data-id="${escaparHtml(String(reg.id))}">Reabrir</button>`;
+      : `<button type="button" class="whatsapp" data-validacao="whatsapp" data-id="${escaparHtml(String(reg.id))}">WhatsApp</button>
+         <button type="button" class="aviso" data-validacao="reabrir" data-id="${escaparHtml(String(reg.id))}">Reabrir</button>`;
     return `<tr>
       <td>${escaparHtml(formatarDataValidacao(reg.created_at))}</td>
       <td>${escaparHtml(reg.regiao || '—')}</td>
@@ -1556,9 +1583,11 @@
     }
     if (!data || data.length === 0) return mostrarToast('O UPDATE não afetou nenhuma linha. Verifique as políticas RLS de UPDATE na tabela registros.', true);
     const idx = registrosValidacaoCache.pendentes.findIndex(r => String(r.id) === String(id));
+    let registroValidado = null;
     if (idx >= 0) {
       const reg = registrosValidacaoCache.pendentes.splice(idx, 1)[0];
       reg.status_validacao = 'validado'; reg.validado_por = payload.validado_por; reg.validado_em = payload.validado_em;
+      registroValidado = reg;
       registrosValidacaoCache.validadas.unshift(reg);
       atualizarBadgesValidacao();
       const tbodyPendentes = document.getElementById('tbodyValidacao');
@@ -1575,6 +1604,9 @@
     mostrarToast('Consumo validado com sucesso.', false);
     await carregarPendenciasValidacao();
     ativarAbaValidacao('validadas');
+    if (registroValidado && window.confirm('Deseja enviar a lista dos itens validados pelo WhatsApp?')) {
+      compartilharRegistroWhatsApp(registroValidado);
+    }
   }
   async function reabrirRegistroConsumo(id) {
     if (!podeValidarConsumo() || !temPermissao('tela_validacao')) return mostrarToast('Apenas a equipe de analistas pode reabrir um registro.', true);
@@ -1650,6 +1682,7 @@
       if (btn.dataset.validacao === 'editar') abrirEdicaoValidacao(registro);
       if (btn.dataset.validacao === 'validar') validarRegistroConsumo(registro.id);
       if (btn.dataset.validacao === 'reabrir') reabrirRegistroConsumo(registro.id);
+      if (btn.dataset.validacao === 'whatsapp') compartilharRegistroWhatsApp(registro);
     }
     document.getElementById('tbodyValidacao').addEventListener('click', tratarCliqueValidacao);
     document.getElementById('tbodyValidadas').addEventListener('click', tratarCliqueValidacao);
