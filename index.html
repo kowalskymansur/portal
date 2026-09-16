@@ -5377,9 +5377,14 @@
                 return p && typeof p === 'object' ? p : {};
             }
 
+            function ehAdministrador(usuario = usuarioLogado) {
+                const hierarquia = String(usuario?.hierarquia || '').trim().toLowerCase();
+                return hierarquia === 'administrador' || hierarquia === 'administração' || hierarquia === 'administracao';
+            }
+
             function usuarioTemPermissao(chave, nivel = 'visualizacao') {
                 if (!usuarioLogado) return false;
-                if (usuarioLogado.hierarquia === 'Administrador') return true;
+                if (ehAdministrador()) return true;
                 const p = obterPermissoesUsuario()[chave];
                 if (p) {
                     if (p === 'nenhum' || p === false) return false;
@@ -5393,7 +5398,7 @@
                 if (!usuarioLogado) return false;
                 const explicito = usuarioTemPermissao(permissao, nivel);
                 if (explicito !== null) return explicito;
-                if (usuarioLogado.hierarquia === 'Administrador') return true;
+                if (ehAdministrador()) return true;
                 const map = { 'Administrador': ['Administrador'], 'Dashboard': ['Administrador', 'Supervisão'],
                     'GerenciarUsuarios': ['Administrador'], 'Coordenadas': true, 'Caixas': true, 'Materiais': true,
                     'Links': true, 'Perfil': true, 'VisualizarLogs': ['Administrador'], 'AlterarPropriaSenha': true,
@@ -5615,7 +5620,7 @@
                     modal.id = 'modal-usuario';
                     modal.className = 'modal';
                     modal.innerHTML =
-                        `<div class="modal-content"><div class="modal-header"><h3 class="modal-title" id="modal-usuario-titulo">Novo Usuário</h3><button class="close-modal">&times;</button></div><form id="form-usuario"><input type="hidden" id="usuario-id"><div class="form-group"><label for="usuario-nome">Nome *</label><input type="text" id="usuario-nome" required></div><div class="form-group"><label for="usuario-email">Email *</label><input type="email" id="usuario-email" required></div><div class="form-group"><label for="usuario-senha">Senha ${usuario ? '(deixe em branco)' : '*'} </label><input type="password" id="usuario-senha" ${usuario ? '' : 'required'}></div><div class="form-group"><label for="usuario-hierarquia">Hierarquia *</label><select id="usuario-hierarquia" required><option value="">Selecione</option><option value="Administrador">Administrador</option><option value="Supervisão">Supervisão</option><option value="Analistas">Analistas</option><option value="Técnico">Técnico</option><option value="Projetos">Projetos</option></select></div><div class="form-group"><label for="usuario-status">Status *</label><select id="usuario-status" required><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select></div><div class="form-group"><label>Funcionalidades e tipo de acesso</label><div id="usuario-permissoes" class="usuario-permissoes"></div><small class="categoria-info">Desmarque a caixa para bloquear o acesso. O tipo define se o usuário pode apenas visualizar, editar ou ter acesso total.</small></div><div class="modal-footer"><button type="button" class="btn-danger" id="btn-cancelar-usuario">Cancelar</button><button type="submit" class="btn-success" id="btn-salvar-usuario">Salvar</button></div></form></div>`;
+                        `<div class="modal-content"><div class="modal-header"><h3 class="modal-title" id="modal-usuario-titulo">Novo Usuário</h3><button class="close-modal">&times;</button></div><form id="form-usuario"><input type="hidden" id="usuario-id"><div class="form-group"><label for="usuario-nome">Nome *</label><input type="text" id="usuario-nome" required></div><div class="form-group"><label for="usuario-email">Email *</label><input type="email" id="usuario-email" required></div><div class="form-group"><label for="usuario-senha">Senha ${usuario ? '(deixe em branco)' : '*'} </label><input type="password" id="usuario-senha" ${usuario ? '' : 'required'}></div><div class="form-group"><label for="usuario-hierarquia">Hierarquia *</label><select id="usuario-hierarquia" required><option value="">Selecione</option><option value="Administrador">Administrador</option><option value="Administração">Administração</option><option value="Supervisão">Supervisão</option><option value="Analistas">Analistas</option><option value="Técnico">Técnico</option><option value="Projetos">Projetos</option></select></div><div class="form-group"><label for="usuario-status">Status *</label><select id="usuario-status" required><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select></div><div class="form-group"><label>Funcionalidades e tipo de acesso</label><div id="usuario-permissoes" class="usuario-permissoes"></div><small class="categoria-info">Desmarque a caixa para bloquear o acesso. O tipo define se o usuário pode apenas visualizar, editar ou ter acesso total.</small></div><div class="modal-footer"><button type="button" class="btn-danger" id="btn-cancelar-usuario">Cancelar</button><button type="submit" class="btn-success" id="btn-salvar-usuario">Salvar</button></div></form></div>`;
                     document.body.appendChild(modal);
                     modal.querySelector('.close-modal').addEventListener('click', () => modal.style.display = 'none');
                     modal.querySelector('#btn-cancelar-usuario').addEventListener('click', () => modal.style.display =
