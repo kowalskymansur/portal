@@ -140,9 +140,8 @@
             gap: 5px;
         }
         .theme-toggle:hover { background-color: rgba(255, 255, 255, 0.1); }
-        .theme-toggle .theme-label { font-size: 0.8rem; }
-        @media (max-width: 768px) { .theme-toggle .theme-label { display: none; } }
 
+        #page-logs { display: none !important; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
@@ -672,7 +671,6 @@
                 <div class="user-info">
                     <button class="theme-toggle" id="theme-toggle-btn" title="Alternar modo noturno">
                         <i class="fas fa-moon" id="theme-icon"></i>
-                        <span class="theme-label" id="theme-label">Escuro</span>
                     </button>
                     <div class="user-avatar" id="user-avatar">A</div>
                     <span id="user-name">Administrador</span>
@@ -5165,14 +5163,11 @@
 
             function atualizarBotaoTema(tema) {
                 const icon = document.getElementById('theme-icon');
-                const label = document.getElementById('theme-label');
-                if (icon && label) {
+                if (icon) {
                     if (tema === 'escuro') {
                         icon.className = 'fas fa-sun';
-                        label.textContent = 'Claro';
                     } else {
                         icon.className = 'fas fa-moon';
-                        label.textContent = 'Escuro';
                     }
                 }
             }
@@ -5282,7 +5277,6 @@
                 if (verificarAcesso('Validacao')) itens += '<li><a href="#" id="nav-validacao" class="nav-link">Validação</a></li>';
                 if (verificarAcesso('Perfil')) itens += '<li><a href="#" id="nav-perfil" class="nav-link">Perfil</a></li>';
                 if (verificarAcesso('Links')) itens += '<li><a href="#" id="nav-links" class="nav-link">Links</a></li>';
-                if (verificarAcesso('VisualizarLogs')) itens += '<li><a href="#" id="nav-logs" class="nav-link">Logs</a></li>';
                 nav.innerHTML = itens;
                 document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', function(e) {
                         e.preventDefault();
@@ -5355,8 +5349,14 @@
                 { chave: 'Dashboard', nome: 'Dashboard' },
                 { chave: 'GerenciarUsuarios', nome: 'Gerenciar Usuários' },
                 { chave: 'Coordenadas', nome: 'Coordenadas' },
+                { chave: 'EditarCoordenadas', nome: 'Editar coordenadas' },
+                { chave: 'ExcluirCoordenadas', nome: 'Excluir coordenadas' },
                 { chave: 'Caixas', nome: 'Caixas Disponíveis' },
+                { chave: 'ExcluirCaixas', nome: 'Excluir caixas' },
                 { chave: 'Materiais', nome: 'Materiais' },
+                { chave: 'EditarMateriais', nome: 'Editar materiais' },
+                { chave: 'GerenciarCategorias', nome: 'Gerenciar categorias de materiais' },
+                { chave: 'CadastrarMateriais', nome: 'Cadastrar materiais' },
                 { chave: 'Formularios', nome: 'Formulários' },
                 { chave: 'Validacao', nome: 'Validação' },
                 { chave: 'Links', nome: 'Links' },
@@ -5369,6 +5369,37 @@
                 { valor: 'edicao', nome: 'Edição' },
                 { valor: 'total', nome: 'Acesso total' }
             ];
+
+            const PERMISSOES_POR_HIERARQUIA = {
+                'Administrador': 'total',
+                'Administração': 'total',
+                'Supervisão': 'visualizacao',
+                'Analistas': 'visualizacao',
+                'Analista': 'visualizacao',
+                'Técnico': 'visualizacao',
+                'Projetos': 'visualizacao'
+            };
+
+            function permissoesPresetPorHierarquia(hierarquia) {
+                const preset = {};
+                FUNCIONALIDADES_SISTEMA.forEach(item => { preset[item.chave] = 'nenhum'; });
+                const h = String(hierarquia || '').trim();
+                if (ehAdministrador({ hierarquia: h })) {
+                    FUNCIONALIDADES_SISTEMA.forEach(item => { preset[item.chave] = 'total'; });
+                    return preset;
+                }
+                if (h === 'Supervisão') {
+                    ['Dashboard', 'Coordenadas', 'Caixas', 'Materiais', 'Formularios', 'Links', 'Perfil'].forEach(k => preset[k] = 'visualizacao');
+                } else if (h === 'Analista' || h === 'Analistas') {
+                    ['Dashboard', 'Coordenadas', 'Caixas', 'Materiais', 'Formularios', 'Validacao', 'Links', 'Perfil'].forEach(k => preset[k] = 'visualizacao');
+                    preset.Validacao = 'edicao';
+                } else if (h === 'Técnico') {
+                    ['Dashboard', 'Coordenadas', 'Caixas', 'Formularios', 'Perfil'].forEach(k => preset[k] = 'visualizacao');
+                } else if (h === 'Projetos') {
+                    ['Dashboard', 'Coordenadas', 'Caixas', 'Materiais', 'Formularios', 'Links', 'Perfil'].forEach(k => preset[k] = 'visualizacao');
+                }
+                return preset;
+            }
 
             function obterPermissoesUsuario(usuario = usuarioLogado) {
                 if (!usuario) return {};
@@ -5394,9 +5425,10 @@
                 return null;
             }
 
-            function verificarAcesso(permissao = 'Administrador', nivel = 'visualizacao') {
+            function verificarAcesso(permissao = 'Administrador', nivel = null) {
                 if (!usuarioLogado) return false;
-                const explicito = usuarioTemPermissao(permissao, nivel);
+                const nivelNecessario = nivel || (/^(Editar|Excluir|Cadastrar|Gerenciar)/.test(permissao) ? 'edicao' : 'visualizacao');
+                const explicito = usuarioTemPermissao(permissao, nivelNecessario);
                 if (explicito !== null) return explicito;
                 if (ehAdministrador()) return true;
                 const map = { 'Administrador': ['Administrador'], 'Dashboard': ['Administrador', 'Supervisão'],
@@ -5567,6 +5599,7 @@
                     const { data: usuarios, error } = await supabase.from('usuarios').select('*').order(
                         'data_cadastro', { ascending: false });
                     if (error) throw error;
+                    window.__usuariosGestaoCache = usuarios || [];
                     const tbody = document.getElementById('tbody-usuarios');
                     if (usuarios && usuarios.length > 0) {
                         tbody.innerHTML = usuarios.map(u => {
@@ -5584,6 +5617,16 @@
                     if (!verificarAcesso('GerenciarUsuarios')) { mostrarToast('Sem permissão.', 'erro'); return; }
                     abrirModalUsuario();
                 });
+                const busca = document.getElementById('search-usuarios');
+                if (busca && !busca.dataset.listenerConfigurado) {
+                    busca.dataset.listenerConfigurado = 'true';
+                    busca.addEventListener('input', () => {
+                        const termo = busca.value.trim().toLowerCase();
+                        document.querySelectorAll('#tbody-usuarios tr').forEach(linha => {
+                            linha.style.display = !termo || linha.textContent.toLowerCase().includes(termo) ? '' : 'none';
+                        });
+                    });
+                }
             }
 
             function renderizarPermissoesUsuario(permissoes = {}) {
@@ -5645,7 +5688,15 @@
                     document.getElementById('usuario-id').value = '';
                     document.getElementById('usuario-senha').required = true;
                 }
-                renderizarPermissoesUsuario(usuario ? obterPermissoesUsuario(usuario) : {});
+                const permissoesAtuais = usuario ? obterPermissoesUsuario(usuario) : permissoesPresetPorHierarquia(document.getElementById('usuario-hierarquia').value || 'Analista');
+                renderizarPermissoesUsuario(Object.keys(permissoesAtuais).length ? permissoesAtuais : permissoesPresetPorHierarquia(document.getElementById('usuario-hierarquia').value));
+                const seletorHierarquia = document.getElementById('usuario-hierarquia');
+                if (seletorHierarquia && !seletorHierarquia.dataset.presetListener) {
+                    seletorHierarquia.dataset.presetListener = 'true';
+                    seletorHierarquia.addEventListener('change', () => {
+                        renderizarPermissoesUsuario(permissoesPresetPorHierarquia(seletorHierarquia.value));
+                    });
+                }
                 modal.style.display = 'flex';
             }
 
