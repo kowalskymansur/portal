@@ -140,18 +140,18 @@
             gap: 5px;
         }
         .theme-toggle:hover { background-color: rgba(255, 255, 255, 0.1); }
+
+        #page-logs { display: none !important; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
         header { background-color: var(--header-bg); color: white; padding: 1rem 0; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
         .header-content { display: flex; justify-content: space-between; align-items: center; }
         .logo { display: flex; align-items: center; gap: 10px; }
-        .logo h1 { font-size: 1.15rem; font-weight: 600; }
-        #login-page h2 { font-size: 1.35rem; }
+        .logo h1 { font-size: 1.5rem; font-weight: 600; }
         nav ul { display: flex; list-style: none; gap: 20px; align-items: center; }
         nav a { color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; transition: background-color 0.3s; }
         nav a:hover, nav a.active { background-color: rgba(255, 255, 255, 0.1); }
-        .nav-pendente-count { display: inline; margin-left: 4px; padding: 0; background: transparent; color: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; line-height: inherit; }
         .user-info { display: flex; align-items: center; gap: 10px; }
         .user-avatar { width: 32px; height: 32px; border-radius: 50%; background-color: var(--secondary); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
         .logout-btn { background: none; border: none; color: white; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: background-color 0.3s; }
@@ -531,11 +531,8 @@
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
             70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
-            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
+            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
         }
-
-        /* A seção de Logs permanece preservada no código, mas não é exibida no sistema. */
-        #page-logs { display: none !important; }
 
         /* Validação de consumo — mesmas cores do modo escuro do b.html */
         body.dark-mode #validacao-container {
@@ -5277,11 +5274,10 @@
                 if (verificarAcesso('Coordenadas')) itens += '<li><a href="#" id="nav-coordenadas" class="nav-link">Coordenadas</a></li>';
                 if (verificarAcesso('Materiais')) itens += '<li><a href="#" id="nav-materiais" class="nav-link">Materiais</a></li>';
                 if (verificarAcesso('Formularios')) itens += '<li><a href="#" id="nav-formularios" class="nav-link">Formulários</a></li>';
-                if (verificarAcesso('Validacao')) itens += '<li><a href="#" id="nav-validacao" class="nav-link">Validação <span id="badgePendentesNavegacao" class="nav-pendente-count">0</span></a></li>';
+                if (verificarAcesso('Validacao')) itens += '<li><a href="#" id="nav-validacao" class="nav-link">Validação</a></li>';
                 if (verificarAcesso('Perfil')) itens += '<li><a href="#" id="nav-perfil" class="nav-link">Perfil</a></li>';
                 if (verificarAcesso('Links')) itens += '<li><a href="#" id="nav-links" class="nav-link">Links</a></li>';
                 nav.innerHTML = itens;
-                if (typeof atualizarBadgesValidacaoEmbutida === 'function') atualizarBadgesValidacaoEmbutida();
                 document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', function(e) {
                         e.preventDefault();
                         navegarParaPagina(this.id.replace('nav-', ''));
@@ -5324,7 +5320,6 @@
                 configurarSistemaLogs();
                 configurarSistemaPerfil();
                 carregarUsuarios();
-                inicializarValidacaoEmbutida();
             }
 
             function navegarParaPagina(pagina) {
@@ -7328,7 +7323,6 @@
             let registroValidacaoAtualEmbutido = null;
             let schemaValidacaoDisponivelEmbutido = true;
             let registrosValidacaoCacheEmbutido = { pendentes: [], validadas: [] };
-            let quantidadePendentesValidacaoEmbutida = 0;
             let intervalAutoValidacaoEmbutido = null;
             let segundosRestantesAutoValidacaoEmbutido = 30;
             let validacaoEmbutidaInicializada = false;
@@ -7380,15 +7374,8 @@
             function atualizarBadgesValidacaoEmbutida() {
                 const bp = document.getElementById('badgePendentesEmbutida');
                 const bv = document.getElementById('badgeValidadasEmbutida');
-                const quantidadePendentes = quantidadePendentesValidacaoEmbutida = registrosValidacaoCacheEmbutido.pendentes.length;
-                if (bp) bp.textContent = quantidadePendentes ? `(${quantidadePendentes})` : '';
+                if (bp) bp.textContent = registrosValidacaoCacheEmbutido.pendentes.length ? `(${registrosValidacaoCacheEmbutido.pendentes.length})` : '';
                 if (bv) bv.textContent = registrosValidacaoCacheEmbutido.validadas.length ? `(${registrosValidacaoCacheEmbutido.validadas.length})` : '';
-                const menuBadge = document.getElementById('badgePendentesNavegacao');
-                if (menuBadge) {
-                    menuBadge.textContent = String(quantidadePendentes);
-                    menuBadge.style.display = quantidadePendentes ? 'inline' : 'none';
-                    menuBadge.title = `${quantidadePendentes} validação(ões) pendente(s)`;
-                }
             }
 
             function ativarAbaValidacaoEmbutida(nome) {
@@ -7667,12 +7654,12 @@
                 intervalAutoValidacaoEmbutido = setInterval(async () => {
                     const paginaAtiva = document.getElementById('page-validacao').classList.contains('active');
                     const editando = document.getElementById('painelEditarValidacaoEmbutido').style.display === 'block';
-                    if (editando) return;
+                    if (!paginaAtiva || editando) return;
                     segundosRestantesAutoValidacaoEmbutido -= 1;
                     if (segundosRestantesAutoValidacaoEmbutido < 0) segundosRestantesAutoValidacaoEmbutido = 0;
                     atualizarContadorAutoValidacaoEmbutido();
                     if (segundosRestantesAutoValidacaoEmbutido <= 0) {
-                        if (paginaAtiva) ativarAbaValidacaoEmbutida('pendentes');
+                        ativarAbaValidacaoEmbutida('pendentes');
                         await carregarPendenciasValidacaoEmbutida();
                         resetarContadorAutoValidacaoEmbutido();
                     }
