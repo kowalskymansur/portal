@@ -140,19 +140,18 @@
             gap: 5px;
         }
         .theme-toggle:hover { background-color: rgba(255, 255, 255, 0.1); }
-        .theme-toggle .theme-label { font-size: 0.8rem; }
-        @media (max-width: 768px) { .theme-toggle .theme-label { display: none; } }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
         header { background-color: var(--header-bg); color: white; padding: 1rem 0; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
         .header-content { display: flex; justify-content: space-between; align-items: center; }
         .logo { display: flex; align-items: center; gap: 10px; }
-        .logo h1 { font-size: 1.5rem; font-weight: 600; }
+        .logo h1 { font-size: 1.15rem; font-weight: 600; }
+        #login-page h2 { font-size: 1.35rem; }
         nav ul { display: flex; list-style: none; gap: 20px; align-items: center; }
         nav a { color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; transition: background-color 0.3s; }
         nav a:hover, nav a.active { background-color: rgba(255, 255, 255, 0.1); }
+        .nav-pendente-count { display: inline; margin-left: 4px; padding: 0; background: transparent; color: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; line-height: inherit; }
         .user-info { display: flex; align-items: center; gap: 10px; }
         .user-avatar { width: 32px; height: 32px; border-radius: 50%; background-color: var(--secondary); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
         .logout-btn { background: none; border: none; color: white; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: background-color 0.3s; }
@@ -532,8 +531,11 @@
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
             70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
-            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
         }
+
+        /* A seção de Logs permanece preservada no código, mas não é exibida no sistema. */
+        #page-logs { display: none !important; }
 
         /* Validação de consumo — mesmas cores do modo escuro do b.html */
         body.dark-mode #validacao-container {
@@ -672,7 +674,6 @@
                 <div class="user-info">
                     <button class="theme-toggle" id="theme-toggle-btn" title="Alternar modo noturno">
                         <i class="fas fa-moon" id="theme-icon"></i>
-                        <span class="theme-label" id="theme-label">Escuro</span>
                     </button>
                     <div class="user-avatar" id="user-avatar">A</div>
                     <span id="user-name">Administrador</span>
@@ -5165,14 +5166,11 @@
 
             function atualizarBotaoTema(tema) {
                 const icon = document.getElementById('theme-icon');
-                const label = document.getElementById('theme-label');
-                if (icon && label) {
+                if (icon) {
                     if (tema === 'escuro') {
                         icon.className = 'fas fa-sun';
-                        label.textContent = 'Claro';
                     } else {
                         icon.className = 'fas fa-moon';
-                        label.textContent = 'Escuro';
                     }
                 }
             }
@@ -5279,11 +5277,11 @@
                 if (verificarAcesso('Coordenadas')) itens += '<li><a href="#" id="nav-coordenadas" class="nav-link">Coordenadas</a></li>';
                 if (verificarAcesso('Materiais')) itens += '<li><a href="#" id="nav-materiais" class="nav-link">Materiais</a></li>';
                 if (verificarAcesso('Formularios')) itens += '<li><a href="#" id="nav-formularios" class="nav-link">Formulários</a></li>';
-                if (verificarAcesso('Validacao')) itens += '<li><a href="#" id="nav-validacao" class="nav-link">Validação</a></li>';
+                if (verificarAcesso('Validacao')) itens += '<li><a href="#" id="nav-validacao" class="nav-link">Validação <span id="badgePendentesNavegacao" class="nav-pendente-count">0</span></a></li>';
                 if (verificarAcesso('Perfil')) itens += '<li><a href="#" id="nav-perfil" class="nav-link">Perfil</a></li>';
                 if (verificarAcesso('Links')) itens += '<li><a href="#" id="nav-links" class="nav-link">Links</a></li>';
-                if (verificarAcesso('VisualizarLogs')) itens += '<li><a href="#" id="nav-logs" class="nav-link">Logs</a></li>';
                 nav.innerHTML = itens;
+                if (typeof atualizarBadgesValidacaoEmbutida === 'function') atualizarBadgesValidacaoEmbutida();
                 document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', function(e) {
                         e.preventDefault();
                         navegarParaPagina(this.id.replace('nav-', ''));
@@ -5326,6 +5324,7 @@
                 configurarSistemaLogs();
                 configurarSistemaPerfil();
                 carregarUsuarios();
+                inicializarValidacaoEmbutida();
             }
 
             function navegarParaPagina(pagina) {
@@ -5355,8 +5354,14 @@
                 { chave: 'Dashboard', nome: 'Dashboard' },
                 { chave: 'GerenciarUsuarios', nome: 'Gerenciar Usuários' },
                 { chave: 'Coordenadas', nome: 'Coordenadas' },
+                { chave: 'EditarCoordenadas', nome: 'Editar coordenadas' },
+                { chave: 'ExcluirCoordenadas', nome: 'Excluir coordenadas' },
                 { chave: 'Caixas', nome: 'Caixas Disponíveis' },
+                { chave: 'ExcluirCaixas', nome: 'Excluir caixas' },
                 { chave: 'Materiais', nome: 'Materiais' },
+                { chave: 'EditarMateriais', nome: 'Editar materiais' },
+                { chave: 'GerenciarCategorias', nome: 'Gerenciar categorias de materiais' },
+                { chave: 'CadastrarMateriais', nome: 'Cadastrar materiais' },
                 { chave: 'Formularios', nome: 'Formulários' },
                 { chave: 'Validacao', nome: 'Validação' },
                 { chave: 'Links', nome: 'Links' },
@@ -5369,6 +5374,37 @@
                 { valor: 'edicao', nome: 'Edição' },
                 { valor: 'total', nome: 'Acesso total' }
             ];
+
+            const PERMISSOES_POR_HIERARQUIA = {
+                'Administrador': 'total',
+                'Administração': 'total',
+                'Supervisão': 'visualizacao',
+                'Analistas': 'visualizacao',
+                'Analista': 'visualizacao',
+                'Técnico': 'visualizacao',
+                'Projetos': 'visualizacao'
+            };
+
+            function permissoesPresetPorHierarquia(hierarquia) {
+                const preset = {};
+                FUNCIONALIDADES_SISTEMA.forEach(item => { preset[item.chave] = 'nenhum'; });
+                const h = String(hierarquia || '').trim();
+                if (ehAdministrador({ hierarquia: h })) {
+                    FUNCIONALIDADES_SISTEMA.forEach(item => { preset[item.chave] = 'total'; });
+                    return preset;
+                }
+                if (h === 'Supervisão') {
+                    ['Dashboard', 'Coordenadas', 'Caixas', 'Materiais', 'Formularios', 'Links', 'Perfil'].forEach(k => preset[k] = 'visualizacao');
+                } else if (h === 'Analista' || h === 'Analistas') {
+                    ['Dashboard', 'Coordenadas', 'Caixas', 'Materiais', 'Formularios', 'Validacao', 'Links', 'Perfil'].forEach(k => preset[k] = 'visualizacao');
+                    preset.Validacao = 'edicao';
+                } else if (h === 'Técnico') {
+                    ['Dashboard', 'Coordenadas', 'Caixas', 'Formularios', 'Perfil'].forEach(k => preset[k] = 'visualizacao');
+                } else if (h === 'Projetos') {
+                    ['Dashboard', 'Coordenadas', 'Caixas', 'Materiais', 'Formularios', 'Links', 'Perfil'].forEach(k => preset[k] = 'visualizacao');
+                }
+                return preset;
+            }
 
             function obterPermissoesUsuario(usuario = usuarioLogado) {
                 if (!usuario) return {};
@@ -5394,9 +5430,10 @@
                 return null;
             }
 
-            function verificarAcesso(permissao = 'Administrador', nivel = 'visualizacao') {
+            function verificarAcesso(permissao = 'Administrador', nivel = null) {
                 if (!usuarioLogado) return false;
-                const explicito = usuarioTemPermissao(permissao, nivel);
+                const nivelNecessario = nivel || (/^(Editar|Excluir|Cadastrar|Gerenciar)/.test(permissao) ? 'edicao' : 'visualizacao');
+                const explicito = usuarioTemPermissao(permissao, nivelNecessario);
                 if (explicito !== null) return explicito;
                 if (ehAdministrador()) return true;
                 const map = { 'Administrador': ['Administrador'], 'Dashboard': ['Administrador', 'Supervisão'],
@@ -5567,6 +5604,7 @@
                     const { data: usuarios, error } = await supabase.from('usuarios').select('*').order(
                         'data_cadastro', { ascending: false });
                     if (error) throw error;
+                    window.__usuariosGestaoCache = usuarios || [];
                     const tbody = document.getElementById('tbody-usuarios');
                     if (usuarios && usuarios.length > 0) {
                         tbody.innerHTML = usuarios.map(u => {
@@ -5584,6 +5622,16 @@
                     if (!verificarAcesso('GerenciarUsuarios')) { mostrarToast('Sem permissão.', 'erro'); return; }
                     abrirModalUsuario();
                 });
+                const busca = document.getElementById('search-usuarios');
+                if (busca && !busca.dataset.listenerConfigurado) {
+                    busca.dataset.listenerConfigurado = 'true';
+                    busca.addEventListener('input', () => {
+                        const termo = busca.value.trim().toLowerCase();
+                        document.querySelectorAll('#tbody-usuarios tr').forEach(linha => {
+                            linha.style.display = !termo || linha.textContent.toLowerCase().includes(termo) ? '' : 'none';
+                        });
+                    });
+                }
             }
 
             function renderizarPermissoesUsuario(permissoes = {}) {
@@ -5645,7 +5693,15 @@
                     document.getElementById('usuario-id').value = '';
                     document.getElementById('usuario-senha').required = true;
                 }
-                renderizarPermissoesUsuario(usuario ? obterPermissoesUsuario(usuario) : {});
+                const permissoesAtuais = usuario ? obterPermissoesUsuario(usuario) : permissoesPresetPorHierarquia(document.getElementById('usuario-hierarquia').value || 'Analista');
+                renderizarPermissoesUsuario(Object.keys(permissoesAtuais).length ? permissoesAtuais : permissoesPresetPorHierarquia(document.getElementById('usuario-hierarquia').value));
+                const seletorHierarquia = document.getElementById('usuario-hierarquia');
+                if (seletorHierarquia && !seletorHierarquia.dataset.presetListener) {
+                    seletorHierarquia.dataset.presetListener = 'true';
+                    seletorHierarquia.addEventListener('change', () => {
+                        renderizarPermissoesUsuario(permissoesPresetPorHierarquia(seletorHierarquia.value));
+                    });
+                }
                 modal.style.display = 'flex';
             }
 
@@ -7272,6 +7328,7 @@
             let registroValidacaoAtualEmbutido = null;
             let schemaValidacaoDisponivelEmbutido = true;
             let registrosValidacaoCacheEmbutido = { pendentes: [], validadas: [] };
+            let quantidadePendentesValidacaoEmbutida = 0;
             let intervalAutoValidacaoEmbutido = null;
             let segundosRestantesAutoValidacaoEmbutido = 30;
             let validacaoEmbutidaInicializada = false;
@@ -7323,8 +7380,15 @@
             function atualizarBadgesValidacaoEmbutida() {
                 const bp = document.getElementById('badgePendentesEmbutida');
                 const bv = document.getElementById('badgeValidadasEmbutida');
-                if (bp) bp.textContent = registrosValidacaoCacheEmbutido.pendentes.length ? `(${registrosValidacaoCacheEmbutido.pendentes.length})` : '';
+                const quantidadePendentes = quantidadePendentesValidacaoEmbutida = registrosValidacaoCacheEmbutido.pendentes.length;
+                if (bp) bp.textContent = quantidadePendentes ? `(${quantidadePendentes})` : '';
                 if (bv) bv.textContent = registrosValidacaoCacheEmbutido.validadas.length ? `(${registrosValidacaoCacheEmbutido.validadas.length})` : '';
+                const menuBadge = document.getElementById('badgePendentesNavegacao');
+                if (menuBadge) {
+                    menuBadge.textContent = String(quantidadePendentes);
+                    menuBadge.style.display = quantidadePendentes ? 'inline' : 'none';
+                    menuBadge.title = `${quantidadePendentes} validação(ões) pendente(s)`;
+                }
             }
 
             function ativarAbaValidacaoEmbutida(nome) {
@@ -7603,12 +7667,12 @@
                 intervalAutoValidacaoEmbutido = setInterval(async () => {
                     const paginaAtiva = document.getElementById('page-validacao').classList.contains('active');
                     const editando = document.getElementById('painelEditarValidacaoEmbutido').style.display === 'block';
-                    if (!paginaAtiva || editando) return;
+                    if (editando) return;
                     segundosRestantesAutoValidacaoEmbutido -= 1;
                     if (segundosRestantesAutoValidacaoEmbutido < 0) segundosRestantesAutoValidacaoEmbutido = 0;
                     atualizarContadorAutoValidacaoEmbutido();
                     if (segundosRestantesAutoValidacaoEmbutido <= 0) {
-                        ativarAbaValidacaoEmbutida('pendentes');
+                        if (paginaAtiva) ativarAbaValidacaoEmbutida('pendentes');
                         await carregarPendenciasValidacaoEmbutida();
                         resetarContadorAutoValidacaoEmbutido();
                     }
