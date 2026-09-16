@@ -7370,6 +7370,27 @@
                 });
                 return partes.length ? partes.join(' · ') : 'Sem itens informados';
             }
+            function montarMensagemWhatsAppEmbutida(registro) {
+                const linhas = [
+                    '*Consumo validado*',
+                    `Região: ${registro.regiao || '—'}`,
+                    `Equipe: ${registro.equipe || '—'}`,
+                    `Evento: ${registro.evento || '—'}`,
+                    '',
+                    '*Itens validados:*'
+                ];
+                const resumo = resumoConsumoEmbutido(registro);
+                if (resumo === 'Sem itens informados') linhas.push(resumo);
+                else resumo.split(' · ').forEach(item => linhas.push(`• ${item}`));
+                linhas.push('', `Enviado para validação: ${formatarDataValidacaoEmbutida(registro.created_at)}`, `Validado em: ${formatarDataValidacaoEmbutida(registro.validado_em || new Date().toISOString())}`);
+                return linhas.join('\n');
+            }
+            function compartilharRegistroWhatsAppEmbutido(registro) {
+                if (!registro) return;
+                const url = `https://wa.me/?text=${encodeURIComponent(montarMensagemWhatsAppEmbutida(registro))}`;
+                const janela = window.open(url, '_blank', 'noopener,noreferrer');
+                if (!janela) mostrarToast('O navegador bloqueou a abertura do WhatsApp. Permita pop-ups e tente novamente.', 'erro');
+            }
 
             function atualizarBadgesValidacaoEmbutida() {
                 const bp = document.getElementById('badgePendentesEmbutida');
@@ -7407,7 +7428,8 @@
                 const acoes = modo === 'pendentes'
                     ? `<button type="button" data-validacao="editar" data-id="${String(reg.id)}" style="border:1px solid #cbd5e1;background:var(--card-bg);color:var(--text-color);border-radius:6px;padding:6px 10px;font-weight:600;font-size:11px;cursor:pointer;">Editar</button>
                        <button type="button" data-validacao="validar" data-id="${String(reg.id)}" style="border:1px solid #bbf7d0;background:var(--card-bg);color:#15803d;border-radius:6px;padding:6px 10px;font-weight:600;font-size:11px;cursor:pointer;">Validar</button>`
-                    : `<button type="button" data-validacao="reabrir" data-id="${String(reg.id)}" style="border:1px solid #fde68a;background:var(--card-bg);color:#b45309;border-radius:6px;padding:6px 10px;font-weight:600;font-size:11px;cursor:pointer;">Reabrir</button>`;
+                    : `<button type="button" data-validacao="whatsapp" data-id="${String(reg.id)}" style="border:1px solid #86efac;background:#f0fdf4;color:#15803d;border-radius:6px;padding:6px 10px;font-weight:600;font-size:11px;cursor:pointer;">WhatsApp</button>
+                       <button type="button" data-validacao="reabrir" data-id="${String(reg.id)}" style="border:1px solid #fde68a;background:var(--card-bg);color:#b45309;border-radius:6px;padding:6px 10px;font-weight:600;font-size:11px;cursor:pointer;">Reabrir</button>`;
                 return `<tr>
                     <td>${escaparHtml(formatarDataValidacaoEmbutida(reg.created_at))}</td>
                     <td>${escaparHtml(reg.regiao || '—')}</td>
@@ -7596,6 +7618,8 @@
             async function validarRegistroConsumoEmbutido(id) {
                 if (!window.confirm('Confirmar a validação deste consumo?')) return;
 
+                const registroValidado = (registrosValidacaoCacheEmbutido.pendentes || []).find(reg => String(reg.id) === String(id));
+
                 const payload = {
                     validado_por: (usuarioLogado && usuarioLogado.email) || null,
                     validado_em: new Date().toISOString()
@@ -7618,6 +7642,12 @@
                 await carregarPendenciasValidacaoEmbutida();
                 mostrarToast('Consumo validado com sucesso.', 'sucesso');
                 ativarAbaValidacaoEmbutida('validadas');
+                if (registroValidado && window.confirm('Deseja enviar a lista dos itens validados pelo WhatsApp?')) {
+                    registroValidado.status_validacao = 'validado';
+                    registroValidado.validado_por = payload.validado_por;
+                    registroValidado.validado_em = payload.validado_em;
+                    compartilharRegistroWhatsAppEmbutido(registroValidado);
+                }
             }
 
             async function reabrirRegistroConsumoEmbutido(id) {
@@ -7714,6 +7744,7 @@
                             if (!reg) return;
                             if (btn.dataset.validacao === 'editar') abrirEdicaoValidacaoEmbutida(reg);
                             if (btn.dataset.validacao === 'validar') validarRegistroConsumoEmbutido(reg.id);
+                            if (btn.dataset.validacao === 'whatsapp') compartilharRegistroWhatsAppEmbutido(reg);
                         });
                     }
                     if (tbodyValidadas) {
@@ -7724,6 +7755,7 @@
                             const reg = registros.find(r => String(r.id) === String(btn.dataset.id));
                             if (!reg) return;
                             if (btn.dataset.validacao === 'reabrir') reabrirRegistroConsumoEmbutido(reg.id);
+                            if (btn.dataset.validacao === 'whatsapp') compartilharRegistroWhatsAppEmbutido(reg);
                         });
                     }
                 }
