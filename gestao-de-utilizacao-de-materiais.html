@@ -1207,7 +1207,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/fileSaver.min.js"></script>
 
 <script>
   if (window.ChartDataLabels) {
@@ -2413,7 +2412,17 @@
       const buffer = await workbook.xlsx.writeBuffer();
       const agora = new Date(); const pad = n => String(n).padStart(2, '0');
       const nomeArquivo = `registros_graficos_${agora.getFullYear()}${pad(agora.getMonth()+1)}${pad(agora.getDate())}_${pad(agora.getHours())}${pad(agora.getMinutes())}.xlsx`;
-      saveAs(new Blob([buffer], { type: 'application/octet-stream' }), nomeArquivo);
+      // Download nativo: não depende da função global saveAs/FileSaver.
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = nomeArquivo;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
       setAvisoExport(`Excel (mês anterior + vigente lado a lado) gerado com sucesso! (${registros.length} registros na base)`, 'ok');
       document.getElementById('exportContagem').textContent = `Arquivo: ${nomeArquivo} | Anterior: ${imgs.mesAnterior} | Vigente: ${imgs.mesVigente}`;
       mostrarToast(`Excel gerado com sucesso!`, false);
