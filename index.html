@@ -126,6 +126,77 @@
         body.dark-mode .clear-search-materiais { color: #94a3b8; }
         body.dark-mode .stats-info { background-color: #1e3a5f; }
 
+        /* ===== NOVA SESSÃO SENHAS ===== */
+        .senhas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .iez-senhas-grid { grid-template-columns: 1fr; }
+        .senhas-categorias {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 768px) {
+            .senhas-categorias { grid-template-columns: 1fr; }
+        }
+        .senha-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1.25rem 1.5rem;
+            border-left: 4px solid var(--warning);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .senha-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+        }
+        .senha-card h5 {
+            margin: 0 0 .75rem;
+            font-size: 1.05rem;
+            color: var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: .5rem;
+        }
+        .senha-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .45rem 0;
+            border-bottom: 1px dashed var(--border-color);
+            font-size: .92rem;
+        }
+        .senha-item:last-child { border-bottom: none; }
+        .senha-item .senha-label { color: var(--text-color); font-weight: 500; }
+        .senha-item .senha-valor {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: var(--danger);
+            background: rgba(231, 76, 60, 0.08);
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+        body.dark-mode .senha-valor {
+            background: rgba(231, 76, 60, 0.25);
+            color: #fca5a5;
+        }
+        .senha-aviso {
+            font-size: .85rem;
+            color: var(--info);
+            font-style: italic;
+            padding: .5rem 0;
+        }
+        body.dark-mode .senha-aviso { color: #5eead4; }
+        /* ===== FIM NOVA SESSÃO SENHAS ===== */
+
         .theme-toggle {
             background: none;
             border: none;
@@ -4979,6 +5050,13 @@
 
                             <div class="link-card">
                                 <div class="link-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                <div class="link-title">GPS Zamix Novo</div>
+                                <div class="link-description">Sistema de localização GPS Zamix Novo.<br><strong>Login:</strong> adilson.oliveira@sodobrasil.net.br<br><strong>Senha:</strong> Zamix@2026</div>
+                                <a href="https://cisolution.com.br/ui/auth/login" target="_blank" rel="noopener noreferrer" class="link-button">Acessar Sistema</a>
+                            </div>
+
+                            <div class="link-card">
+                                <div class="link-icon"><i class="fas fa-map-marker-alt"></i></div>
                                 <div class="link-title">GPS Raisntel</div>
                                 <div class="link-description">Sistema de localização GPS Raisntel.<br><strong>Login:</strong> rainstel.telecom@gmail.com<br><strong>Senha:</strong> Rainstel3008!</div>
                                 <a href="https://play.google.com/store/apps/details?id=br.com.ituran.varejo&pcampaignid=web_share" target="_blank" rel="noopener noreferrer" class="link-button">Abrir Aplicativo</a>
@@ -5007,6 +5085,84 @@
 </div>
                     </div>
                 </div>
+
+                <!-- ===== NOVA SEÇÃO SENHAS ===== -->
+                <div class="card">
+                    <h3>🔐 Senhas</h3>
+                    <p>Acesso rápido a senhas e códigos de estações, cadeados e equipamentos.</p>
+
+                    <div class="senhas-categorias">
+                    <div class="links-category">
+                        <h4 class="category-title">TV RIO SUL</h4>
+                        <div class="senhas-grid">
+                            <div class="senha-card">
+                                <h5><i class="fas fa-lock"></i> Cadeados e Alarmes</h5>
+                                <div class="senha-item">
+                                    <span class="senha-label">Cadeado Lidice</span>
+                                    <span class="senha-valor">0101</span>
+                                </div>
+                                <div class="senha-item">
+                                    <span class="senha-label">Alarme Roma</span>
+                                    <span class="senha-valor">1626</span>
+                                </div>
+                                <div class="senha-item">
+                                    <span class="senha-label">Morro TV VR</span>
+                                    <span class="senha-valor">1415</span>
+                                </div>
+                                <div class="senha-item">
+                                    <span class="senha-label">Cadeado Tv Bm</span>
+                                    <span class="senha-valor">5764</span>
+                                </div>
+                                <div class="senha-item">
+                                    <span class="senha-label">Alarme Tv BM</span>
+                                    <span class="senha-valor">1626</span>
+                                </div>
+                                <div class="senha-item">
+                                    <span class="senha-label">Cadeado Arrozal</span>
+                                    <span class="senha-valor">5764</span>
+                                </div>
+                                <div class="senha-item">
+                                    <span class="senha-label">Alarme Arrozal</span>
+                                    <span class="senha-valor">0109</span>
+                                </div>
+                                <div class="senha-item">
+                                    <span class="senha-label">Cadeado P. Cidade</span>
+                                    <span class="senha-valor">7131</span>
+                                </div>
+                                <div class="senha-item">
+                                    <span class="senha-label">Alarme P. Cidade</span>
+                                    <span class="senha-valor">0113</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="links-category">
+                        <h4 class="category-title">IEZ! TELECOM</h4>
+                        <div class="senhas-grid iez-senhas-grid">
+                            <div class="senha-card">
+                                <h5><i class="fas fa-door-open"></i> IEZ! TELECOM</h5>
+                                <div class="senha-item">
+                                    <span class="senha-label">Cadeado do portão Chacrinha</span>
+                                    <span class="senha-valor">1007</span>
+                                </div>
+                                <div class="senha-item">
+                                    <span class="senha-label">Gabinete Chacrinha</span>
+                                    <span class="senha-valor">3547</span>
+                                </div>
+                            </div>
+                            <div class="senha-card">
+                                <h5><i class="fas fa-store"></i> IEZ! - Chave</h5>
+                                <div class="senha-aviso">
+                                    <i class="fas fa-info-circle"></i> IEZ! - Chave tem que pegar na loja de Valença.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <!-- ===== FIM DA NOVA SEÇÃO SENHAS ===== -->
+
                 <div class="card">
                     <h3>Informações de Acesso</h3>
                     <div class="stats-info">
