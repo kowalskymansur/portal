@@ -1025,6 +1025,23 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
 @media (max-width: 600px) {
   .registro-graficos-filtros { grid-template-columns: 1fr; }
 }
+.materiais-selection-toolbar {
+  display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  padding:12px 14px; margin:0 0 14px; background:var(--bg-elevated);
+  border:1px solid var(--border); border-radius:var(--radius-sm);
+}
+.materiais-selection-left { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.materiais-select-all { display:inline-flex; align-items:center; gap:8px; cursor:pointer; color:var(--text-muted); }
+.materiais-select-all input { width:16px; height:16px; accent-color:var(--accent); }
+.materiais-request-layout { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr); gap:18px; align-items:start; }
+.materiais-email-preview { white-space:pre-wrap; min-height:110px; padding:14px; margin:10px 0 14px; color:var(--text-muted); background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); line-height:1.55; }
+.request-preview-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:12px; }
+.request-type-options { border:0; padding:0; margin:0; display:flex; align-items:center; gap:12px; }
+.request-type-options label { display:inline-flex; align-items:center; gap:5px; margin:0; color:var(--text-muted); font-size:.86rem; cursor:pointer; }
+.request-type-options input { accent-color:var(--accent); }
+.materiais-qty { width:92px; min-width:72px; }
+.materiais-check-cell { width:42px; text-align:center; }
+@media (max-width:760px) { .materiais-request-layout { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -1444,6 +1461,7 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
           <button class="tab active" data-tab="mat-consultar">Consultar</button>
           <button class="tab" data-tab="mat-cadastrar">Cadastrar</button>
           <button class="tab" data-tab="mat-categorias">Categorias</button>
+          <button class="tab" data-tab="mat-solicitar">Solicitar Materiais</button>
         </div>
         <div class="tab-panel active" id="mat-consultar">
           <div class="card">
@@ -1455,6 +1473,16 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
               <select id="mat-categoria-filtro" class="form-control" style="width:auto;min-width:160px;">
                 <option value="">Todas categorias</option>
               </select>
+            </div>
+            <div class="materiais-selection-toolbar" aria-label="Seleção de materiais">
+              <div class="materiais-selection-left">
+                <label class="materiais-select-all"><input type="checkbox" id="mat-select-all"> Selecionar resultados</label>
+                <span id="mat-selection-info" style="color:var(--text-muted);">Nenhum item selecionado</span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button type="button" class="btn btn-ghost btn-sm" id="mat-clear-selection" disabled>Limpar seleção</button>
+                <button type="button" class="btn btn-primary btn-sm" id="mat-add-to-request" disabled>Solicitar selecionados</button>
+              </div>
             </div>
             <div id="mat-results">
               <div class="empty-state">
@@ -1501,6 +1529,42 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
               <button class="btn btn-primary" id="btn-add-categoria">Adicionar</button>
             </div>
             <div id="lista-categorias"></div>
+          </div>
+        </div>
+        <div class="tab-panel" id="mat-solicitar">
+          <div class="card">
+            <div class="card-header">
+              <div><h3 class="card-title">Solicitação de Materiais</h3><p style="color:var(--text-muted);font-size:.88rem;margin-top:4px;">Selecione itens na consulta, ajuste quantidades e abra o e-mail preenchido.</p></div>
+              <button type="button" class="btn btn-ghost btn-sm" id="mat-clear-request">Limpar solicitação</button>
+            </div>
+            <div class="materiais-request-layout">
+              <div>
+                <div id="mat-request-count" style="color:var(--text-muted);margin-bottom:10px;">Nenhum item na solicitação</div>
+                <div id="mat-request-items"></div>
+              </div>
+              <div>
+                <div class="form-group">
+                  <label for="mat-request-technician">Técnico</label>
+                  <select class="form-control" id="mat-request-technician"><option value="">Selecione o técnico</option></select>
+                </div>
+                <div class="form-group">
+                  <label for="mat-request-number">Requisição</label>
+                  <input class="form-control" id="mat-request-number" type="text" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" placeholder="6 dígitos" required aria-describedby="mat-request-number-help">
+                  <small id="mat-request-number-help" style="color:var(--text-dim);">Informe exatamente seis números.</small>
+                </div>
+                <div class="request-preview-heading">
+                  <strong>Prévia do e-mail</strong>
+                  <fieldset class="request-type-options" aria-label="Tipo de e-mail">
+                    <label><input type="radio" name="mat-request-type" value="requisicao" required> Requisição</label>
+                    <label><input type="radio" name="mat-request-type" value="devolucao" required> Devolução</label>
+                  </fieldset>
+                </div>
+                <div id="mat-request-subject" style="font-size:.88rem;color:var(--text-muted);margin-top:6px;">Assunto: Solicitação de material -</div>
+                <div class="materiais-email-preview" id="mat-request-preview">Selecione o técnico, informe o número da requisição, escolha Requisição ou Devolução e adicione itens.</div>
+                <button type="button" class="btn btn-primary btn-block" id="mat-open-email" disabled>Abrir e-mail</button>
+                <p style="font-size:.78rem;color:var(--text-dim);margin-top:8px;">O botão abre seu aplicativo de e-mail para revisão e envio.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -2986,6 +3050,19 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
 
   // ---- Materiais ----
   let materiaisCache = [];
+  let materiaisResultadosVisiveis = [];
+  const materiaisSelecionados = new Set();
+  const materiaisSolicitacao = new Map();
+  const MATERIAIS_TECNICOS = [
+    'Adilson de Oliveira', 'Ailton Júnior da Silva Moreira', 'Aldo José de Oliveira', 'Calebe de Andrade Garcia',
+    'Cosme José Alves', 'Daniel Fernando Filipe Quirino', 'Daniel Moura', 'Dhiobert dos Santos Bertolino',
+    'Douglas Silva Falcão', 'Erman de Souza dos Santos', 'Felipe Coste Dias', 'FHM Telecom',
+    'Geovani Silvério De Andrade', 'Geremias de Moura Vieira', 'Igor', 'Jackson Sampaio de Souza',
+    'Jonatan de Souza Nascimento', 'Josiel Moreira da Silva', 'Laércio Silva Rosa', 'Mário Sérgio Rezende da Silva',
+    'Marcelo', 'Pablo da Silva Veloso', 'Rainstel', 'Ramom da Silva Moreira', 'Rodrigo de Lima Vicente',
+    'TurboNet', 'Vagner Cesar da Silva', 'Vinicius dos Santos Oliveira', 'Weksley de Oliveira Queiroz',
+    'Wellington da Silva de Souza'
+  ];
   function matCampo(m, ...keys) {
     for (const k of keys) {
       if (m[k] != null && m[k] !== '') return m[k];
@@ -3027,19 +3104,148 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
   }
 
   function renderMateriais(lista) {
-    if (!lista.length) {
+    materiaisResultadosVisiveis = Array.isArray(lista) ? lista.slice() : [];
+    if (!materiaisResultadosVisiveis.length) {
       $('#mat-results').innerHTML = '<div class="empty-state"><h3>Nenhum material encontrado</h3><p>Tente outro termo de busca.</p></div>';
+      atualizarInfoSelecaoMateriais();
       return;
     }
     $('#mat-results').innerHTML = `<div class="table-wrap"><table>
-      <thead><tr><th>Código</th><th>Descrição</th><th>Categoria</th><th>Observações</th></tr></thead>
-      <tbody>${lista.map(m => `<tr>
-        <td><strong>${esc(matCodigo(m))}</strong></td>
-        <td>${esc(matDesc(m))}</td>
-        <td>${esc(matCat(m))}</td>
-        <td style="color:var(--text-dim);font-size:0.85rem;">${esc(matObs(m))}</td>
-      </tr>`).join('')}</tbody></table></div>
-      <p style="margin-top:10px;color:var(--text-dim);font-size:0.85rem;">${lista.length} resultado(s)</p>`;
+      <thead><tr><th class="materiais-check-cell">Selecionar</th><th>Código</th><th>Descrição</th><th>Categoria</th><th>Observações</th></tr></thead>
+      <tbody>${materiaisResultadosVisiveis.map(m => {
+        const codigo = String(matCodigo(m));
+        return `<tr>
+          <td class="materiais-check-cell"><input type="checkbox" class="mat-item-select" data-codigo="${esc(codigo)}" aria-label="Selecionar ${esc(codigo)}" ${materiaisSelecionados.has(codigo) ? 'checked' : ''}></td>
+          <td><strong>${esc(codigo)}</strong></td>
+          <td>${esc(matDesc(m))}</td>
+          <td>${esc(matCat(m))}</td>
+          <td style="color:var(--text-dim);font-size:0.85rem;">${esc(matObs(m))}</td>
+        </tr>`;
+      }).join('')}</tbody></table></div>
+      <p style="margin-top:10px;color:var(--text-dim);font-size:0.85rem;">${materiaisResultadosVisiveis.length} resultado(s)</p>`;
+    atualizarInfoSelecaoMateriais();
+  }
+
+  function atualizarInfoSelecaoMateriais() {
+    const info = $('#mat-selection-info');
+    const btnAdd = $('#mat-add-to-request');
+    const btnClear = $('#mat-clear-selection');
+    const selectAll = $('#mat-select-all');
+    const count = materiaisSelecionados.size;
+    if (info) info.textContent = count ? `${count} item(ns) selecionado(s)` : 'Nenhum item selecionado';
+    if (btnAdd) btnAdd.disabled = count === 0;
+    if (btnClear) btnClear.disabled = count === 0;
+    if (selectAll) {
+      const visiveis = materiaisResultadosVisiveis.map(m => String(matCodigo(m)));
+      const marcados = visiveis.filter(c => materiaisSelecionados.has(c)).length;
+      selectAll.checked = visiveis.length > 0 && marcados === visiveis.length;
+      selectAll.indeterminate = marcados > 0 && marcados < visiveis.length;
+      selectAll.disabled = visiveis.length === 0;
+    }
+  }
+
+  function prepararSolicitacaoMateriais() {
+    const tecnico = $('#mat-request-technician');
+    if (tecnico && tecnico.options.length <= 1) {
+      tecnico.insertAdjacentHTML('beforeend', MATERIAIS_TECNICOS.map(nome => `<option value="${esc(nome)}">${esc(nome)}</option>`).join(''));
+    }
+    renderSolicitacaoMateriais();
+  }
+
+  function iniciarSolicitacaoMateriais() {
+    prepararSolicitacaoMateriais();
+    materiaisSelecionados.forEach(codigo => {
+      const item = materiaisCache.find(m => String(matCodigo(m)) === codigo);
+      if (item && !materiaisSolicitacao.has(codigo)) materiaisSolicitacao.set(codigo, { item, quantidade: 1 });
+    });
+    renderSolicitacaoMateriais();
+    document.querySelector('.tabs .tab[data-tab="mat-solicitar"]')?.click();
+  }
+
+  function renderSolicitacaoMateriais() {
+    const el = $('#mat-request-items');
+    const count = $('#mat-request-count');
+    if (!el || !count) return;
+    if (!materiaisSolicitacao.size) {
+      count.textContent = 'Nenhum item na solicitação';
+      el.innerHTML = '<div class="empty-state"><h3>Adicione materiais</h3><p>Volte à aba Consultar, selecione um ou mais itens e clique em Solicitar selecionados.</p></div>';
+    } else {
+      count.textContent = `${materiaisSolicitacao.size} item(ns) na solicitação`;
+      const rows = [...materiaisSolicitacao.entries()].map(([codigo, entry]) => {
+        const m = entry.item;
+        return `<tr>
+          <td><button type="button" class="btn btn-danger btn-sm mat-remove-request" data-codigo="${esc(codigo)}" aria-label="Remover ${esc(codigo)}">Remover</button></td>
+          <td><input class="form-control materiais-qty mat-request-qty" type="number" min="1" step="1" value="${Math.max(1, Number(entry.quantidade) || 1)}" data-codigo="${esc(codigo)}" aria-label="Quantidade de ${esc(codigo)}"></td>
+          <td><strong>${esc(codigo)}</strong></td><td>${esc(matDesc(m))}</td><td>${esc(matCat(m))}</td>
+        </tr>`;
+      }).join('');
+      el.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Ação</th><th>Quantidade</th><th>Código</th><th>Descrição</th><th>Categoria</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+    atualizarPreviewSolicitacaoMateriais();
+  }
+
+  function obterTipoSolicitacaoMateriais() {
+    return $('input[name="mat-request-type"]:checked')?.value || '';
+  }
+
+  function obterNumeroRequisicaoMateriais() {
+    return ($('#mat-request-number')?.value || '').trim();
+  }
+
+  function atualizarPreviewSolicitacaoMateriais() {
+    const tecnico = $('#mat-request-technician')?.value || '';
+    const numero = obterNumeroRequisicaoMateriais();
+    const tipo = obterTipoSolicitacaoMateriais();
+    const preview = $('#mat-request-preview');
+    const subjectEl = $('#mat-request-subject');
+    const btn = $('#mat-open-email');
+    const prefixo = tipo === 'devolucao' ? 'Devolução de material' : 'Solicitação de material';
+    const suffix = /^\d{6}$/.test(numero) ? ` - Requisição Nº: ${numero}` : '';
+    const subject = tecnico ? `${prefixo} - ${tecnico}${suffix}` : `${prefixo} -`;
+    if (subjectEl) subjectEl.textContent = `Assunto: ${subject}`;
+    if (!preview) return;
+
+    const pronto = !!tecnico && /^\d{6}$/.test(numero) && !!tipo && materiaisSolicitacao.size > 0;
+    if (btn) btn.disabled = !pronto;
+    if (!tecnico) { preview.textContent = 'Selecione um técnico.'; return; }
+    if (!/^\d{6}$/.test(numero)) { preview.textContent = 'Informe uma Requisição com exatamente seis números.'; return; }
+    if (!tipo) { preview.textContent = 'Selecione Requisição ou Devolução.'; return; }
+    if (!materiaisSolicitacao.size) { preview.textContent = 'Adicione itens à solicitação.'; return; }
+
+    const lines = ['Prezados,', ''];
+    if (tipo === 'devolucao') {
+      lines.push(`${tecnico} irá devolver os itens:`, `Requisição: Nº: ${numero}`, '');
+    } else {
+      lines.push(`Solicito os seguintes materiais para ${tecnico}:`, `Requisição: Nº: ${numero}`, '');
+    }
+    materiaisSolicitacao.forEach(({item, quantidade}, codigo) => {
+      lines.push(`${quantidade} - ${codigo} - ${matDesc(item)}`);
+    });
+    preview.textContent = lines.join('\n');
+  }
+
+  function abrirEmailSolicitacaoMateriais() {
+    const tecnico = $('#mat-request-technician')?.value || '';
+    const numero = obterNumeroRequisicaoMateriais();
+    const tipo = obterTipoSolicitacaoMateriais();
+    if (!tecnico || !/^\d{6}$/.test(numero) || !tipo || !materiaisSolicitacao.size) {
+      atualizarPreviewSolicitacaoMateriais();
+      return toast('Informe o técnico, uma Requisição de seis dígitos, o tipo de e-mail e os itens.', 'error');
+    }
+    const prefixo = tipo === 'devolucao' ? 'Devolução de material' : 'Solicitação de material';
+    const subject = `${prefixo} - ${tecnico} - Requisição Nº: ${numero}`;
+    const lines = ['Prezados,', ''];
+    if (tipo === 'devolucao') {
+      lines.push(`${tecnico} irá devolver os itens:`, `Requisição: Nº: ${numero}`, '');
+    } else {
+      lines.push(`Solicito os seguintes materiais para ${tecnico}:`, `Requisição: Nº: ${numero}`, '');
+    }
+    materiaisSolicitacao.forEach(({item, quantidade}, codigo) => {
+      lines.push(`${quantidade} - ${codigo} - ${matDesc(item)}`);
+    });
+    const body = lines.join('\n');
+    const mailto = `mailto:almoxarifado@sodobrasil.net.br?cc=construcao@sodobrasil.net.br&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
   }
 
   async function pesquisarMateriais() {
@@ -3047,6 +3253,7 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     const termo = termoRaw.toLowerCase();
     const cat = $('#mat-categoria-filtro')?.value || '';
     if (!termo && !cat) {
+      renderMateriais([]);
       $('#mat-results').innerHTML = `<div class="empty-state">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <h3>Pesquise um material</h3>
@@ -3054,6 +3261,8 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
       </div>`;
       return;
     }
+    materiaisResultadosVisiveis = [];
+    atualizarInfoSelecaoMateriais();
     $('#mat-results').innerHTML = `<div class="loading"><div class="spinner"></div>Buscando...</div>`;
     try {
       // Garante cache completo
@@ -4583,12 +4792,60 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
       } catch (err) { toast(err.message, 'error'); }
     });
 
-    // Materiais search
+    // Materiais search and request-by-email flow
+    prepararSolicitacaoMateriais();
+    atualizarInfoSelecaoMateriais();
     $('#mat-search')?.addEventListener('input', function () {
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => pesquisarMateriais(), 350);
     });
     $('#mat-categoria-filtro')?.addEventListener('change', () => pesquisarMateriais());
+    $('#mat-results')?.addEventListener('change', (event) => {
+      const cb = event.target.closest('.mat-item-select');
+      if (!cb) return;
+      const codigo = cb.dataset.codigo;
+      if (cb.checked) materiaisSelecionados.add(codigo); else materiaisSelecionados.delete(codigo);
+      atualizarInfoSelecaoMateriais();
+    });
+    $('#mat-select-all')?.addEventListener('change', (event) => {
+      const codigos = materiaisResultadosVisiveis.map(m => String(matCodigo(m)));
+      codigos.forEach(codigo => event.target.checked ? materiaisSelecionados.add(codigo) : materiaisSelecionados.delete(codigo));
+      renderMateriais(materiaisResultadosVisiveis);
+    });
+    $('#mat-clear-selection')?.addEventListener('click', () => {
+      materiaisSelecionados.clear();
+      renderMateriais(materiaisResultadosVisiveis);
+    });
+    $('#mat-add-to-request')?.addEventListener('click', iniciarSolicitacaoMateriais);
+    $('#mat-request-items')?.addEventListener('change', (event) => {
+      const input = event.target.closest('.mat-request-qty');
+      if (!input) return;
+      const entry = materiaisSolicitacao.get(input.dataset.codigo);
+      if (!entry) return;
+      entry.quantidade = Math.max(1, Math.floor(Number(input.value) || 1));
+      input.value = entry.quantidade;
+      atualizarPreviewSolicitacaoMateriais();
+    });
+    $('#mat-request-items')?.addEventListener('click', (event) => {
+      const btn = event.target.closest('.mat-remove-request');
+      if (!btn) return;
+      materiaisSolicitacao.delete(btn.dataset.codigo);
+      renderSolicitacaoMateriais();
+    });
+    $('#mat-request-technician')?.addEventListener('change', atualizarPreviewSolicitacaoMateriais);
+    $('#mat-request-number')?.addEventListener('input', (event) => {
+      const input = event.currentTarget;
+      input.value = input.value.replace(/\D/g, '').slice(0, 6);
+      input.setCustomValidity(input.value.length === 6 ? '' : 'Informe exatamente seis números.');
+      atualizarPreviewSolicitacaoMateriais();
+    });
+    $$('input[name="mat-request-type"]').forEach(radio => radio.addEventListener('change', atualizarPreviewSolicitacaoMateriais));
+    $('#mat-open-email')?.addEventListener('click', abrirEmailSolicitacaoMateriais);
+    $('#mat-clear-request')?.addEventListener('click', () => {
+      materiaisSolicitacao.clear();
+      renderSolicitacaoMateriais();
+      toast('Solicitação limpa');
+    });
 
     // Material form
     $('#form-material')?.addEventListener('submit', async (e) => {
