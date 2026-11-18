@@ -2047,11 +2047,14 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     { chave: 'Coordenadas', label: 'Coordenadas' },
     { chave: 'Caixas', label: 'Caixas' },
     { chave: 'Materiais', label: 'Materiais' },
+    { chave: 'Registro', label: 'Registro' },
+    { chave: 'Formularios', label: 'Formulários' },
     { chave: 'FTTH', label: 'FTTH' },
     { chave: 'Validacao', label: 'Validação' },
-    { chave: 'Formularios', label: 'Formulários' },
+    { chave: 'Links', label: 'Links' },
     { chave: 'Usuarios', label: 'Usuários' },
-    { chave: 'Logs', label: 'Logs' }
+    { chave: 'Logs', label: 'Logs' },
+    { chave: 'Diagnostico', label: 'Diagnóstico' }
   ];
   const ACOES_PERM = ['ver', 'criar', 'editar', 'excluir'];
   const APP_VERSION = '2.1.0-slim';
@@ -2107,8 +2110,9 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
   function obterPermsObj(usuario = usuarioLogado) {
     if (!usuario) return {};
     let p = usuario.permissoes;
-    if (typeof p === 'string') try { p = JSON.parse(p); } catch { p = {}; }
-    return p && typeof p === 'object' ? p : {};
+    if (typeof p === 'string') try { p = JSON.parse(p); } catch { p = null; }
+    // Perfis antigos sem matriz salva seguem o mesmo preset mostrado no editor.
+    return p && typeof p === 'object' && !Array.isArray(p) ? p : presetPermissoes(usuario.hierarquia);
   }
 
   /** nivel: 'ver' | 'criar' | 'editar' | 'excluir' | 'visualizacao' | 'total' (legado) */
@@ -2116,7 +2120,10 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     if (!usuarioLogado) return false;
     if (ehAdmin()) return true;
     const p = obterPermsObj();
-    const v = p[chave];
+    let v = p[chave];
+    // Compatibilidade: usuários antigos sem permissão explícita para Registro
+    // herdam o nível já definido para Materiais até a próxima edição do perfil.
+    if (v == null && chave === 'Registro') v = p.Materiais;
     if (v == null || v === 'nenhum' || v === false) return false;
     // legado string
     if (typeof v === 'string') {
@@ -2159,14 +2166,24 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     const h = (hierarquia || '').toLowerCase();
     if (/admin/.test(h)) { MODULOS.forEach(m => { p[m.chave] = fullPerm(); }); return p; }
     if (h === 'analista') {
-      ['Coordenadas','Caixas','Materiais','FTTH','Validacao','Formularios'].forEach(k => { p[k] = fullPerm(); });
+      ['Coordenadas','Caixas','Materiais','Registro','Links'].forEach(k => { p[k] = fullPerm(); });
+      p.Formularios = { ver: true, criar: true, editar: true, excluir: false };
     } else if (h === 'projetos') {
-      ['Coordenadas','Caixas','Materiais','FTTH','Formularios'].forEach(k => { p[k] = verPerm(); });
+      p.Coordenadas = fullPerm();
+      p.Caixas = fullPerm();
+      p.Materiais = verPerm();
+      p.Links = verPerm();
     } else if (h === 'técnico' || h === 'tecnico') {
-      ['Coordenadas','Caixas','FTTH','Formularios'].forEach(k => { p[k] = verPerm(); });
+      p.Coordenadas = verPerm();
+      p.Materiais = verPerm();
     } else if (/supervis/.test(h)) {
-      ['Coordenadas','Caixas','Materiais','FTTH','Formularios','Validacao'].forEach(k => { p[k] = editPerm(); });
-      p.Validacao = fullPerm();
+      p.Coordenadas = verPerm();
+      p.Caixas = verPerm();
+      p.Materiais = verPerm();
+      p.Registro = editPerm();
+      p.Formularios = editPerm();
+      p.Links = editPerm();
+      p.Logs = verPerm();
     }
     return p;
   }
@@ -2202,8 +2219,39 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
   setInterval(updateClock, 1000);
   updateClock();
 
+  // ---- Module access / navigation ----
+  const PERMISSAO_POR_PAGINA = {
+    coordenadas: 'Coordenadas', caixas: 'Caixas', materiais: 'Materiais', registro: 'Registro',
+    formularios: 'Formularios', ftth: 'FTTH', validacao: 'Validacao', links: 'Links',
+    usuarios: 'Usuarios', logs: 'Logs', diagnostico: 'Diagnostico'
+  };
+  function podeAcessarPagina(pageId) {
+    if (!usuarioLogado) return false;
+    if (pageId === 'home' || pageId === 'perfil') return true;
+    const modulo = PERMISSAO_POR_PAGINA[pageId];
+    return !!modulo && temPermissao(modulo);
+  }
+  function atualizarAcessosModulos() {
+    $$('#sidebar .nav-item').forEach(item => {
+      item.style.display = podeAcessarPagina(item.dataset.page) ? '' : 'none';
+    });
+    $$('#sidebar .nav-section-title').forEach(titulo => {
+      let item = titulo.nextElementSibling;
+      let temItemVisivel = false;
+      while (item && !item.classList.contains('nav-section-title')) {
+        if (item.classList.contains('nav-item') && item.style.display !== 'none') temItemVisivel = true;
+        item = item.nextElementSibling;
+      }
+      titulo.style.display = temItemVisivel ? '' : 'none';
+    });
+  }
+
   // ---- Navigation ----
   function navigateTo(pageId) {
+    if (!podeAcessarPagina(pageId)) {
+      toast('Você não tem permissão para acessar este módulo.', 'error');
+      return;
+    }
     $$('.page').forEach(p => p.classList.remove('active'));
     $$('.nav-item').forEach(n => n.classList.remove('active'));
     const page = $(`#page-${pageId}`);
@@ -2264,8 +2312,8 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     const info = $('#diag-info');
     const tests = $('#diag-tests');
     if (!info || !tests) return;
-    if (!ehAdmin()) {
-      info.innerHTML = '<p>Acesso restrito a administradores.</p>';
+    if (!temPermissao('Diagnostico')) {
+      info.innerHTML = '<p>Você não tem permissão para acessar o Diagnóstico.</p>';
       tests.innerHTML = '';
       return;
     }
@@ -2282,6 +2330,7 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
   async function runDiagnosticoTests() {
     const tests = $('#diag-tests');
     if (!tests) return;
+    if (!temPermissao('Diagnostico')) return toast('Você não tem permissão para executar os testes de Diagnóstico.', 'error');
     const results = [];
     const check = async (nome, fn) => {
       try {
@@ -2292,7 +2341,7 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
       }
     };
     await check('Login / sessão ativa', () => !!usuarioLogado);
-    await check('Permissão admin detectada', () => ehAdmin());
+    await check('Permissão de acesso ao Diagnóstico', () => temPermissao('Diagnostico'));
     await check('Tabela usuarios acessível', async () => {
       const { error } = await supabase.from('usuarios').select('id').limit(1);
       return !error;
@@ -2429,16 +2478,13 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     $('#user-name').textContent = usuarioLogado.nome || 'Usuário';
     $('#user-role-label').textContent = usuarioLogado.hierarquia || '—';
     $('#welcome-greeting').textContent = `Olá, ${usuarioLogado.nome?.split(' ')[0] || 'Usuário'}!`;
-    // Menu Usuários e Logs: visíveis para Administrador
-    const navUser = $('#nav-usuarios');
-    if (navUser) navUser.style.display = (ehAdmin() || temPermissao('Usuarios')) ? '' : 'none';
-    const navLogs = $('#nav-logs');
-    if (navLogs) navLogs.style.display = (ehAdmin() || temPermissao('Logs')) ? '' : 'none';
-    const navDiag = $('#nav-diagnostico');
-    if (navDiag) navDiag.style.display = ehAdmin() ? '' : 'none';
+    atualizarAcessosModulos();
+    permBtn($('#form-caixas button[type="submit"]'), temPermissao('Caixas', 'criar'));
+    permBtn($('#form-material button[type="submit"]'), temPermissao('Materiais', 'criar'));
+    permBtn($('#btn-add-categoria'), temPermissao('Materiais', 'criar'));
     verificarConexao();
-    // badge validação em background
-    setTimeout(() => { try { carregarValidacao(); } catch {} }, 800);
+    // Só consulta dados de validação em segundo plano se o usuário puder acessar o módulo.
+    if (podeAcessarPagina('validacao')) setTimeout(() => { try { carregarValidacao(); } catch {} }, 800);
     navigateTo('home');
   }
 
@@ -2900,7 +2946,7 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
   }
 
   async function caixasBatchMover() {
-    if (!temPermissao('Caixas', 'editar')) return toast('Sem permissão', 'error');
+    if (!temPermissao('Caixas', 'editar') || !temPermissao('Caixas', 'excluir') || !temPermissao('Coordenadas', 'criar')) return toast('Sem permissão para mover caixas ou criar coordenadas.', 'error');
     const ids = [...caixasSelecionadas];
     if (ids.length !== 1) return toast('Selecione exatamente 1 caixa para mover', 'error');
     const lat = prompt('Latitude (Y):');
@@ -3676,6 +3722,18 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
   function initRegistroMateriais() {
     if (registroMateriaisInicializado) return;
     registroMateriaisInicializado = true;
+    const podeCriarRegistro = temPermissao('Registro', 'criar');
+    const abaFormulario = $('[data-registro-view="form"]');
+    const abaGraficos = $('[data-registro-view="graficos"]');
+    permBtn($('#reg-mat-salvar'), podeCriarRegistro);
+    if (!podeCriarRegistro) {
+      if (abaFormulario) abaFormulario.hidden = true;
+      if (abaGraficos) { abaGraficos.hidden = false; abaGraficos.classList.add('active'); }
+      $('#registro-view-form').hidden = true;
+      $('#registro-view-graficos').hidden = false;
+      if (abaFormulario) abaFormulario.classList.remove('active');
+      carregarGraficosRegistro();
+    }
     montarListaRegistroMateriais('reg-mat-cabos', REGISTRO_MAT_CABOS, 'cabo');
     montarListaRegistroMateriais('reg-mat-alcas', REGISTRO_MAT_ALCAS, 'material');
     montarListaRegistroMateriais('reg-mat-caixas', REGISTRO_MAT_CAIXAS, 'material');
@@ -3743,6 +3801,7 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
 
   async function salvarRegistroMateriais(event) {
     event.preventDefault();
+    if (!temPermissao('Registro', 'criar')) return toast('Você não tem permissão para criar registros.', 'error');
     const form = event.currentTarget;
     const obrigatorios = [['reg-mat-tipo', 'Registro'], ['reg-mat-analista', 'Analista'], ['reg-mat-equipe', 'Equipe'], ['reg-mat-tecnico', 'Técnico']];
     const faltante = obrigatorios.find(([id]) => !String($(`#${id}`)?.value || '').trim());
@@ -3892,7 +3951,8 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
       <span class="perm-head">Ver</span><span class="perm-head">Criar</span>
       <span class="perm-head">Editar</span><span class="perm-head">Excluir</span>`;
     MODULOS.forEach(m => {
-      const v = normalizarPermModulo(perms[m.chave]);
+      const valorSalvo = perms[m.chave] ?? (m.chave === 'Registro' ? perms.Materiais : undefined);
+      const v = normalizarPermModulo(valorSalvo);
       grid.innerHTML += `<span>${m.label}</span>
         ${ACOES_PERM.map(a => `<label><input type="checkbox" data-perm-mod="${m.chave}" data-perm-acao="${a}" ${v[a] ? 'checked' : ''}></label>`).join('')}`;
     });
@@ -3992,7 +4052,10 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
         const btn = $('#btn-validar-lote');
         if (btn) btn.style.display = validacaoSelecionadas.size ? 'inline-flex' : 'none';
       }));
-      $$('[data-validar-um]').forEach(btn => btn.addEventListener('click', () => validarRegistros([btn.dataset.validarUm])));
+      $$('[data-validar-um]').forEach(btn => {
+        permBtn(btn, temPermissao('Validacao', 'editar'));
+        btn.addEventListener('click', () => validarRegistros([btn.dataset.validarUm]));
+      });
       const btnLote = $('#btn-validar-lote');
       if (btnLote) {
         btnLote.style.display = 'none';
@@ -4502,6 +4565,7 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     // Caixas form
     $('#form-caixas')?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!temPermissao('Caixas', 'criar')) return toast('Você não tem permissão para cadastrar caixas.', 'error');
       const txt = $('#caixas-texto').value;
       const cat = $('#caixa-categoria').value;
       const usr = $('#caixa-usuario').value;
@@ -4529,6 +4593,7 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     // Material form
     $('#form-material')?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!temPermissao('Materiais', 'criar')) return toast('Você não tem permissão para cadastrar materiais.', 'error');
       try {
         const { error } = await supabase.from(TABELA_MATERIAIS).insert([{
           Código: $('#mat-codigo').value,
@@ -4547,6 +4612,7 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
 
     // Categoria
     $('#btn-add-categoria')?.addEventListener('click', async () => {
+      if (!temPermissao('Materiais', 'criar')) return toast('Você não tem permissão para cadastrar categorias.', 'error');
       const nome = $('#nova-categoria').value.trim();
       if (!nome) return toast('Digite o nome', 'error');
       try {
