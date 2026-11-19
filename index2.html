@@ -2413,7 +2413,11 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     if (pageId === 'formularios') initFormulariosInline();
     if (pageId === 'links') renderLinksPage();
     if (pageId === 'logs') carregarLogs();
-    if (pageId === 'diagnostico') renderDiagnostico();
+    if (pageId === 'diagnostico') {
+      renderDiagnostico().then(() => runDiagnosticoTests()).catch(error => {
+        console.error('Falha ao iniciar o diagnóstico automaticamente:', error);
+      });
+    }
     if (pageId === 'validacao') carregarValidacao();
   }
 
