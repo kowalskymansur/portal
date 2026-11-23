@@ -1563,8 +1563,8 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
                 </div>
                 <div class="form-group">
                   <label for="mat-request-number">Requisição</label>
-                  <input class="form-control" id="mat-request-number" type="text" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" placeholder="6 dígitos" required aria-describedby="mat-request-number-help">
-                  <small id="mat-request-number-help" style="color:var(--text-dim);">Informe exatamente seis números.</small>
+                  <input class="form-control" id="mat-request-number" type="text" inputmode="numeric" autocomplete="off" maxlength="7" pattern="[0-9]{7}" placeholder="7 dígitos" required aria-describedby="mat-request-number-help">
+                  <small id="mat-request-number-help" style="color:var(--text-dim);">Informe exatamente sete números.</small>
                 </div>
                 <div class="request-preview-heading">
                   <strong>Prévia do e-mail</strong>
@@ -2944,6 +2944,10 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
           <td>${esc(coordTipo(c) || '—')}</td>
           <td style="font-family:monospace">${esc(coordY(c))}</td>
           <td style="font-family:monospace">${esc(coordX(c))}</td>
+          <td><div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-ghost btn-sm coord-row-edit" data-idx="${i}" ${temPermissao('Coordenadas','editar') ? '' : 'disabled title="Sem permissão para editar"'}>Editar</button>
+            <button type="button" class="btn btn-danger btn-sm coord-row-delete" data-idx="${i}" ${temPermissao('Coordenadas','excluir') ? '' : 'disabled title="Sem permissão para excluir"'}>Excluir</button>
+          </div></td>
         </tr>`).join('');
       const cards = filtrados.map((c, i) => `<div class="field-card">
           <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;">
@@ -2954,12 +2958,16 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
               <div class="fc-row" style="font-family:monospace">${esc(coordY(c))}, ${esc(coordX(c))}</div>
             </div>
           </label>
+          <div style="display:flex;gap:6px;margin:10px 0 0 26px;">
+            <button type="button" class="btn btn-ghost btn-sm coord-row-edit" data-idx="${i}" ${temPermissao('Coordenadas','editar') ? '' : 'disabled title="Sem permissão para editar"'}>Editar</button>
+            <button type="button" class="btn btn-danger btn-sm coord-row-delete" data-idx="${i}" ${temPermissao('Coordenadas','excluir') ? '' : 'disabled title="Sem permissão para excluir"'}>Excluir</button>
+          </div>
         </div>`).join('');
       container.innerHTML = `
         <div class="table-wrap table-desktop"><table>
           <thead><tr>
             <th class="checkbox-col"><input type="checkbox" id="coord-select-all"></th>
-            <th>Nome</th><th>Tipo</th><th>Latitude (Y)</th><th>Longitude (X)</th>
+            <th>Nome</th><th>Tipo</th><th>Latitude (Y)</th><th>Longitude (X)</th><th>Ações</th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table></div>
@@ -3023,6 +3031,85 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
       const lng = coordNum(coordX(c));
       return `*Localização aproximada da ${nome}:*\nhttps://www.google.com/maps/place/${lat},${lng}`;
     }).join('\n\n');
+  }
+
+
+  function coordFieldKey(record, candidates) {
+    return candidates.find(key => Object.prototype.hasOwnProperty.call(record || {}, key)) || null;
+  }
+  function coordWhereRecord(query, record) {
+    const idKey = coordFieldKey(record, ['id', 'ID', 'Id']);
+    if (idKey && record[idKey] != null) return query.eq(idKey, record[idKey]);
+    const keys = [
+      coordFieldKey(record, ['Nome', 'nome']),
+      coordFieldKey(record, ['X', 'x', 'lng', 'longitude']),
+      coordFieldKey(record, ['Y', 'y', 'lat', 'latitude'])
+    ].filter(Boolean);
+    keys.forEach(key => { query = query.eq(key, record[key]); });
+    return query;
+  }
+  async function editarCoordenada(idx) {
+    if (!temPermissao('Coordenadas', 'editar')) return toast('Você não tem permissão para editar coordenadas.', 'error');
+    const record = (window.__coordResults || [])[Number(idx)];
+    if (!record) return;
+    const fields = [
+      { label: 'Nome', key: coordFieldKey(record, ['Nome', 'nome']), value: coordNome(record), required: true },
+      { label: 'Tipo de local', key: coordFieldKey(record, ['Tipo de Local', 'tipo_local', 'tipo']), value: coordTipo(record) },
+      { label: 'Latitude (Y)', key: coordFieldKey(record, ['Y', 'y', 'lat', 'latitude']), value: coordY(record) },
+      { label: 'Longitude (X)', key: coordFieldKey(record, ['X', 'x', 'lng', 'longitude']), value: coordX(record) }
+    ].filter(field => field.key);
+    const payload = {};
+    for (const field of fields) {
+      const value = prompt(`${field.label}:`, String(field.value ?? ''));
+      if (value === null) return;
+      if (field.required && !value.trim()) return toast('O nome da coordenada não pode ficar vazio.', 'error');
+      payload[field.key] = value.trim();
+    }
+    try {
+      let query = supabase.from(record._tabela).update(payload);
+      query = coordWhereRecord(query, record);
+      const { data, error } = await query.select('*');
+      if (error) throw error;
+      if (!data?.length) throw new Error('Registro não encontrado ou sem permissão para atualizar.');
+      coordSearchCache.clear();
+      await registrarLog(usuarioLogado?.nome, 'Coordenada editada', 'Coordenadas', `${coordNome(record)} (${record._tabela})`);
+      toast('Coordenada atualizada');
+      await buscarCoordenadas($('#coord-search')?.value || '');
+    } catch (error) { toast(`Erro ao editar coordenada: ${error.message}`, 'error'); }
+  }
+  async function excluirRegistroCoordenada(record) {
+    let query = supabase.from(record._tabela).delete();
+    query = coordWhereRecord(query, record);
+    const { data, error } = await query.select('*');
+    if (error) throw error;
+    if (!data?.length) throw new Error(`Registro ${coordNome(record)} não encontrado ou sem permissão.`);
+  }
+  async function excluirCoordenada(idx) {
+    if (!temPermissao('Coordenadas', 'excluir')) return toast('Você não tem permissão para excluir coordenadas.', 'error');
+    const record = (window.__coordResults || [])[Number(idx)];
+    if (!record || !confirm(`Excluir a coordenada “${coordNome(record)}”?`)) return;
+    try {
+      await excluirRegistroCoordenada(record);
+      coordenadasSelecionadas.delete(coordNome(record));
+      coordSearchCache.clear();
+      await registrarLog(usuarioLogado?.nome, 'Coordenada excluída', 'Coordenadas', `${coordNome(record)} (${record._tabela})`);
+      toast('Coordenada excluída');
+      await buscarCoordenadas($('#coord-search')?.value || '');
+    } catch (error) { toast(`Erro ao excluir coordenada: ${error.message}`, 'error'); }
+  }
+  async function excluirCoordenadasSelecionadas() {
+    if (!temPermissao('Coordenadas', 'excluir')) return toast('Você não tem permissão para excluir coordenadas.', 'error');
+    const selecionadas = obterCoordsParaAcao();
+    if (!coordenadasSelecionadas.size || !selecionadas.length) return toast('Selecione ao menos uma coordenada.', 'error');
+    if (!confirm(`Excluir ${selecionadas.length} coordenada(s) selecionada(s)?`)) return;
+    try {
+      for (const record of selecionadas) await excluirRegistroCoordenada(record);
+      coordenadasSelecionadas.clear();
+      coordSearchCache.clear();
+      await registrarLog(usuarioLogado?.nome, `${selecionadas.length} coordenada(s) excluída(s)`, 'Coordenadas', selecionadas.map(coordNome).join(', '));
+      toast(`${selecionadas.length} coordenada(s) excluída(s)`);
+      await buscarCoordenadas($('#coord-search')?.value || '');
+    } catch (error) { coordSearchCache.clear(); toast(`Erro ao excluir coordenadas: ${error.message}`, 'error'); await buscarCoordenadas($('#coord-search')?.value || ''); }
   }
 
   function copiarCoordenadas() {
@@ -3229,7 +3316,7 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
       return;
     }
     $('#mat-results').innerHTML = `<div class="table-wrap"><table>
-      <thead><tr><th class="materiais-check-cell">Selecionar</th><th>Código</th><th>Descrição</th><th>Categoria</th><th>Observações</th></tr></thead>
+      <thead><tr><th class="materiais-check-cell">Selecionar</th><th>Código</th><th>Descrição</th><th>Categoria</th><th>Observações</th><th>Ações</th></tr></thead>
       <tbody>${materiaisResultadosVisiveis.map(m => {
         const codigo = String(matCodigo(m));
         return `<tr>
@@ -3238,10 +3325,57 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
           <td>${esc(matDesc(m))}</td>
           <td>${esc(matCat(m))}</td>
           <td style="color:var(--text-dim);font-size:0.85rem;">${esc(matObs(m))}</td>
+          <td><div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-ghost btn-sm mat-row-edit" data-code="${esc(codigo)}" ${temPermissao('Materiais','editar') ? '' : 'disabled title="Sem permissão para editar"'}>Editar</button>
+            <button type="button" class="btn btn-danger btn-sm mat-row-delete" data-code="${esc(codigo)}" ${temPermissao('Materiais','excluir') ? '' : 'disabled title="Sem permissão para excluir"'}>Excluir</button>
+          </div></td>
         </tr>`;
       }).join('')}</tbody></table></div>
       <p style="margin-top:10px;color:var(--text-dim);font-size:0.85rem;">${materiaisResultadosVisiveis.length} resultado(s)</p>`;
     atualizarInfoSelecaoMateriais();
+  }
+
+
+  async function editarMaterial(codigo) {
+    if (!temPermissao('Materiais', 'editar')) return toast('Você não tem permissão para editar materiais.', 'error');
+    const item = materiaisCache.find(m => String(matCodigo(m)) === String(codigo));
+    if (!item) return toast('Material não encontrado.', 'error');
+    const novoCodigo = prompt('Código:', String(matCodigo(item) ?? ''));
+    if (novoCodigo === null) return;
+    const descricao = prompt('Descrição:', String(matDesc(item) ?? ''));
+    if (descricao === null) return;
+    const categoria = prompt('Categoria:', String(matCat(item) ?? ''));
+    if (categoria === null) return;
+    const observacoes = prompt('Observações:', String(matObs(item) ?? ''));
+    if (observacoes === null) return;
+    if (!novoCodigo.trim() || !descricao.trim() || !categoria.trim()) return toast('Código, descrição e categoria são obrigatórios.', 'error');
+    try {
+      const { data, error } = await supabase.from(TABELA_MATERIAIS).update({
+        Código: novoCodigo.trim(), Descrição: descricao.trim(), Categoria: categoria.trim(), Observações: observacoes.trim()
+      }).eq('Código', codigo).select('*');
+      if (error) throw error;
+      if (!data?.length) throw new Error('Material não encontrado ou sem permissão para atualizar.');
+      materiaisSelecionados.delete(String(codigo));
+      await registrarLog(usuarioLogado?.nome, 'Material editado', 'Materiais', `${codigo} → ${novoCodigo.trim()}`);
+      toast('Material atualizado');
+      await carregarMateriais(true);
+      await pesquisarMateriais();
+    } catch (error) { toast(`Erro ao editar material: ${error.message}`, 'error'); }
+  }
+  async function excluirMaterial(codigo) {
+    if (!temPermissao('Materiais', 'excluir')) return toast('Você não tem permissão para excluir materiais.', 'error');
+    if (!confirm(`Excluir o material “${codigo}”?`)) return;
+    try {
+      const { data, error } = await supabase.from(TABELA_MATERIAIS).delete().eq('Código', codigo).select('*');
+      if (error) throw error;
+      if (!data?.length) throw new Error('Material não encontrado ou sem permissão para excluir.');
+      materiaisSelecionados.delete(String(codigo));
+      materiaisSolicitacao.delete(String(codigo));
+      await registrarLog(usuarioLogado?.nome, 'Material excluído', 'Materiais', String(codigo));
+      toast('Material excluído');
+      await carregarMateriais(true);
+      await pesquisarMateriais();
+    } catch (error) { toast(`Erro ao excluir material: ${error.message}`, 'error'); }
   }
 
   function atualizarInfoSelecaoMateriais() {
@@ -3318,15 +3452,15 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     const subjectEl = $('#mat-request-subject');
     const btn = $('#mat-open-email');
     const prefixo = tipo === 'devolucao' ? 'Devolução de material' : 'Solicitação de material';
-    const suffix = /^\d{6}$/.test(numero) ? ` - Requisição Nº: ${numero}` : '';
+    const suffix = /^\d{7}$/.test(numero) ? ` - Requisição Nº: ${numero}` : '';
     const subject = tecnico ? `${prefixo} - ${tecnico}${suffix}` : `${prefixo} -`;
     if (subjectEl) subjectEl.textContent = `Assunto: ${subject}`;
     if (!preview) return;
 
-    const pronto = !!tecnico && /^\d{6}$/.test(numero) && !!tipo && materiaisSolicitacao.size > 0;
+    const pronto = !!tecnico && /^\d{7}$/.test(numero) && !!tipo && materiaisSolicitacao.size > 0;
     if (btn) btn.disabled = !pronto;
     if (!tecnico) { preview.textContent = 'Selecione um técnico.'; return; }
-    if (!/^\d{6}$/.test(numero)) { preview.textContent = 'Informe uma Requisição com exatamente seis números.'; return; }
+    if (!/^\d{7}$/.test(numero)) { preview.textContent = 'Informe uma Requisição com exatamente sete números.'; return; }
     if (!tipo) { preview.textContent = 'Selecione Requisição ou Devolução.'; return; }
     if (!materiaisSolicitacao.size) { preview.textContent = 'Adicione itens à solicitação.'; return; }
 
@@ -3346,9 +3480,9 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     const tecnico = $('#mat-request-technician')?.value || '';
     const numero = obterNumeroRequisicaoMateriais();
     const tipo = obterTipoSolicitacaoMateriais();
-    if (!tecnico || !/^\d{6}$/.test(numero) || !tipo || !materiaisSolicitacao.size) {
+    if (!tecnico || !/^\d{7}$/.test(numero) || !tipo || !materiaisSolicitacao.size) {
       atualizarPreviewSolicitacaoMateriais();
-      return toast('Informe o técnico, uma Requisição de seis dígitos, o tipo de e-mail e os itens.', 'error');
+      return toast('Informe o técnico, uma Requisição de sete dígitos, o tipo de e-mail e os itens.', 'error');
     }
     const prefixo = tipo === 'devolucao' ? 'Devolução de material' : 'Solicitação de material';
     const subject = `${prefixo} - ${tecnico} - Requisição Nº: ${numero}`;
@@ -4907,6 +5041,13 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     });
     $('#coord-copy')?.addEventListener('click', copiarCoordenadas);
     $('#coord-whatsapp')?.addEventListener('click', whatsappCoordenadas);
+    $('#coord-delete')?.addEventListener('click', excluirCoordenadasSelecionadas);
+    $('#coord-results')?.addEventListener('click', (event) => {
+      const edit = event.target.closest('.coord-row-edit');
+      const del = event.target.closest('.coord-row-delete');
+      if (edit) editarCoordenada(edit.dataset.idx);
+      else if (del) excluirCoordenada(del.dataset.idx);
+    });
 
     // Caixas batch
     $('#cx-batch-utilizar')?.addEventListener('click', caixasBatchUtilizar);
@@ -4950,6 +5091,12 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
       if (cb.checked) materiaisSelecionados.add(codigo); else materiaisSelecionados.delete(codigo);
       atualizarInfoSelecaoMateriais();
     });
+    $('#mat-results')?.addEventListener('click', (event) => {
+      const edit = event.target.closest('.mat-row-edit');
+      const del = event.target.closest('.mat-row-delete');
+      if (edit) editarMaterial(edit.dataset.code);
+      else if (del) excluirMaterial(del.dataset.code);
+    });
     $('#mat-select-all')?.addEventListener('change', (event) => {
       const codigos = materiaisResultadosVisiveis.map(m => String(matCodigo(m)));
       codigos.forEach(codigo => event.target.checked ? materiaisSelecionados.add(codigo) : materiaisSelecionados.delete(codigo));
@@ -4978,8 +5125,8 @@ body.light .nav-item.active { box-shadow: inset 2px 0 0 var(--accent); }
     $('#mat-request-technician')?.addEventListener('change', atualizarPreviewSolicitacaoMateriais);
     $('#mat-request-number')?.addEventListener('input', (event) => {
       const input = event.currentTarget;
-      input.value = input.value.replace(/\D/g, '').slice(0, 6);
-      input.setCustomValidity(input.value.length === 6 ? '' : 'Informe exatamente seis números.');
+      input.value = input.value.replace(/\D/g, '').slice(0, 7);
+      input.setCustomValidity(input.value.length === 7 ? '' : 'Informe exatamente sete números.');
       atualizarPreviewSolicitacaoMateriais();
     });
     $$('input[name="mat-request-type"]').forEach(radio => radio.addEventListener('change', atualizarPreviewSolicitacaoMateriais));
